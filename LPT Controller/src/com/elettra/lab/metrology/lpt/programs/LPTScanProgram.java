@@ -146,13 +146,7 @@ public class LPTScanProgram extends SCANProgram
 			g.setColor(Color.YELLOW);
 			g.fillOval((int) average_x_position - 10, (int) average_y_position - 10, 20, 20);
 
-			/*			
-			      Graphics2D g2 = capture.createGraphics();
-						g2.setColor(Color.YELLOW);
-						g2.setStroke(new BasicStroke(3F));
-						g2.drawOval((int) average_x_position - 15, (int) average_y_position - 15, 30, 30);
-			*/
-			MeasureResult result = new MeasureResult(0.0);
+			MeasureResult result = new MeasureResult(this.calculateSlopeError(average_x_position, average_y_position));
 			result.setAdditionalInformation1(average_x_position * IIDSCCD.PIXEL_SIZE);
 			result.setAdditionalInformation2(average_y_position * IIDSCCD.PIXEL_SIZE);
 			result.addCustomData(X_STANDARD_DEVIATION, Double.valueOf(x_standard_deviation * IIDSCCD.PIXEL_SIZE));
@@ -170,6 +164,11 @@ public class LPTScanProgram extends SCANProgram
 			throw new CommunicationPortException(t);
 		}
 	}
+
+	private double calculateSlopeError(double average_x_position, double average_y_position)
+  {
+	  return 0;
+  }
 
 	protected void openShutter() throws IOException, InterruptedException
 	{

@@ -318,7 +318,7 @@ public class ScanPanel extends MeasureListener implements ActionListener
 
 		JPanel scanGraphPanel = new JPanel();
 		scanGraphPanel.setForeground(new Color(0, 0, 0));
-		scanGraphTabbedPane.addTab("Scan Graphs", null, scanGraphPanel, null);
+		scanGraphTabbedPane.addTab(this.getMeasureTabName(), null, scanGraphPanel, null);
 		GridBagLayout gbl_scanGraphPanel = new GridBagLayout();
 		gbl_scanGraphPanel.columnWidths = new int[] { 0, 0, 0, 0, 0, 0, 0, 0, 0 };
 		gbl_scanGraphPanel.rowHeights = new int[] { 0, 0, 0 };
@@ -652,6 +652,7 @@ public class ScanPanel extends MeasureListener implements ActionListener
 
 		JPanel scanManagementPanel = new JPanel();
 		scanManagementTabbedPane.addTab("Scan Management", null, scanManagementPanel, null);
+		scanManagementTabbedPane.setForegroundAt(0, new Color(0, 102, 51));
 		GridBagLayout gbl_scanManagementPanel = new GridBagLayout();
 		gbl_scanManagementPanel.columnWidths = new int[] { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
 		gbl_scanManagementPanel.rowHeights = new int[] { 0, 0, 0 };
@@ -953,8 +954,7 @@ public class ScanPanel extends MeasureListener implements ActionListener
 		gbc_progressBar.gridx = 8;
 		gbc_progressBar.gridy = 1;
 		scanManagementPanel.add(progressBar, gbc_progressBar);
-		scanManagementTabbedPane.setForegroundAt(0, new Color(0, 102, 51));
-
+	
 		JTabbedPane fitTabbedPane = new JTabbedPane(JTabbedPane.TOP);
 		GridBagConstraints gbc_fitTabbedPane = new GridBagConstraints();
 		gbc_fitTabbedPane.fill = GridBagConstraints.BOTH;
@@ -2333,6 +2333,11 @@ public class ScanPanel extends MeasureListener implements ActionListener
 		fitTabbedPane.setForegroundAt(3, new Color(0, 102, 51));
 	}
 
+	protected String getMeasureTabName()
+  {
+	  return "Scan Graphs";
+  }
+
 	protected String getOrdinateLabel()
 	{
 		return "Counts";
@@ -2462,7 +2467,7 @@ public class ScanPanel extends MeasureListener implements ActionListener
 				plotAI1.getRangeAxis(0).setUpperBound(point.getAdditionalInformation1() * 1.1);
 
 			if (point.getAdditionalInformation2() > plotAI2.getRangeAxis(0).getUpperBound())
-				plotAI2.getRangeAxis(0).setUpperBound(point.getMeasure() * 1.1);
+				plotAI2.getRangeAxis(0).setUpperBound(point.getAdditionalInformation2() * 1.1);
 		}
 	}
 

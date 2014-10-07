@@ -54,9 +54,9 @@ public class FreeMovementsAndScansWindow extends AbstractGenericFrame
 		this.setBounds(5, 5, 2870, 900);
 
 		GridBagLayout gridBagLayout = new GridBagLayout();
-		gridBagLayout.columnWidths = new int[] { 900, 535, 1250, 185 };
+		gridBagLayout.columnWidths = new int[] { 1435, 1250, 185 };
 		gridBagLayout.rowHeights = new int[] { 0 };
-		gridBagLayout.columnWeights = new double[] { 0.0, 0.0, 0.0, 0.0 };
+		gridBagLayout.columnWeights = new double[] { 0.0, 0.0, 0.0 };
 		gridBagLayout.rowWeights = new double[] { 1.0 };
 		getContentPane().setLayout(gridBagLayout);
 
@@ -70,9 +70,9 @@ public class FreeMovementsAndScansWindow extends AbstractGenericFrame
 		gbc_leftPanel.gridy = 0;
 		getContentPane().add(leftPanel, gbc_leftPanel);
 		GridBagLayout gbl_leftPanel = new GridBagLayout();
-		gbl_leftPanel.columnWidths = new int[] { 280, 280, 280 };
-		gbl_leftPanel.rowHeights = new int[] { 0, 0 };
-		gbl_leftPanel.columnWeights = new double[] { 0.0, 0.0, 0.0 };
+		gbl_leftPanel.columnWidths = new int[] { 280, 280, 280, 280, 280 };
+		gbl_leftPanel.rowHeights = new int[] { 450, 450 };
+		gbl_leftPanel.columnWeights = new double[] { 0.0, 0.0, 0.0, 0, 0 };
 		gbl_leftPanel.rowWeights = new double[] { 1.0, 1.0 };
 		leftPanel.setLayout(gbl_leftPanel);
 
@@ -104,42 +104,76 @@ public class FreeMovementsAndScansWindow extends AbstractGenericFrame
 		gbc_movePanel7.gridx = 2;
 		gbc_movePanel7.gridy = 0;
 		leftPanel.add(movePanel7, gbc_movePanel7);
-		movePanel7.add(new MovePanel(Axis.MOTOR4, this.getPort()));
+		movePanel7.add(new MovePanel(Axis.MOTOR3, this.getPort()));
 
 		JPanel movePanel5 = new JPanel();
 		movePanel5.setBorder(new BevelBorder(BevelBorder.LOWERED, null, null, null, null));
 		GridBagConstraints gbc_movePanel5 = new GridBagConstraints();
-		gbc_movePanel5.insets = new Insets(0, 5, 5, 5);
+		gbc_movePanel5.insets = new Insets(10, 0, 5, 5);
 		gbc_movePanel5.fill = GridBagConstraints.BOTH;
-		gbc_movePanel5.gridx = 0;
-		gbc_movePanel5.gridy = 1;
+		gbc_movePanel5.gridx = 3;
+		gbc_movePanel5.gridy = 0;
 		leftPanel.add(movePanel5, gbc_movePanel5);
-		movePanel5.add(new MovePanel(Axis.MOTOR5, this.getPort()));
+		movePanel5.add(new MovePanel(Axis.MOTOR4, this.getPort()));
 
 		JPanel movePanel6 = new JPanel();
 		movePanel6.setBorder(new BevelBorder(BevelBorder.LOWERED, null, null, null, null));
 		GridBagConstraints gbc_movePanel6 = new GridBagConstraints();
-		gbc_movePanel6.insets = new Insets(0, 0, 5, 5);
+		gbc_movePanel6.insets = new Insets(10, 0, 5, 5);
 		gbc_movePanel6.fill = GridBagConstraints.BOTH;
-		gbc_movePanel6.gridx = 1;
-		gbc_movePanel6.gridy = 1;
+		gbc_movePanel6.gridx = 4;
+		gbc_movePanel6.gridy = 0;
 		leftPanel.add(movePanel6, gbc_movePanel6);
-		movePanel6.add(new MovePanel(Axis.MOTOR3, this.getPort()));
+		movePanel6.add(new MovePanel(Axis.MOTOR5, this.getPort()));
 
-		JPanel doubleMovePanel2 = new JPanel();
-		doubleMovePanel2.setBorder(new BevelBorder(BevelBorder.LOWERED, null, null, null, null));
-		GridBagConstraints gbc_doubleMovePanel2 = new GridBagConstraints();
-		gbc_doubleMovePanel2.insets = new Insets(0, 0, 5, 5);
-		gbc_doubleMovePanel2.fill = GridBagConstraints.BOTH;
-		gbc_doubleMovePanel2.gridx = 2;
-		gbc_doubleMovePanel2.gridy = 1;
-		leftPanel.add(doubleMovePanel2, gbc_doubleMovePanel2);
+		// --------------
+
+		JPanel buttonPanel = new JPanel();
+		GridBagConstraints gbc_buttonPanel = new GridBagConstraints();
+		gbc_buttonPanel.insets = new Insets(0, 0, 0, 0);
+		gbc_buttonPanel.fill = GridBagConstraints.BOTH;
+		gbc_buttonPanel.gridx = 4;
+		gbc_buttonPanel.gridy = 1;
+		leftPanel.add(buttonPanel, gbc_buttonPanel);
+
+		GridBagLayout gbl_buttonPanel = new GridBagLayout();
+		gbl_buttonPanel.columnWidths = new int[] { 0 };
+		gbl_buttonPanel.rowHeights = new int[] { 290, 90, 30 };
+		gbl_buttonPanel.columnWeights = new double[] { 0.0 };
+		gbl_buttonPanel.rowWeights = new double[] { 0, 0, 0 };
+		buttonPanel.setLayout(gbl_buttonPanel);
+
+		GridBagConstraints gbc_emptyPanel2 = new GridBagConstraints();
+		gbc_emptyPanel2.insets = new Insets(50, 0, 55, 5);
+		gbc_emptyPanel2.fill = GridBagConstraints.BOTH;
+		gbc_emptyPanel2.gridx = 0;
+		gbc_emptyPanel2.gridy = 0;
+		buttonPanel.add(new EmergencyStopPanel(), gbc_emptyPanel2);
+
+		GridBagConstraints gbc_emergencyDumpPanel = new GridBagConstraints();
+		gbc_emergencyDumpPanel.fill = GridBagConstraints.BOTH;
+		gbc_emergencyDumpPanel.insets = new Insets(5, 0, 5, 5);
+		gbc_emergencyDumpPanel.gridx = 0;
+		gbc_emergencyDumpPanel.gridy = 1;
+		buttonPanel.add(new EmergencyDumpPanel(this.getPort()), gbc_emergencyDumpPanel);
+
+		JButton exitButton = new JButton("EXIT");
+		exitButton.setActionCommand(ActionCommands.EXIT);
+		exitButton.addActionListener(this);
+		GridBagConstraints gbc_exitButton = new GridBagConstraints();
+		gbc_exitButton.fill = GridBagConstraints.BOTH;
+		gbc_exitButton.insets = new Insets(0, 0, 5, 5);
+		gbc_exitButton.gridx = 0;
+		gbc_exitButton.gridy = 2;
+		buttonPanel.add(exitButton, gbc_exitButton);
+
+		// --------------------------------------------------------------------
 
 		rightLayeredPanel = new JLayeredPane();
 		GridBagConstraints gbc_rightPanel = new GridBagConstraints();
 		gbc_rightPanel.fill = GridBagConstraints.BOTH;
 		gbc_rightPanel.insets = new Insets(10, 10, 5, 5);
-		gbc_rightPanel.gridx = 2;
+		gbc_rightPanel.gridx = 1;
 		gbc_rightPanel.gridy = 0;
 		getContentPane().add(rightLayeredPanel, gbc_rightPanel);
 
@@ -182,11 +216,13 @@ public class FreeMovementsAndScansWindow extends AbstractGenericFrame
 
 		rightLayeredPanel.moveToFront(scan0Panel);
 
+		// --------------------------------------------------------------------
+
 		JPanel choicePanel = new JPanel();
 		GridBagConstraints gbc_choicePanel = new GridBagConstraints();
 		gbc_choicePanel.insets = new Insets(0, 0, 0, 0);
 		gbc_choicePanel.fill = GridBagConstraints.BOTH;
-		gbc_choicePanel.gridx = 3;
+		gbc_choicePanel.gridx = 2;
 		gbc_choicePanel.gridy = 0;
 		getContentPane().add(choicePanel, gbc_choicePanel);
 		GridBagLayout gbl_choicePanel = new GridBagLayout();
@@ -217,61 +253,6 @@ public class FreeMovementsAndScansWindow extends AbstractGenericFrame
 		gbc_choiceComboBox.gridy = 0;
 
 		choicePanel.add(choicheComboBox, gbc_choiceComboBox);
-
-		JPanel buttonPanel = new JPanel();
-		GridBagConstraints gbc_buttonPanel = new GridBagConstraints();
-		gbc_buttonPanel.insets = new Insets(0, 0, 0, 0);
-		gbc_buttonPanel.fill = GridBagConstraints.BOTH;
-		gbc_buttonPanel.gridx = 1;
-		gbc_buttonPanel.gridy = 0;
-		getContentPane().add(buttonPanel, gbc_buttonPanel);
-
-		GridBagLayout gbl_buttonPanel = new GridBagLayout();
-		gbl_buttonPanel.columnWidths = new int[] { 0, };
-		gbl_buttonPanel.rowHeights = new int[] { 0, 0 };
-		gbl_buttonPanel.columnWeights = new double[] { 0.0 };
-		gbl_buttonPanel.rowWeights = new double[] { 1.0, 1.0 };
-		buttonPanel.setLayout(gbl_buttonPanel);
-
-		JPanel exitPanel = new JPanel();
-		GridBagConstraints gbc_exitPanel = new GridBagConstraints();
-		gbc_exitPanel.fill = GridBagConstraints.BOTH;
-		gbc_exitPanel.insets = new Insets(5, 5, 5, 200);
-		gbc_exitPanel.gridx = 0;
-		gbc_exitPanel.gridy = 1;
-		buttonPanel.add(exitPanel, gbc_exitPanel);
-
-		GridBagLayout gbl_exitPanel = new GridBagLayout();
-		gbl_exitPanel.columnWidths = new int[] { 280 };
-		gbl_exitPanel.rowHeights = new int[] { 0, 0, 0, 0 };
-		gbl_exitPanel.columnWeights = new double[] { 1.0 };
-		gbl_exitPanel.rowWeights = new double[] { 1.0, 1.0, 0.05, 0.02 };
-		exitPanel.setLayout(gbl_exitPanel);
-
-		GridBagConstraints gbc_emptyPanel2 = new GridBagConstraints();
-		gbc_emptyPanel2.insets = new Insets(300, 0, 45, 5);
-		gbc_emptyPanel2.fill = GridBagConstraints.BOTH;
-		gbc_emptyPanel2.gridx = 0;
-		gbc_emptyPanel2.gridy = 1;
-		exitPanel.add(new EmergencyStopPanel(), gbc_emptyPanel2);
-
-		GridBagConstraints gbc_emergencyDumpPanel = new GridBagConstraints();
-		gbc_emergencyDumpPanel.fill = GridBagConstraints.BOTH;
-		gbc_emergencyDumpPanel.insets = new Insets(0, 0, 5, 5);
-		gbc_emergencyDumpPanel.gridx = 0;
-		gbc_emergencyDumpPanel.gridy = 2;
-		exitPanel.add(new EmergencyDumpPanel(this.getPort()), gbc_emergencyDumpPanel);
-
-		JButton exitButton = new JButton("EXIT");
-		exitButton.setActionCommand(ActionCommands.EXIT);
-		exitButton.addActionListener(this);
-		GridBagConstraints gbc_exitButton = new GridBagConstraints();
-		gbc_exitButton.fill = GridBagConstraints.BOTH;
-		gbc_exitButton.insets = new Insets(0, 0, 5, 5);
-		gbc_exitButton.gridx = 0;
-		gbc_exitButton.gridy = 3;
-		exitPanel.add(exitButton, gbc_exitButton);
-
 	}
 
 	public void manageOtherActions(ActionEvent event)

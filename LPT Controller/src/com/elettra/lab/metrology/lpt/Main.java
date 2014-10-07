@@ -39,6 +39,7 @@ import com.elettra.controller.driver.programs.DefaultAxisConfigurationMap;
 import com.elettra.controller.driver.programs.ProgramsFacade;
 import com.elettra.controller.gui.common.GuiUtilities;
 import com.elettra.controller.gui.windows.AbstractCommunicationPortFrame;
+import com.elettra.controller.gui.windows.ControllerCrashRecoveryWindow;
 import com.elettra.idsccd.driver.IDSCCDException;
 import com.elettra.lab.metrology.lpt.programs.LPTScanProgram;
 import com.elettra.lab.metrology.lpt.windows.FreeMovementsAndScansWindow;
@@ -92,9 +93,9 @@ public class Main extends AbstractCommunicationPortFrame implements ActionListen
 			getContentPane().add(headPanel, gbc_headPanel);
 			GridBagLayout gbl_headPanel = new GridBagLayout();
 			gbl_headPanel.columnWidths = new int[] { 683, 0 };
-			gbl_headPanel.rowHeights = new int[] { 23, 0, 0, 0 };
+			gbl_headPanel.rowHeights = new int[] { 23, 0, 0 };
 			gbl_headPanel.columnWeights = new double[] { 0.0, Double.MIN_VALUE };
-			gbl_headPanel.rowWeights = new double[] { 0.0, 0.0, 0.0, Double.MIN_VALUE };
+			gbl_headPanel.rowWeights = new double[] { 0.0, 0.0, Double.MIN_VALUE };
 			headPanel.setLayout(gbl_headPanel);
 
 			JLabel lblNewLabel = new JLabel("X-RAY METROLOGY LAB");
@@ -116,14 +117,6 @@ public class Main extends AbstractCommunicationPortFrame implements ActionListen
 			gbc_lblNewLabel_2.gridx = 0;
 			gbc_lblNewLabel_2.gridy = 1;
 			headPanel.add(lblNewLabel_2, gbc_lblNewLabel_2);
-
-			JLabel lblNewLabel_1 = new JLabel("MANAGER");
-			lblNewLabel_1.setFont(new Font("Tahoma", Font.BOLD, 19));
-			lblNewLabel_1.setForeground(new Color(0, 102, 51));
-			GridBagConstraints gbc_lblNewLabel_1 = new GridBagConstraints();
-			gbc_lblNewLabel_1.gridx = 0;
-			gbc_lblNewLabel_1.gridy = 2;
-			headPanel.add(lblNewLabel_1, gbc_lblNewLabel_1);
 
 			JTabbedPane alignementOperationsTabbedPane = new JTabbedPane(JTabbedPane.TOP);
 			GridBagConstraints gbc_alignementOperationsTabbedPane = new GridBagConstraints();
@@ -165,18 +158,6 @@ public class Main extends AbstractCommunicationPortFrame implements ActionListen
 			alignementOperationsPanel.add(sampleAlignementButton, gbc_sampleAlignementButton);
 			alignementOperationsTabbedPane.setForegroundAt(0, new Color(0, 102, 51));
 
-			JButton sampleFineAlignementButton = new JButton("...");
-			sampleFineAlignementButton.addActionListener(this);
-			//sampleFineAlignementButton.setActionCommand(ActionCommands.FINE_ALIGNEMENT_OF_THE_SAMPLE_WITH_THE_XBEAM);
-			sampleFineAlignementButton.setFont(new Font("Tahoma", Font.PLAIN, 14));
-			GridBagConstraints gbc_sampleFineAlignementButton = new GridBagConstraints();
-			gbc_sampleFineAlignementButton.insets = new Insets(0, 5, 5, 5);
-			gbc_sampleFineAlignementButton.fill = GridBagConstraints.BOTH;
-			gbc_sampleFineAlignementButton.gridx = 0;
-			gbc_sampleFineAlignementButton.gridy = 3;
-			alignementOperationsPanel.add(sampleFineAlignementButton, gbc_sampleFineAlignementButton);
-			alignementOperationsTabbedPane.setForegroundAt(0, new Color(0, 102, 51));
-
 			JTabbedPane measureOperationsTabbedPane = new JTabbedPane(JTabbedPane.TOP);
 			GridBagConstraints gbc_measureOperationsTabbedPane = new GridBagConstraints();
 			gbc_measureOperationsTabbedPane.insets = new Insets(0, 5, 5, 0);
@@ -194,7 +175,7 @@ public class Main extends AbstractCommunicationPortFrame implements ActionListen
 			gbl_measureOperationPanel.rowWeights = new double[] { 1.0, 1.0, Double.MIN_VALUE };
 			measureOperationPanel.setLayout(gbl_measureOperationPanel);
 
-			JButton residualStressMeasureButton = new JButton("...");
+			JButton residualStressMeasureButton = new JButton("SLOPE ERROR MEASUREMENT");
 			residualStressMeasureButton.addActionListener(this);
 			//residualStressMeasureButton.setActionCommand(ActionCommands.RESIDUAL_STRESS_MEASURE);
 			residualStressMeasureButton.setFont(new Font("Tahoma", Font.PLAIN, 14));
@@ -205,7 +186,7 @@ public class Main extends AbstractCommunicationPortFrame implements ActionListen
 			gbc_ResidualStressMeasureButton.gridy = 0;
 			measureOperationPanel.add(residualStressMeasureButton, gbc_ResidualStressMeasureButton);
 
-			JButton omega2ThetaScanButton = new JButton("...");
+			JButton omega2ThetaScanButton = new JButton("SLOPE ERROR CALCULATION (POST)");
 			omega2ThetaScanButton.addActionListener(this);
 			//omega2ThetaScanButton.setActionCommand(ActionCommands.RESIDUAL_STRESS_MEASURE);
 			omega2ThetaScanButton.setFont(new Font("Tahoma", Font.PLAIN, 14));
@@ -245,17 +226,6 @@ public class Main extends AbstractCommunicationPortFrame implements ActionListen
 			gbc_freeMovementsButton.gridy = 0;
 			supportOperationsPanel.add(freeMovementsButton, gbc_freeMovementsButton);
 
-			JButton stabilityTestButton = new JButton("...");
-			stabilityTestButton.addActionListener(this);
-			//stabilityTestButton.setActionCommand(ActionCommands.TUBE_STABILITY_SCAN);
-			stabilityTestButton.setFont(new Font("Tahoma", Font.PLAIN, 14));
-			GridBagConstraints gbc_stabilityTestButton = new GridBagConstraints();
-			gbc_stabilityTestButton.fill = GridBagConstraints.BOTH;
-			gbc_stabilityTestButton.insets = new Insets(0, 5, 5, 5);
-			gbc_stabilityTestButton.gridx = 0;
-			gbc_stabilityTestButton.gridy = 1;
-			supportOperationsPanel.add(stabilityTestButton, gbc_stabilityTestButton);
-
 			JButton recoveryCrashButton = new JButton("RECOVERY CRASH OF THE CONTROLLER");
 			recoveryCrashButton.addActionListener(this);
 			recoveryCrashButton.setActionCommand(ActionCommands.CONTROLLER_CRASH_RECOVERY);
@@ -264,7 +234,7 @@ public class Main extends AbstractCommunicationPortFrame implements ActionListen
 			gbc_recoveryCrashButton.insets = new Insets(0, 5, 5, 5);
 			gbc_recoveryCrashButton.fill = GridBagConstraints.BOTH;
 			gbc_recoveryCrashButton.gridx = 0;
-			gbc_recoveryCrashButton.gridy = 2;
+			gbc_recoveryCrashButton.gridy = 1;
 			supportOperationsPanel.add(recoveryCrashButton, gbc_recoveryCrashButton);
 			supportOperationsTabbedPane.setForegroundAt(0, new Color(0, 102, 51));
 
@@ -364,8 +334,8 @@ public class Main extends AbstractCommunicationPortFrame implements ActionListen
 				this.terminate();
 			else if (eventName.equals(ActionCommands.FREE_MOVEMENTS_AND_SCANS))
 				FreeMovementsAndScansWindow.getInstance(this.getPort()).setVisible(true);
-			//else if (eventName.equals(ActionCommands.CONTROLLER_CRASH_RECOVERY))
-			//	ControllerCrashRecoveryWindow.getInstance(this.getPort()).setVisible(true);
+			else if (eventName.equals(ActionCommands.CONTROLLER_CRASH_RECOVERY))
+				ControllerCrashRecoveryWindow.getInstance(this.getPort()).setVisible(true);
 		}
 		catch (Exception e)
 		{
