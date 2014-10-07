@@ -6,6 +6,7 @@ import java.io.PrintStream;
 import java.util.HashMap;
 
 import javax.comm.CommDriver;
+import javax.swing.JOptionPane;
 
 public class CommunicationPortFactory
 {
@@ -22,6 +23,10 @@ public class CommunicationPortFactory
 			{
 				CommDriver commDriver = (CommDriver) Class.forName("com.sun.comm.Win32Driver").newInstance();
 				commDriver.initialize();
+			}
+			else
+			{
+				JOptionPane.showMessageDialog(null, "Serial Port Library not loaded on a 64-bit architecture", "Warning", JOptionPane.WARNING_MESSAGE);
 			}
 		}
 		catch (Throwable t)
