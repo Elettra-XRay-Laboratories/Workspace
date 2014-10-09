@@ -498,7 +498,8 @@ public class ScanPanel extends MeasureListener implements ActionListener {
 
 		addInfo1GraphPanel.setForeground(new Color(0, 0, 0));
 
-		if (this.isAdditionalInformation1Visible()) {
+		if (this.isAdditionalInformation1Visible())
+		{
 			scanGraphTabbedPane.addTab(getAdditionaInfo1TabName(), null,
 					addInfo1GraphPanel, null);
 			scanGraphTabbedPane.setForegroundAt(1, new Color(0, 102, 0));

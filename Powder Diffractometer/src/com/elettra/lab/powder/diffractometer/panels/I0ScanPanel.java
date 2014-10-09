@@ -13,14 +13,27 @@ public class I0ScanPanel extends ScanPanel
 	 */
 	private static final long serialVersionUID = 5230852571043508646L;
 
-	public I0ScanPanel(int axis, ICommunicationPort port, boolean sendDataEnabled) throws CommunicationPortException
+	public I0ScanPanel(int axis, ICommunicationPort port,
+			boolean sendDataEnabled) throws CommunicationPortException
 	{
 		super(axis, port, sendDataEnabled);
 	}
 
-	public I0ScanPanel(int axis, ICommunicationPort port, boolean sendDataEnabled, int sendDataAxis1, int sendDataAxis2) throws CommunicationPortException
+	public I0ScanPanel(int axis, ICommunicationPort port,
+			boolean sendDataEnabled, int sendDataAxis1, int sendDataAxis2)
+			throws CommunicationPortException
 	{
 		super(axis, port, sendDataEnabled, sendDataAxis1, sendDataAxis2);
+	}
+
+	protected boolean isAdditionalInformation1Visible()
+	{
+		return true;
+	}
+
+	protected boolean isAdditionalInformation2Visible()
+	{
+		return true;
 	}
 
 	protected String getAdditionaInfo1TabName()

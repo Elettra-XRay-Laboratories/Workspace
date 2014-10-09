@@ -12,7 +12,8 @@ public class I0TubeStabilityPanel extends TubeStabilityPanel
 	 */
 	private static final long serialVersionUID = 6079284865563083219L;
 
-	public I0TubeStabilityPanel(ICommunicationPort port) throws CommunicationPortException
+	public I0TubeStabilityPanel(ICommunicationPort port)
+			throws CommunicationPortException
 	{
 		super(port);
 	}
@@ -20,6 +21,16 @@ public class I0TubeStabilityPanel extends TubeStabilityPanel
 	protected Thread getScanThread()
 	{
 		return new I0StabilityThread(this);
+	}
+
+	protected boolean isAdditionalInformation1Visible()
+	{
+		return true;
+	}
+
+	protected boolean isAdditionalInformation2Visible()
+	{
+		return true;
 	}
 
 	protected String getAdditionaInfo1TabName()
