@@ -2350,12 +2350,12 @@ public class ScanPanel extends MeasureListener implements ActionListener
 
 	protected boolean isAdditionalInformation1Visible()
 	{
-		return true;
+		return false;
 	}
 
 	protected boolean isAdditionalInformation2Visible()
 	{
-		return true;
+		return false;
 	}
 
 	protected String getAdditionaInfo1TabName()
