@@ -29,7 +29,7 @@ public class HeidenheinEncoderReader implements IEncoderReader, IEncoderReaderIn
 
 			try
 			{
-				Thread.sleep(50);
+				Thread.sleep(100);
 			}
 			catch (InterruptedException e)
 			{
