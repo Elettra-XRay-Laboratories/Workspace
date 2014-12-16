@@ -149,6 +149,8 @@ public final class DriverUtilities
 			return new DecimalGrades();
 		else if (measureUnit.equalsIgnoreCase(Millimeters.MM))
 			return new Millimeters();
+		else if (measureUnit.equalsIgnoreCase(Steps.STEPS))
+			return new Steps();
 		else
 			throw new IllegalArgumentException("Measure Unit not recognized: " + measureUnit);
 	}

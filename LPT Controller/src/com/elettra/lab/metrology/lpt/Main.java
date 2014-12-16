@@ -32,7 +32,6 @@ import com.elettra.common.io.CommunicationPortUtilies;
 import com.elettra.common.io.EthernetPortParameters;
 import com.elettra.common.io.ICommunicationPort;
 import com.elettra.common.io.KindOfPort;
-import com.elettra.common.io.SerialPortParameters;
 import com.elettra.controller.driver.commands.CommandParameters;
 import com.elettra.controller.driver.commands.CommandsFacade;
 import com.elettra.controller.driver.common.AxisConfiguration;
@@ -44,6 +43,8 @@ import com.elettra.controller.gui.common.GuiUtilities;
 import com.elettra.controller.gui.windows.AbstractCommunicationPortFrame;
 import com.elettra.controller.gui.windows.ControllerCrashRecoveryWindow;
 import com.elettra.idsccd.driver.IDSCCDException;
+import com.elettra.lab.metrology.lpt.encoder.EncoderReaderFactory;
+import com.elettra.lab.metrology.lpt.programs.LPTMOVEProgram;
 import com.elettra.lab.metrology.lpt.programs.LPTScanProgram;
 import com.elettra.lab.metrology.lpt.windows.FreeMovementsAndScansWindow;
 
@@ -52,23 +53,23 @@ public class Main extends AbstractCommunicationPortFrame implements ActionListen
 	/**
 	 * 
 	 */
-	private static final long   serialVersionUID = 7553655482497838545L;
+	private static final long	  serialVersionUID	= 7553655482497838545L;
 
-	private static final String APPLICATION_NAME = "LTP Controller";
+	private static final String	APPLICATION_NAME	= "LTP Controller";
 
 	static class ActionCommands
 	{
-		private static final String EXIT                      = "EXIT";
-		private static final String FREE_MOVEMENTS_AND_SCANS  = "FREE_MOVEMENTS_AND_SCANS";
-		//private static final String SLOPE_ERROR_SCAN          = "SLOPE_ERROR_SCAN";
-		private static final String CONTROLLER_CRASH_RECOVERY = "CONTROLLER_CRASH_RECOVERY";
+		private static final String	EXIT		                  = "EXIT";
+		private static final String	FREE_MOVEMENTS_AND_SCANS	= "FREE_MOVEMENTS_AND_SCANS";
+		// private static final String SLOPE_ERROR_SCAN = "SLOPE_ERROR_SCAN";
+		private static final String	CONTROLLER_CRASH_RECOVERY	= "CONTROLLER_CRASH_RECOVERY";
 	}
 
 	/**
 	 * 
 	 */
-	private JTextField softwareVersionTextField;
-	private JTextField ioStatusTextField;
+	private JTextField	softwareVersionTextField;
+	private JTextField	ioStatusTextField;
 
 	public Main(ICommunicationPort port) throws HeadlessException
 	{
@@ -140,7 +141,7 @@ public class Main extends AbstractCommunicationPortFrame implements ActionListen
 
 			JButton monocromatorAlignementButton = new JButton("...");
 			monocromatorAlignementButton.addActionListener(this);
-			//monocromatorAlignementButton.setActionCommand(ActionCommands.ALIGNEMENT_OF_THE_DIFFRACTOMETER_WITH_THE_XBEAM);
+			// monocromatorAlignementButton.setActionCommand(ActionCommands.ALIGNEMENT_OF_THE_DIFFRACTOMETER_WITH_THE_XBEAM);
 			monocromatorAlignementButton.setFont(new Font("Tahoma", Font.PLAIN, 14));
 			GridBagConstraints gbc_monocromatorAlignementButton = new GridBagConstraints();
 			gbc_monocromatorAlignementButton.fill = GridBagConstraints.BOTH;
@@ -151,7 +152,7 @@ public class Main extends AbstractCommunicationPortFrame implements ActionListen
 
 			JButton sampleAlignementButton = new JButton("...");
 			sampleAlignementButton.addActionListener(this);
-			//sampleAlignementButton.setActionCommand(ActionCommands.ALIGNEMENT_OF_THE_SAMPLE_WITH_THE_XBEAM);
+			// sampleAlignementButton.setActionCommand(ActionCommands.ALIGNEMENT_OF_THE_SAMPLE_WITH_THE_XBEAM);
 			sampleAlignementButton.setFont(new Font("Tahoma", Font.PLAIN, 14));
 			GridBagConstraints gbc_sampleAlignementButton = new GridBagConstraints();
 			gbc_sampleAlignementButton.insets = new Insets(0, 5, 5, 5);
@@ -180,7 +181,7 @@ public class Main extends AbstractCommunicationPortFrame implements ActionListen
 
 			JButton residualStressMeasureButton = new JButton("SLOPE ERROR MEASUREMENT");
 			residualStressMeasureButton.addActionListener(this);
-			//residualStressMeasureButton.setActionCommand(ActionCommands.RESIDUAL_STRESS_MEASURE);
+			// residualStressMeasureButton.setActionCommand(ActionCommands.RESIDUAL_STRESS_MEASURE);
 			residualStressMeasureButton.setFont(new Font("Tahoma", Font.PLAIN, 14));
 			GridBagConstraints gbc_ResidualStressMeasureButton = new GridBagConstraints();
 			gbc_ResidualStressMeasureButton.fill = GridBagConstraints.BOTH;
@@ -191,7 +192,7 @@ public class Main extends AbstractCommunicationPortFrame implements ActionListen
 
 			JButton omega2ThetaScanButton = new JButton("SLOPE ERROR CALCULATION (POST)");
 			omega2ThetaScanButton.addActionListener(this);
-			//omega2ThetaScanButton.setActionCommand(ActionCommands.RESIDUAL_STRESS_MEASURE);
+			// omega2ThetaScanButton.setActionCommand(ActionCommands.RESIDUAL_STRESS_MEASURE);
 			omega2ThetaScanButton.setFont(new Font("Tahoma", Font.PLAIN, 14));
 			GridBagConstraints gbc_omega2ThetaScanButton = new GridBagConstraints();
 			gbc_omega2ThetaScanButton.fill = GridBagConstraints.BOTH;
@@ -349,7 +350,7 @@ public class Main extends AbstractCommunicationPortFrame implements ActionListen
 
 	private class MainWindowAdapter extends WindowAdapter
 	{
-		private Main main;
+		private Main	main;
 
 		public MainWindowAdapter(Main main)
 		{
@@ -361,6 +362,7 @@ public class Main extends AbstractCommunicationPortFrame implements ActionListen
 			try
 			{
 				CommunicationPortFactory.releasePort(this.main.getPort());
+				EncoderReaderFactory.releaseEncoderReader();
 			}
 			catch (CommunicationPortException e)
 			{
@@ -378,7 +380,7 @@ public class Main extends AbstractCommunicationPortFrame implements ActionListen
 		try
 		{
 			Locale.setDefault(Locale.US);
-			
+
 			new WaitFrameThread().start();
 			new MainFrameThread().start();
 		}
@@ -397,6 +399,7 @@ public class Main extends AbstractCommunicationPortFrame implements ActionListen
 		try
 		{
 			ProgramsFacade.addCustomCommand(new LPTScanProgram());
+			ProgramsFacade.addCustomCommand(new LPTMOVEProgram());
 		}
 		catch (IDSCCDException exception)
 		{
@@ -411,28 +414,23 @@ public class Main extends AbstractCommunicationPortFrame implements ActionListen
 		ICommunicationPort port = null;
 		KindOfPort kindOfPort = GuiUtilities.getKindOfPort();
 
-		if (kindOfPort.equals(CommunicationPortUtilies.getSerialPort()))
+		if (kindOfPort.equals(CommunicationPortUtilies.getEthernetPort()))
 		{
-			String portName = GuiUtilities.getPortNames().listIterator().next();
-
-			port = CommunicationPortFactory.getPort(portName, kindOfPort);
-
-			SerialPortParameters parameters = new SerialPortParameters();
-			parameters.deserialize(GuiUtilities.getPortConfFileName(portName));
-
-			port.initialize(parameters);
-			CommunicationPortFactory.getEmergencyPort().initialize(parameters);
-		}
-		else if (kindOfPort.equals(CommunicationPortUtilies.getEthernetPort()))
-		{
-			port = CommunicationPortFactory.getPort("Eth0", kindOfPort);
+			port = CommunicationPortFactory.getPort("Eth1", kindOfPort);
 
 			EthernetPortParameters parameters = new EthernetPortParameters();
-			parameters.deserialize(GuiUtilities.getPortConfFileName("Eth0"));
+			parameters.deserialize(GuiUtilities.getPortConfFileName("Eth1"));
 
 			port.initialize(parameters);
+
+			parameters = new EthernetPortParameters();
+			parameters.deserialize(GuiUtilities.getPortConfFileName("Eth1"));
+			parameters.setPort(parameters.getPort() + 1);
+
 			CommunicationPortFactory.getEmergencyPort().initialize(parameters);
 		}
+		else
+			throw new UnsupportedOperationException("Serial Port not allowed");
 
 		return port;
 	}
@@ -464,7 +462,21 @@ public class Main extends AbstractCommunicationPortFrame implements ActionListen
 	static void changeAxisMotorConfiguration(ICommunicationPort port) throws CommunicationPortException
 	{
 		if (DriverUtilities.getKindOfController().equals(DriverUtilities.getGalilController()))
-			CommandsFacade.executeCommand(CommandsFacade.Commands.MOTOR_CONFIGURATION, new CommandParameters(Axis.MOTOR4, GuiUtilities.getNullListener()), port);
+		{
+			// CommandsFacade.executeCommand(CommandsFacade.Commands.MOTOR_CONFIGURATION,
+			// new CommandParameters(Axis.MOTOR1, GuiUtilities.getNullListener()),
+			// port);
+			// CommandsFacade.executeCommand(CommandsFacade.Commands.MOTOR_CONFIGURATION,
+			// new CommandParameters(Axis.MOTOR2, GuiUtilities.getNullListener()),
+			// port);
+			// CommandsFacade.executeCommand(CommandsFacade.Commands.MOTOR_CONFIGURATION,
+			// new CommandParameters(Axis.MOTOR3, GuiUtilities.getNullListener()),
+			// port);
+			// CommandsFacade.executeCommand(CommandsFacade.Commands.MOTOR_CONFIGURATION,
+			// new CommandParameters(Axis.MOTOR4, GuiUtilities.getNullListener()),
+			// port);
+			CommandsFacade.executeCommand(CommandsFacade.Commands.MOTOR_CONFIGURATION, new CommandParameters(Axis.MOTOR5, GuiUtilities.getNullListener()), port);
+		}
 	}
 
 	// ------------------------------------------------------------------------------------------------------

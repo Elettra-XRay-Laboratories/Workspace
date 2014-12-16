@@ -25,6 +25,7 @@ import com.elettra.controller.gui.panels.EmergencyStopPanel;
 import com.elettra.controller.gui.panels.MovePanel;
 import com.elettra.controller.gui.windows.AbstractGenericFrame;
 import com.elettra.lab.metrology.lpt.Axis;
+import com.elettra.lab.metrology.lpt.panels.LPTMovePanel;
 import com.elettra.lab.metrology.lpt.panels.LPTScanPanel;
 
 public class FreeMovementsAndScansWindow extends AbstractGenericFrame
@@ -128,7 +129,7 @@ public class FreeMovementsAndScansWindow extends AbstractGenericFrame
 		gbc_movePanel6.gridx = 4;
 		gbc_movePanel6.gridy = 0;
 		leftPanel.add(movePanel6, gbc_movePanel6);
-		movePanel6.add(new MovePanel(Axis.MOTOR5, this.getPort()));
+		movePanel6.add(new LPTMovePanel(Axis.MOTOR5, this.getPort()));
 
 		// --------------
 

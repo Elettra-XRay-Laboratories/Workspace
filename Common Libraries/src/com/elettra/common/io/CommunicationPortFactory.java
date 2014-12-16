@@ -9,23 +9,20 @@ import javax.comm.CommDriver;
 
 public class CommunicationPortFactory
 {
-	private static HashMap<String, ICommunicationPort> serialPortsMap   = new HashMap<String, ICommunicationPort>();
-	private static HashMap<String, ICommunicationPort> ethernetPortsMap = new HashMap<String, ICommunicationPort>();
-	private static String                              applicationName;
-	private static ICommunicationPort                  emergencyPort    = null;
+	private static HashMap<String, ICommunicationPort>	serialPortsMap	   = new HashMap<String, ICommunicationPort>();
+	private static HashMap<String, ICommunicationPort>	ethernetPortsMap	 = new HashMap<String, ICommunicationPort>();
+	private static String	                             applicationName;
+	private static ICommunicationPort	                 emergencyPort	     = null;
+	private static String	                             system_architecture	= System.getProperty("sun.arch.data.model");
 
 	static
 	{
 		try
 		{
-			if ("32".equals(System.getProperty("sun.arch.data.model")))
+			if ("32".equals(system_architecture))
 			{
 				CommDriver commDriver = (CommDriver) Class.forName("com.sun.comm.Win32Driver").newInstance();
 				commDriver.initialize();
-			}
-			else
-			{
-				//JOptionPane.showMessageDialog(null, "Serial Port Library not loaded on a 64-bit architecture", "Warning", JOptionPane.WARNING_MESSAGE);
 			}
 		}
 		catch (Throwable t)
@@ -73,14 +70,21 @@ public class CommunicationPortFactory
 
 	private static synchronized ICommunicationPort getSerialPort(String portName) throws CommunicationPortException
 	{
-		if (serialPortsMap.containsKey(portName))
-			return serialPortsMap.get(portName);
+		if ("32".equals(system_architecture))
+		{
+			if (serialPortsMap.containsKey(portName))
+				return serialPortsMap.get(portName);
+			else
+			{
+				ICommunicationPort newPort = new SerialPortWrapper(portName, CommunicationPortFactory.applicationName);
+				serialPortsMap.put(portName, newPort);
+
+				return newPort;
+			}
+		}
 		else
 		{
-			ICommunicationPort newPort = new SerialPortWrapper(portName, CommunicationPortFactory.applicationName);
-			serialPortsMap.put(portName, newPort);
-
-			return newPort;
+			throw new CommunicationPortException("Serial Port Library not loaded on a 64-bit architecture");
 		}
 	}
 

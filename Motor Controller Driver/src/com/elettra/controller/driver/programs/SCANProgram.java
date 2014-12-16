@@ -177,10 +177,10 @@ public class SCANProgram extends ShutterActivatorProgram
 				axis2MoveParameters.setSign(DriverUtilities.getSignProduct(newPosition.getSign(), axisNumbers.getRelativeSign()));
 			}
 
-			ProgramsFacade.executeProgram(ProgramsFacade.Programs.MOVE, axis2MoveParameters, port);
+			executeMoveProgram(port, axis2MoveParameters);
 			CommandsFacade.waitForTheEndOfMovement(new CommandParameters(axisNumbers.getAxis2(), scanParameters.getListener()), port);
 
-			ProgramsFacade.executeProgram(ProgramsFacade.Programs.MOVE, axis1MoveParameters, port);
+			executeMoveProgram(port, axis1MoveParameters);
 			CommandsFacade.waitForTheEndOfMovement(new CommandParameters(axisNumbers.getAxis1(), scanParameters.getListener()), port);
 		}
 		else
@@ -190,7 +190,7 @@ public class SCANProgram extends ShutterActivatorProgram
 			axisMoveParameters.setPosition(newPosition.getAbsolutePosition());
 			axisMoveParameters.setSign(newPosition.getSign());
 
-			ProgramsFacade.executeProgram(ProgramsFacade.Programs.MOVE, axisMoveParameters, port);
+			this.executeMoveProgram(port, axisMoveParameters);
 			CommandsFacade.waitForTheEndOfMovement(new CommandParameters(scanParameters.getAxis(), scanParameters.getListener()), port);
 		}
 	}
@@ -241,18 +241,18 @@ public class SCANProgram extends ShutterActivatorProgram
 			{
 				if (signedStartPosition < signedStopPosition)
 				{
-					ProgramsFacade.executeProgram(ProgramsFacade.Programs.MOVE, axis1MoveParameters, port);
+					executeMoveProgram(port, axis1MoveParameters);
 					CommandsFacade.waitForTheEndOfMovement(new CommandParameters(axisNumbers.getAxis1(), scanParameters.getListener()), port);
 
-					ProgramsFacade.executeProgram(ProgramsFacade.Programs.MOVE, axis2MoveParameters, port);
+					executeMoveProgram(port, axis2MoveParameters);
 					CommandsFacade.waitForTheEndOfMovement(new CommandParameters(axisNumbers.getAxis2(), scanParameters.getListener()), port);
 				}
 				else
 				{
-					ProgramsFacade.executeProgram(ProgramsFacade.Programs.MOVE, axis2MoveParameters, port);
+					executeMoveProgram(port, axis2MoveParameters);
 					CommandsFacade.waitForTheEndOfMovement(new CommandParameters(axisNumbers.getAxis2(), scanParameters.getListener()), port);
 
-					ProgramsFacade.executeProgram(ProgramsFacade.Programs.MOVE, axis1MoveParameters, port);
+					executeMoveProgram(port, axis1MoveParameters);
 					CommandsFacade.waitForTheEndOfMovement(new CommandParameters(axisNumbers.getAxis1(), scanParameters.getListener()), port);
 				}
 			}
@@ -260,18 +260,18 @@ public class SCANProgram extends ShutterActivatorProgram
 			{
 				if (scanParameters.getStartSign().equals(DriverUtilities.getMinus()))
 				{
-					ProgramsFacade.executeProgram(ProgramsFacade.Programs.MOVE, axis1MoveParameters, port);
+					executeMoveProgram(port, axis1MoveParameters);
 					CommandsFacade.waitForTheEndOfMovement(new CommandParameters(axisNumbers.getAxis1(), scanParameters.getListener()), port);
 
-					ProgramsFacade.executeProgram(ProgramsFacade.Programs.MOVE, axis2MoveParameters, port);
+					executeMoveProgram(port, axis2MoveParameters);
 					CommandsFacade.waitForTheEndOfMovement(new CommandParameters(axisNumbers.getAxis2(), scanParameters.getListener()), port);
 				}
 				else if (scanParameters.getStartSign().equals(DriverUtilities.getPlus()))
 				{
-					ProgramsFacade.executeProgram(ProgramsFacade.Programs.MOVE, axis2MoveParameters, port);
+					executeMoveProgram(port, axis2MoveParameters);
 					CommandsFacade.waitForTheEndOfMovement(new CommandParameters(axisNumbers.getAxis2(), scanParameters.getListener()), port);
 
-					ProgramsFacade.executeProgram(ProgramsFacade.Programs.MOVE, axis1MoveParameters, port);
+					executeMoveProgram(port, axis1MoveParameters);
 					CommandsFacade.waitForTheEndOfMovement(new CommandParameters(axisNumbers.getAxis1(), scanParameters.getListener()), port);
 				}
 				else
@@ -294,10 +294,15 @@ public class SCANProgram extends ShutterActivatorProgram
 			axisMoveParameters.setPosition(scanParameters.getStartPosition());
 			axisMoveParameters.setSign(scanParameters.getStartSign());
 
-			ProgramsFacade.executeProgram(ProgramsFacade.Programs.MOVE, axisMoveParameters, port);
+			this.executeMoveProgram(port, axisMoveParameters);
 			CommandsFacade.waitForTheEndOfMovement(new CommandParameters(scanParameters.getAxis(), scanParameters.getListener()), port);
 		}
 
 		return scanInitialPosition;
 	}
+
+	protected void executeMoveProgram(ICommunicationPort port, MoveParameters axisMoveParameters) throws CommunicationPortException
+  {
+	  ProgramsFacade.executeProgram(ProgramsFacade.Programs.MOVE, axisMoveParameters, port);
+  }
 }

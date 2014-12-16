@@ -11,8 +11,10 @@ import com.elettra.common.io.CommunicationPortException;
 import com.elettra.common.io.ICommunicationPort;
 import com.elettra.controller.driver.programs.MeasureParameters;
 import com.elettra.controller.driver.programs.MeasureResult;
+import com.elettra.controller.driver.programs.MoveParameters;
 import com.elettra.controller.driver.programs.ProgramParameters;
 import com.elettra.controller.driver.programs.ProgramResult;
+import com.elettra.controller.driver.programs.ProgramsFacade;
 import com.elettra.controller.driver.programs.SCANProgram;
 import com.elettra.controller.gui.common.GuiUtilities;
 import com.elettra.idsccd.driver.IDSCCDColorModes;
@@ -20,24 +22,27 @@ import com.elettra.idsccd.driver.IDSCCDDisplayModes;
 import com.elettra.idsccd.driver.IDSCCDException;
 import com.elettra.idsccd.driver.IDSCCDFactory;
 import com.elettra.idsccd.driver.IIDSCCD;
+import com.elettra.lab.metrology.lpt.Axis;
+import com.elettra.lab.metrology.lpt.encoder.EncoderReaderFactory;
 
 public class LPTScanProgram extends SCANProgram
 {
-	public static final String LAST_IMAGE           = "LAST_IMAGE";
-	public static final String Y_STANDARD_DEVIATION = "Y_STANDARD_DEVIATION";
-	public static final String X_STANDARD_DEVIATION = "X_STANDARD_DEVIATION";
-	public static final String PROGRAM_NAME         = "LPT_SCAN";
+	public static final String	ENCODER_POSITION	   = "ENCODER_POSITION";
+	public static final String	LAST_IMAGE	         = "LAST_IMAGE";
+	public static final String	Y_STANDARD_DEVIATION	= "Y_STANDARD_DEVIATION";
+	public static final String	X_STANDARD_DEVIATION	= "X_STANDARD_DEVIATION";
+	public static final String	PROGRAM_NAME	       = "LPT_SCAN";
 
-	public static final String COLOR_MODE           = "COLOR_MODE";
-	public static final String DIM_X                = "DIM_X";
-	public static final String DIM_Y                = "DIM_Y";
-	public static final String NUMBER_OF_CAPTURES   = "NUMBER_OF_CAPTURES";
+	public static final String	COLOR_MODE	         = "COLOR_MODE";
+	public static final String	DIM_X	               = "DIM_X";
+	public static final String	DIM_Y	               = "DIM_Y";
+	public static final String	NUMBER_OF_CAPTURES	 = "NUMBER_OF_CAPTURES";
 
-	private IIDSCCD            ccd;
-	private int                numberOfCaptures;
-	private int                dimx;
-	private int                dimy;
-	private IDSCCDColorModes   mode;
+	private IIDSCCD	           ccd;
+	private int	               numberOfCaptures;
+	private int	               dimx;
+	private int	               dimy;
+	private IDSCCDColorModes	 mode;
 
 	static
 	{
@@ -149,6 +154,10 @@ public class LPTScanProgram extends SCANProgram
 			MeasureResult result = new MeasureResult(this.calculateSlopeError(average_x_position, average_y_position));
 			result.setAdditionalInformation1(average_x_position * IIDSCCD.PIXEL_SIZE);
 			result.setAdditionalInformation2(average_y_position * IIDSCCD.PIXEL_SIZE);
+
+			if (measureParameters.getAxis() == Axis.MOTOR5)
+				result.addCustomData(ENCODER_POSITION, Double.valueOf(EncoderReaderFactory.getEncoderReader().readPosition()));
+
 			result.addCustomData(X_STANDARD_DEVIATION, Double.valueOf(x_standard_deviation * IIDSCCD.PIXEL_SIZE));
 			result.addCustomData(Y_STANDARD_DEVIATION, Double.valueOf(y_standard_deviation * IIDSCCD.PIXEL_SIZE));
 			result.addCustomData(LAST_IMAGE, capture);
@@ -166,9 +175,9 @@ public class LPTScanProgram extends SCANProgram
 	}
 
 	private double calculateSlopeError(double average_x_position, double average_y_position)
-  {
-	  return 0;
-  }
+	{
+		return 0;
+	}
 
 	protected void openShutter() throws IOException, InterruptedException
 	{
@@ -179,4 +188,8 @@ public class LPTScanProgram extends SCANProgram
 		GuiUtilities.showMessagePopup("Scan Completed!", this.panel);
 	}
 
+	protected void executeMoveProgram(ICommunicationPort port, MoveParameters axisMoveParameters) throws CommunicationPortException
+	{
+		ProgramsFacade.executeProgram(LPTMOVEProgram.PROGRAM_NAME, axisMoveParameters, port);
+	}
 }

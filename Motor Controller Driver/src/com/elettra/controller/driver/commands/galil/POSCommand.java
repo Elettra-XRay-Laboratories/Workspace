@@ -36,5 +36,4 @@ public final class POSCommand extends WriteCommand
 
 		return null;
 	}
-
 }

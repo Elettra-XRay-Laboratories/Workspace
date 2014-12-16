@@ -44,11 +44,6 @@ public class EthernetPortWrapper implements ICommunicationPort
 
 	public synchronized void write(String buffer) throws CommunicationPortException
 	{
-		this.write(buffer.getBytes());
-	}
-
-	public synchronized void write(byte[] buffer) throws CommunicationPortException
-	{
 		try
 		{
 			if (this.outputStream == null)
@@ -56,7 +51,6 @@ public class EthernetPortWrapper implements ICommunicationPort
 
 			this.outputStream.println(buffer);
 			this.outputStream.flush();
-
 		}
 		catch (Throwable t)
 		{
@@ -64,12 +58,17 @@ public class EthernetPortWrapper implements ICommunicationPort
 		}
 	}
 
-	public byte[] readBytes() throws CommunicationPortException
+	public synchronized void write(byte[] buffer) throws CommunicationPortException
 	{
 		throw new UnsupportedOperationException();
 	}
 
-	public byte[] readBytes(int bytes) throws CommunicationPortException
+	public synchronized byte[] readBytes() throws CommunicationPortException
+	{
+		throw new UnsupportedOperationException();
+	}
+
+	public synchronized byte[] readBytes(int bytes) throws CommunicationPortException
 	{
 		throw new UnsupportedOperationException();
 	}
@@ -91,21 +90,7 @@ public class EthernetPortWrapper implements ICommunicationPort
 
 	public synchronized String read(int bytes) throws CommunicationPortException
 	{
-		try
-		{
-			if (this.inputStream == null)
-				this.inputStream = new BufferedReader(new InputStreamReader(this.tcpipSocket.getInputStream()));
-
-			char[] cbuf = new char[bytes];
-
-			this.inputStream.read(cbuf, 0, bytes);
-
-			return String.copyValueOf(cbuf);
-		}
-		catch (Throwable t)
-		{
-			throw new CommunicationPortException(t);
-		}
+		throw new UnsupportedOperationException();
 	}
 
 	public synchronized void release()
