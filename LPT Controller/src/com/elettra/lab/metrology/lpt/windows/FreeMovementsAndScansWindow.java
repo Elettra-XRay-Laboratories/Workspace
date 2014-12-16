@@ -6,8 +6,10 @@ import java.awt.HeadlessException;
 import java.awt.Insets;
 import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
+import java.io.File;
 import java.io.IOException;
 
+import javax.imageio.ImageIO;
 import javax.swing.BorderFactory;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.JButton;
@@ -51,7 +53,9 @@ public class FreeMovementsAndScansWindow extends AbstractGenericFrame
 	{
 		super("Free Movements and Scans", port);
 
-		this.setBounds(5, 5, 2870, 900);
+		this.setIconImage(ImageIO.read(new File("ltpcontroller.jpg")));
+
+		this.setBounds(245, 5, 2870, 900);
 
 		GridBagLayout gridBagLayout = new GridBagLayout();
 		gridBagLayout.columnWidths = new int[] { 1435, 1250, 185 };

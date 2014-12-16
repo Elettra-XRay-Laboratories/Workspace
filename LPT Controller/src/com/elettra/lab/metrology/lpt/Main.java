@@ -10,8 +10,11 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.io.File;
 import java.io.IOException;
+import java.util.Locale;
 
+import javax.imageio.ImageIO;
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JFrame;
@@ -51,7 +54,7 @@ public class Main extends AbstractCommunicationPortFrame implements ActionListen
 	 */
 	private static final long   serialVersionUID = 7553655482497838545L;
 
-	private static final String APPLICATION_NAME = "LPT Controller";
+	private static final String APPLICATION_NAME = "LTP Controller";
 
 	static class ActionCommands
 	{
@@ -73,7 +76,7 @@ public class Main extends AbstractCommunicationPortFrame implements ActionListen
 
 		try
 		{
-			//this.setIconImage(Toolkit.getDefaultToolkit().getImage("lptcontroller.ico"));
+			this.setIconImage(ImageIO.read(new File("ltpcontroller.jpg")));
 			this.addWindowFocusListener(new MainWindowAdapter(this));
 			this.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
 			this.setBounds(50, 50, 450, 760);
@@ -109,7 +112,7 @@ public class Main extends AbstractCommunicationPortFrame implements ActionListen
 			gbc_lblNewLabel.gridy = 0;
 			headPanel.add(lblNewLabel, gbc_lblNewLabel);
 
-			JLabel lblNewLabel_2 = new JLabel("LPT CONTROLLER");
+			JLabel lblNewLabel_2 = new JLabel("LTP CONTROLLER");
 			lblNewLabel_2.setForeground(new Color(0, 102, 51));
 			lblNewLabel_2.setFont(new Font("Tahoma", Font.BOLD, 19));
 			GridBagConstraints gbc_lblNewLabel_2 = new GridBagConstraints();
@@ -374,6 +377,8 @@ public class Main extends AbstractCommunicationPortFrame implements ActionListen
 	{
 		try
 		{
+			Locale.setDefault(Locale.US);
+			
 			new WaitFrameThread().start();
 			new MainFrameThread().start();
 		}
@@ -420,10 +425,10 @@ public class Main extends AbstractCommunicationPortFrame implements ActionListen
 		}
 		else if (kindOfPort.equals(CommunicationPortUtilies.getEthernetPort()))
 		{
-			port = CommunicationPortFactory.getPort("Eth1", kindOfPort);
+			port = CommunicationPortFactory.getPort("Eth0", kindOfPort);
 
 			EthernetPortParameters parameters = new EthernetPortParameters();
-			parameters.deserialize(GuiUtilities.getPortConfFileName("Eth1"));
+			parameters.deserialize(GuiUtilities.getPortConfFileName("Eth0"));
 
 			port.initialize(parameters);
 			CommunicationPortFactory.getEmergencyPort().initialize(parameters);

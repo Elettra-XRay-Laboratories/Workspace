@@ -1,5 +1,7 @@
 package com.elettra.lab.metrology.lpt;
 
+import java.io.IOException;
+
 import javax.swing.UIManager;
 
 import com.elettra.common.io.ICommunicationPort;
@@ -7,15 +9,12 @@ import com.elettra.controller.driver.common.DriverUtilities;
 import com.elettra.controller.gui.common.GuiUtilities;
 import com.elettra.controller.gui.common.ListenerRegister;
 
-public class MainFrameThread extends Thread
-{
+public class MainFrameThread extends Thread {
 
-	public void run()
-	{
+	public void run() {
 		boolean isError = false;
 
-		try
-		{
+		try {
 			Thread.sleep(1000);
 
 			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
@@ -31,16 +30,22 @@ public class MainFrameThread extends Thread
 			Main frame = new Main(port);
 
 			frame.setVisible(true);
-		}
-		catch (Exception e)
-		{
+		} catch (Exception e) {
 			isError = true;
 
-			GuiUtilities.showErrorPopup("Exception Occurred:" + e.getClass().getName() + " - " + e.getMessage(), null);
-		}
-		finally
-		{
-			WaitFrame.getInstance().setVisible(false);
+			GuiUtilities.showErrorPopup("Exception Occurred:"
+					+ e.getClass().getName() + " - " + e.getMessage(), null);
+		} finally {
+			try {
+				WaitFrame.getInstance().setVisible(false);
+			} catch (IOException e) {
+				isError = true;
+
+				GuiUtilities
+						.showErrorPopup(
+								"Exception Occurred:" + e.getClass().getName()
+										+ " - " + e.getMessage(), null);
+			}
 
 			if (isError)
 				System.exit(1);

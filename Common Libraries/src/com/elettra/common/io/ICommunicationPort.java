@@ -8,7 +8,15 @@ public interface ICommunicationPort
 
 	public void write(String buffer) throws CommunicationPortException;
 
+	public void write(byte[] buffer) throws CommunicationPortException;
+
+	public byte[] readBytes() throws CommunicationPortException;
+
+	public byte[] readBytes(int bytes) throws CommunicationPortException;
+
 	public String read() throws CommunicationPortException;
+
+	public String read(int bytes) throws CommunicationPortException;
 
 	public void release();
 }

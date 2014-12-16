@@ -4,29 +4,30 @@ import java.awt.Font;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
+import java.io.File;
+import java.io.IOException;
 
+import javax.imageio.ImageIO;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 
-public class WaitFrame extends JFrame
-{
+public class WaitFrame extends JFrame {
 	private static final long serialVersionUID = 7784794628794955380L;
 
-	private static WaitFrame  uniqueInstance;
+	private static WaitFrame uniqueInstance;
 
-	public static synchronized WaitFrame getInstance()
-	{
+	public static synchronized WaitFrame getInstance() throws IOException {
 		if (uniqueInstance == null)
 			uniqueInstance = new WaitFrame();
 
 		return uniqueInstance;
 	}
 
-	private WaitFrame()
-	{
+	private WaitFrame() throws IOException {
 		super("Wait");
 
+		this.setIconImage(ImageIO.read(new File("ltpcontroller.jpg")));
 		this.setDefaultCloseOperation(EXIT_ON_CLOSE);
 		this.setBounds(50, 50, 400, 100);
 

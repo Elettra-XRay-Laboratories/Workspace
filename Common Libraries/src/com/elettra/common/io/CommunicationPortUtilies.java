@@ -14,12 +14,19 @@ public class CommunicationPortUtilies
 		return new SerialPort();
 	}
 
+	public static KindOfPort getSerialPort64()
+	{
+		return new SerialPort64();
+	}
+
 	public static KindOfPort parseKindOfPort(String kindOfPortString)
 	{
 		StringUtilities.checkString(kindOfPortString, "kindOfPortString");
 
 		if (kindOfPortString.equalsIgnoreCase(SerialPort.PORT))
 			return new SerialPort();
+		else if (kindOfPortString.equalsIgnoreCase(SerialPort64.PORT))
+			return new SerialPort64();
 		else if (kindOfPortString.equalsIgnoreCase(EthernetPort.PORT))
 			return new EthernetPort();
 		else

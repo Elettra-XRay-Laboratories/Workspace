@@ -1,5 +1,7 @@
 package com.elettra.lab.metrology.lpt;
 
+import java.io.IOException;
+
 public class WaitFrameThread extends Thread
 {
 	public WaitFrameThread()
@@ -8,6 +10,10 @@ public class WaitFrameThread extends Thread
 
 	public void run()
 	{
-		WaitFrame.getInstance().setVisible(true);
+		try {
+			WaitFrame.getInstance().setVisible(true);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 	}
 }

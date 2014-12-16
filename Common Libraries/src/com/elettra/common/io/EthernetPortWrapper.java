@@ -9,11 +9,11 @@ import com.elettra.common.utilities.StringUtilities;
 
 public class EthernetPortWrapper implements ICommunicationPort
 {
-	private Socket         tcpipSocket  = null;
-	private PrintWriter    outputStream = null;
-	private BufferedReader inputStream  = null;
+	private Socket	       tcpipSocket	= null;
+	private PrintWriter	   outputStream	= null;
+	private BufferedReader	inputStream	= null;
 
-	private String         portName;
+	private String	       portName;
 
 	public EthernetPortWrapper(String portName, String applicationName)
 	{
@@ -44,6 +44,11 @@ public class EthernetPortWrapper implements ICommunicationPort
 
 	public synchronized void write(String buffer) throws CommunicationPortException
 	{
+		this.write(buffer.getBytes());
+	}
+
+	public synchronized void write(byte[] buffer) throws CommunicationPortException
+	{
 		try
 		{
 			if (this.outputStream == null)
@@ -51,11 +56,22 @@ public class EthernetPortWrapper implements ICommunicationPort
 
 			this.outputStream.println(buffer);
 			this.outputStream.flush();
+
 		}
 		catch (Throwable t)
 		{
 			throw new CommunicationPortException(t);
 		}
+	}
+
+	public byte[] readBytes() throws CommunicationPortException
+	{
+		throw new UnsupportedOperationException();
+	}
+
+	public byte[] readBytes(int bytes) throws CommunicationPortException
+	{
+		throw new UnsupportedOperationException();
 	}
 
 	public synchronized String read() throws CommunicationPortException
@@ -66,6 +82,25 @@ public class EthernetPortWrapper implements ICommunicationPort
 				this.inputStream = new BufferedReader(new InputStreamReader(this.tcpipSocket.getInputStream()));
 
 			return this.inputStream.readLine();
+		}
+		catch (Throwable t)
+		{
+			throw new CommunicationPortException(t);
+		}
+	}
+
+	public synchronized String read(int bytes) throws CommunicationPortException
+	{
+		try
+		{
+			if (this.inputStream == null)
+				this.inputStream = new BufferedReader(new InputStreamReader(this.tcpipSocket.getInputStream()));
+
+			char[] cbuf = new char[bytes];
+
+			this.inputStream.read(cbuf, 0, bytes);
+
+			return String.copyValueOf(cbuf);
 		}
 		catch (Throwable t)
 		{

@@ -6,7 +6,6 @@ import java.io.PrintStream;
 import java.util.HashMap;
 
 import javax.comm.CommDriver;
-import javax.swing.JOptionPane;
 
 public class CommunicationPortFactory
 {
@@ -26,7 +25,7 @@ public class CommunicationPortFactory
 			}
 			else
 			{
-				JOptionPane.showMessageDialog(null, "Serial Port Library not loaded on a 64-bit architecture", "Warning", JOptionPane.WARNING_MESSAGE);
+				//JOptionPane.showMessageDialog(null, "Serial Port Library not loaded on a 64-bit architecture", "Warning", JOptionPane.WARNING_MESSAGE);
 			}
 		}
 		catch (Throwable t)
@@ -60,6 +59,8 @@ public class CommunicationPortFactory
 	{
 		if (kindOfPort.equals(CommunicationPortUtilies.getSerialPort()))
 			return getSerialPort(portName);
+		else if (kindOfPort.equals(CommunicationPortUtilies.getSerialPort64()))
+			return getSerialPort64(portName);
 		else if (kindOfPort.equals(CommunicationPortUtilies.getEthernetPort()))
 		{
 			emergencyPort = new EthernetPortWrapper(portName, CommunicationPortFactory.applicationName);
@@ -77,6 +78,19 @@ public class CommunicationPortFactory
 		else
 		{
 			ICommunicationPort newPort = new SerialPortWrapper(portName, CommunicationPortFactory.applicationName);
+			serialPortsMap.put(portName, newPort);
+
+			return newPort;
+		}
+	}
+
+	private static synchronized ICommunicationPort getSerialPort64(String portName) throws CommunicationPortException
+	{
+		if (serialPortsMap.containsKey(portName))
+			return serialPortsMap.get(portName);
+		else
+		{
+			ICommunicationPort newPort = new SerialPort64Wrapper(portName, CommunicationPortFactory.applicationName);
 			serialPortsMap.put(portName, newPort);
 
 			return newPort;
