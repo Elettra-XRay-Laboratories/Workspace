@@ -130,6 +130,7 @@ public class FreeMovementsAndScansWindow extends AbstractGenericFrame
 		gbc_movePanel6.gridy = 0;
 		leftPanel.add(movePanel6, gbc_movePanel6);
 		movePanel6.add(new LPTMovePanel(Axis.MOTOR5, this.getPort()));
+		//movePanel6.add(new MovePanel(Axis.MOTOR5, this.getPort()));
 
 		// --------------
 

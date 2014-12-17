@@ -38,7 +38,7 @@ import java.awt.event.FocusEvent;
 import javax.swing.JCheckBox;
 
 @SuppressWarnings({ "unchecked", "rawtypes" })
-public final class MovePanel extends MovementListener implements ActionListener
+public class MovePanel extends MovementListener implements ActionListener
 {
 	static class ActionCommands
 	{
@@ -59,46 +59,50 @@ public final class MovePanel extends MovementListener implements ActionListener
 	 */
 	private static final long  serialVersionUID = 768167582629608648L;
 
-	private int                axis;
-	private ICommunicationPort port;
+	protected int                axis;
+	protected ICommunicationPort port;
 
-	private JTextField         axisPosition;
-	private JTextField         measureUnit;
-	private JTextField         position;
-	private JComboBox          signComboBox;
-	private JComboBox          kindOfMovementComboBox;
-	private JTextField         axisName;
+	protected JTextField         axisPosition;
+	protected JTextField         measureUnit;
+	protected JTextField         position;
+	protected JComboBox          signComboBox;
+	protected JComboBox          kindOfMovementComboBox;
+	protected JTextField         axisName;
 
-	private boolean            isScanActive;
+	protected boolean            isScanActive;
 
-	private JButton            setButton;
-	private JButton            moveButton;
-	private JButton            stopButton;
-	private JButton            stepMinusButton;
-	private JButton            stepPlusButton;
-	private JButton            runMinusButton;
-	private JButton            runPlusButton;
-	private JButton            fastMinusButton;
-	private JButton            fastPlusButton;
-	private JButton            refButton;
-	private JLabel             lblMove;
-	private JLabel             lblMove_1;
-	private JTabbedPane        tabbedPaneLimits;
-	private JPanel             panelLimits;
-	private JTextField         limitDown;
-	private JTextField         limitDownUm;
-	private JComboBox          ldSignComboBox;
-	private JCheckBox          blockedCheckBox;
-	private JLabel             lblLimit;
-	private JLabel             lblLimit_1;
-	private JComboBox          luSignComboBox;
-	private JLabel             lblBlocked;
-	private JTextField         limitUp;
-	private JTextField         limitUpUm;
-	private JCheckBox          limitedCheckBox;
-	private JLabel             lblLimited;
+	protected JButton            setButton;
+	protected JButton            moveButton;
+	protected JButton            stopButton;
+	protected JButton            stepMinusButton;
+	protected JButton            stepPlusButton;
+	protected JButton            runMinusButton;
+	protected JButton            runPlusButton;
+	protected JButton            fastMinusButton;
+	protected JButton            fastPlusButton;
+	protected JButton            refButton;
+	protected JLabel             lblMove;
+	protected JLabel             lblMove_1;
+	protected JTabbedPane        tabbedPaneLimits;
+	protected JPanel             panelLimits;
+	protected JTextField         limitDown;
+	protected JTextField         limitDownUm;
+	protected JComboBox          ldSignComboBox;
+	protected JCheckBox          blockedCheckBox;
+	protected JLabel             lblLimit;
+	protected JLabel             lblLimit_1;
+	protected JComboBox          luSignComboBox;
+	protected JLabel             lblBlocked;
+	protected JTextField         limitUp;
+	protected JTextField         limitUpUm;
+	protected JCheckBox          limitedCheckBox;
+	protected JLabel             lblLimited;
 
-	private AxisConfiguration  axisConfiguration;
+	protected AxisConfiguration  axisConfiguration;
+
+	protected JPanel panelDown;
+
+	protected JTabbedPane tabbedPaneDown;
 
 	/**
 	 * Create the panel.
@@ -300,7 +304,7 @@ public final class MovePanel extends MovementListener implements ActionListener
 		gbc_stopButton.gridy = 3;
 		panelUp.add(stopButton, gbc_stopButton);
 
-		JTabbedPane tabbedPaneDown = new JTabbedPane(JTabbedPane.TOP);
+		tabbedPaneDown = new JTabbedPane(JTabbedPane.TOP);
 		GridBagConstraints gbc_tabbedPaneDown = new GridBagConstraints();
 		gbc_tabbedPaneDown.insets = new Insets(0, 0, 5, 0);
 		gbc_tabbedPaneDown.fill = GridBagConstraints.BOTH;
@@ -308,7 +312,7 @@ public final class MovePanel extends MovementListener implements ActionListener
 		gbc_tabbedPaneDown.gridy = 2;
 		add(tabbedPaneDown, gbc_tabbedPaneDown);
 
-		JPanel panelDown = new JPanel();
+		panelDown = new JPanel();
 		tabbedPaneDown.addTab("Commands", null, panelDown, null);
 		tabbedPaneDown.setForegroundAt(0, new Color(51, 102, 0));
 		GridBagLayout gbl_panelDown = new GridBagLayout();
@@ -750,7 +754,7 @@ public final class MovePanel extends MovementListener implements ActionListener
 	 * ----------------------------------------------------------
 	 */
 
-	private void manageEventMove() throws CommunicationPortException
+	protected void manageEventMove() throws CommunicationPortException
 	{
 		try
 		{
@@ -831,7 +835,7 @@ public final class MovePanel extends MovementListener implements ActionListener
 		CommandsFacade.executeCommand(CommandsFacade.Commands.STEP, new CommandParameters(this.axis, DriverUtilities.getMinus(), 0.0, ListenerRegister.getInstance()), this.port);
 	}
 
-	private String readAxisPosition() throws CommunicationPortException
+	protected String readAxisPosition() throws CommunicationPortException
 	{
 		ControllerPosition position = DriverUtilities.parseAxisPositionResponse(axis, CommandsFacade.executeAction(CommandsFacade.Actions.REQUEST_AXIS_POSITION, new CommandParameters(this.axis, GuiUtilities.getNullListener()), this.port));
 

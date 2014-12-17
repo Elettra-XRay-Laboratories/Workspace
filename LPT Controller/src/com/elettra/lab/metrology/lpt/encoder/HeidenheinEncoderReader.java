@@ -17,31 +17,46 @@ public class HeidenheinEncoderReader implements IEncoderReader, IEncoderReaderIn
 		port.initialize(new SerialPortParameters(9600, 7, 2, 2));
 	}
 
-	public double readPosition() throws CommunicationPortException
+	public synchronized double readPosition() throws CommunicationPortException
 	{
-		byte[] command = new byte[] { (byte) 0x02 };
 		double position = 0.0;
-
 		boolean gotcha = false;
+
 		while (!gotcha)
 		{
-			port.write(command);
+			port.write(new byte[] { (byte) 0x02 });
 
-			try
+			byte[] out = new byte[18];
+			int lastIndex = -1;
+
+			boolean received = false;
+
+			while (!received)
 			{
-				Thread.sleep(100);
-			}
-			catch (InterruptedException e)
-			{
+				byte[] temp = port.readBytes();
+
+				if (temp != null)
+				{					
+					int outIndex = -1;
+
+					for (int i = 0; i < temp.length; i++)
+					{
+						outIndex = lastIndex + 1 + i;
+
+						if (outIndex <= 17)
+						{
+							out[outIndex] = temp[i];
+
+							received = outIndex == 17;
+						}
+					}
+
+					lastIndex = outIndex;
+				}
 			}
 
-			byte[] out = port.readBytes();
-
-			if (out != null)
-			{
-				position = Double.parseDouble(new String(out, 1, out.length - 1)) * ((char) out[0] == '+' ? 1 : -1);
-				gotcha = true;
-			}
+			position = Double.parseDouble(new String(out, 1, out.length - 1).trim()) * ((char) out[0] == '+' ? 1 : -1);
+			gotcha = true;
 		}
 
 		return position;
