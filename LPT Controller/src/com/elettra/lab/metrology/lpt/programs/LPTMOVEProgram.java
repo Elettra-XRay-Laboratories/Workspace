@@ -31,6 +31,8 @@ public class LPTMOVEProgram extends AbstractProgram
 
 		MoveParameters moveParameters = (MoveParameters) parameters;
 
+		Object precisionObj = moveParameters.getCustomParameter("PRECISION");
+
 		AxisConfiguration axisConfiguration = DriverUtilities.getAxisConfigurationMap().getAxisConfiguration(moveParameters.getAxis());
 
 		if (axisConfiguration.isBlocked())
@@ -44,40 +46,13 @@ public class LPTMOVEProgram extends AbstractProgram
 		commandString += DriverUtilities.buildGalilCommand("SP" + DriverUtilities.getGalilAxis(moveParameters.getAxis()) + "="
 		    + Integer.toString(axisConfiguration.getSts()));
 
-		/* inversione del segno con quello reale */
-		// NO: QUI SI LEGGE LA POSIZIONE DELL'ENCODER, meglio evitare casini.
-		// moveParameters.setSign(DriverUtilities.getSignProduct(moveParameters.getSign(),
-		// axisConfiguration.getSignToPositive()));
-
 		if (moveParameters.getKindOfMovement().equals(DriverUtilities.getRelative()))
 		{
-			boolean conditionToBacklash = axisConfiguration.getSignToPositive().equals(DriverUtilities.getPlus()) ? moveParameters.getSign().equals(
-			    DriverUtilities.getMinus()) : moveParameters.getSign().equals(DriverUtilities.getPlus());
-
 			requestedAbsolutePosition = currentPosition
 			    + DriverUtilities.controllerToNumber(new ControllerPosition(moveParameters.getSign(), moveParameters.getPosition()));
 
-			if (conditionToBacklash)
-			{
-				int backlashPosition = StepConverter.toStep(moveParameters.getAxis(), moveParameters.getPosition())
-				    + StepConverter.toStep(moveParameters.getAxis(), DriverUtilities.getBacklash(axisConfiguration.getMeasureUnit()));
-
-				commandString += DriverUtilities.buildGalilCommand("PR" + DriverUtilities.getGalilAxis(moveParameters.getAxis()) + "=-"
-				    + Integer.toString(backlashPosition));
-				commandString += DriverUtilities.buildGalilCommand("BG" + DriverUtilities.getGalilAxis(moveParameters.getAxis()));
-
-				new WritePort(commandString, port).start();
-
-				moveParameters.getListener().signalAxisMovement(moveParameters.getAxis(), port);
-
-				CommandsFacade.waitForTheEndOfMovement(new CommandParameters(moveParameters.getAxis(), moveParameters.getListener()), port);
-
-				commandString = DriverUtilities.buildGalilCommand("PR" + DriverUtilities.getGalilAxis(moveParameters.getAxis()) + "=+"
-				    + StepConverter.toStep(moveParameters.getAxis(), DriverUtilities.getBacklash(axisConfiguration.getMeasureUnit())));
-			}
-			else
-				commandString += DriverUtilities.buildGalilCommand("PR" + DriverUtilities.getGalilAxis(moveParameters.getAxis()) + "="
-				    + StepConverter.toStep(moveParameters.getAxis(), moveParameters.getPosition()));
+			commandString += DriverUtilities.buildGalilCommand("PR" + DriverUtilities.getGalilAxis(moveParameters.getAxis()) + "="
+			    + StepConverter.toStep(moveParameters.getAxis(), moveParameters.getPosition()));
 		}
 		else if (moveParameters.getKindOfMovement().equals(DriverUtilities.getAbsolute()))
 		{
@@ -85,30 +60,8 @@ public class LPTMOVEProgram extends AbstractProgram
 
 			requestedAbsolutePosition = finalPosition;
 
-			boolean conditionToBacklash = axisConfiguration.getSignToPositive().equals(DriverUtilities.getPlus()) ? finalPosition < currentPosition
-			    : finalPosition > currentPosition;
-
-			if (conditionToBacklash)
-			{
-				int backlashPosition = StepConverter.toStep(moveParameters.getAxis(), finalPosition - currentPosition)
-				    - StepConverter.toStep(moveParameters.getAxis(), DriverUtilities.getBacklash(axisConfiguration.getMeasureUnit()));
-
-				commandString += DriverUtilities.buildGalilCommand("PR" + DriverUtilities.getGalilAxis(moveParameters.getAxis()) + "="
-				    + Integer.toString(backlashPosition));
-				commandString += DriverUtilities.buildGalilCommand("BG" + DriverUtilities.getGalilAxis(moveParameters.getAxis()));
-
-				new WritePort(commandString, port).start();
-
-				moveParameters.getListener().signalAxisMovement(moveParameters.getAxis(), port);
-
-				CommandsFacade.waitForTheEndOfMovement(new CommandParameters(moveParameters.getAxis(), moveParameters.getListener()), port);
-
-				commandString = DriverUtilities.buildGalilCommand("PR" + DriverUtilities.getGalilAxis(moveParameters.getAxis()) + "=+"
-				    + StepConverter.toStep(moveParameters.getAxis(), DriverUtilities.getBacklash(axisConfiguration.getMeasureUnit())));
-			}
-			else
-				commandString += DriverUtilities.buildGalilCommand("PR" + DriverUtilities.getGalilAxis(moveParameters.getAxis()) + "="
-				    + +StepConverter.toStep(moveParameters.getAxis(), finalPosition - currentPosition));
+			commandString += DriverUtilities.buildGalilCommand("PR" + DriverUtilities.getGalilAxis(moveParameters.getAxis()) + "="
+			    + StepConverter.toStep(moveParameters.getAxis(), finalPosition - currentPosition));
 		}
 
 		commandString += DriverUtilities.buildGalilCommand("BG" + DriverUtilities.getGalilAxis(moveParameters.getAxis()));
@@ -117,12 +70,13 @@ public class LPTMOVEProgram extends AbstractProgram
 
 		moveParameters.getListener().signalAxisMovement(moveParameters.getAxis(), port);
 
-		CommandsFacade.waitForTheEndOfMovement(new CommandParameters(moveParameters.getAxis(), moveParameters.getListener()), port);
+		if (precisionObj != null)
+		{
+			CommandsFacade.waitForTheEndOfMovement(new CommandParameters(moveParameters.getAxis(), moveParameters.getListener()), port);
 
-		double precision = Math.abs(((Double) moveParameters.getCustomParameter("PRECISION")).doubleValue());
-
-		this.correctPosition(moveParameters, port, requestedAbsolutePosition, precision);
-
+			this.correctPosition(moveParameters, port, requestedAbsolutePosition, Math.abs(((Double) precisionObj).doubleValue()));
+		}
+		
 		return new MoveResult();
 	}
 
@@ -130,8 +84,9 @@ public class LPTMOVEProgram extends AbstractProgram
 	    throws CommunicationPortException
 	{
 		double currentPosition = EncoderReaderFactory.getEncoderReader().readPosition();
+		int trial = 0;
 
-		while (Math.abs(requestedAbsolutePosition - currentPosition) > precision)
+		while (Math.abs(requestedAbsolutePosition - currentPosition) >= precision && trial < 2)
 		{
 			double delta = requestedAbsolutePosition - currentPosition;
 
@@ -146,6 +101,7 @@ public class LPTMOVEProgram extends AbstractProgram
 			CommandsFacade.waitForTheEndOfMovement(new CommandParameters(moveParameters.getAxis(), moveParameters.getListener()), port);
 
 			currentPosition = EncoderReaderFactory.getEncoderReader().readPosition();
+			trial++;
 		}
 	}
 
@@ -159,6 +115,8 @@ public class LPTMOVEProgram extends AbstractProgram
 			super();
 			this.commandString = commandString;
 			this.port = port;
+
+			this.setPriority(MAX_PRIORITY);
 		}
 
 		public void run()

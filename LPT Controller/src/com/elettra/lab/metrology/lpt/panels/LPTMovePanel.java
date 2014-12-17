@@ -36,6 +36,7 @@ public final class LPTMovePanel extends MovePanel implements ActionListener
 	private static final long	serialVersionUID	= 768167582649608648L;
 	private JTextField	      precision;
 	private AbstractButton	  precisionCheckBox;
+	private JTextField	      measureUnit2;
 
 	/**
 	 * Create the panel.
@@ -95,23 +96,26 @@ public final class LPTMovePanel extends MovePanel implements ActionListener
 			}
 		});
 
-		precision.setText(DriverUtilities.formatControllerPosition(0.001));
+		precision.setText(DriverUtilities.formatControllerPosition(0.005));
 		precision.setHorizontalAlignment(SwingConstants.RIGHT);
 		GridBagConstraints gbc_precision = new GridBagConstraints();
 		gbc_precision.anchor = GridBagConstraints.SOUTHEAST;
 		gbc_precision.insets = new Insets(5, 5, 5, 5);
-		gbc_precision.gridx = 1;
+		gbc_precision.gridx = 3;
 		gbc_precision.gridy = 2;
-		gbc_precision.gridwidth = 2;
 		panelDown.add(precision, gbc_precision);
 		precision.setColumns(8);
 
+		measureUnit2 = new JTextField();
+		measureUnit2.setEditable(false);
+		measureUnit2.setText(axisConfiguration.getMeasureUnit().toString());
 		GridBagConstraints gbc_measureUnit = new GridBagConstraints();
 		gbc_measureUnit.anchor = GridBagConstraints.SOUTHWEST;
 		gbc_measureUnit.insets = new Insets(0, 0, 5, 0);
-		gbc_measureUnit.gridx = 3;
+		gbc_measureUnit.gridx = 4;
 		gbc_measureUnit.gridy = 2;
-		panelDown.add(measureUnit, gbc_measureUnit);
+		panelDown.add(measureUnit2, gbc_measureUnit);
+		measureUnit2.setColumns(3);
 
 		precisionCheckBox = new JCheckBox("");
 		precisionCheckBox.setSelected(true);
@@ -124,10 +128,11 @@ public final class LPTMovePanel extends MovePanel implements ActionListener
 		});
 
 		GridBagConstraints gbc_precisionCheckBox = new GridBagConstraints();
-		gbc_precisionCheckBox.anchor = GridBagConstraints.WEST;
+		gbc_precisionCheckBox.anchor = GridBagConstraints.EAST;
 		gbc_precisionCheckBox.insets = new Insets(5, 0, 5, 5);
-		gbc_precisionCheckBox.gridx = 4;
+		gbc_precisionCheckBox.gridx = 1;
 		gbc_precisionCheckBox.gridy = 2;
+		gbc_precisionCheckBox.gridwidth = 2;
 		panelDown.add(precisionCheckBox, gbc_precisionCheckBox);
 	}
 
@@ -212,6 +217,8 @@ public final class LPTMovePanel extends MovePanel implements ActionListener
 			super();
 			this.moveParameters = moveParameters;
 			this.port = port;
+
+			this.setPriority(MAX_PRIORITY);
 		}
 
 		public void run()

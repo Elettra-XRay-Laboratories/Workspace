@@ -139,7 +139,7 @@ public final class CommandsFacade
 
 		try
 		{
-			Thread.sleep(200);
+			//Thread.sleep(200);
 
 			while (!isMotorStopped)
 			{
@@ -147,7 +147,7 @@ public final class CommandsFacade
 				
 				String actionResponse = CommandsFacade.executeAction(Actions.REQUEST_IS_MOTOR_MOVING, actionParameters, port);
 
-				Thread.sleep(200);
+				Thread.sleep(10);
 
 				isMotorStopped = CommandUtilities.isMotorStopped(actionResponse);
 			}

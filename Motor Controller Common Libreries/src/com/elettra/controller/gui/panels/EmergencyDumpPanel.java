@@ -52,7 +52,7 @@ public class EmergencyDumpPanel extends JPanel implements ActionListener
 		add(tabbedPane, gbc_tabbedPane);
 
 		JPanel panel = new JPanel();
-		tabbedPane.addTab("Huber Crash Recovery System", null, panel, null);
+		tabbedPane.addTab("Controller Crash Recovery System", null, panel, null);
 		tabbedPane.setForegroundAt(0, new Color(0, 102, 51));
 		GridBagLayout gbl_panel = new GridBagLayout();
 		gbl_panel.columnWidths = new int[] { 0 };

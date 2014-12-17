@@ -29,7 +29,7 @@ public class WaitFrame extends JFrame {
 
 		this.setIconImage(ImageIO.read(new File("ltpcontroller.jpg")));
 		this.setDefaultCloseOperation(EXIT_ON_CLOSE);
-		this.setBounds(50, 50, 400, 100);
+		this.setBounds(2400, 400, 400, 100);
 
 		GridBagLayout gridBagLayout = new GridBagLayout();
 		gridBagLayout.columnWidths = new int[] { 0 };

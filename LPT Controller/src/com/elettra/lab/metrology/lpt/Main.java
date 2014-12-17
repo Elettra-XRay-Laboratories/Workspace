@@ -47,6 +47,7 @@ import com.elettra.lab.metrology.lpt.encoder.EncoderReaderFactory;
 import com.elettra.lab.metrology.lpt.programs.LPTMOVEProgram;
 import com.elettra.lab.metrology.lpt.programs.LPTScanProgram;
 import com.elettra.lab.metrology.lpt.windows.FreeMovementsAndScansWindow;
+import com.elettra.lab.metrology.lpt.windows.SlopeErrorMeasurementWindow;
 
 public class Main extends AbstractCommunicationPortFrame implements ActionListener
 {
@@ -61,7 +62,7 @@ public class Main extends AbstractCommunicationPortFrame implements ActionListen
 	{
 		private static final String	EXIT		                  = "EXIT";
 		private static final String	FREE_MOVEMENTS_AND_SCANS	= "FREE_MOVEMENTS_AND_SCANS";
-		// private static final String SLOPE_ERROR_SCAN = "SLOPE_ERROR_SCAN";
+		private static final String SLOPE_ERROR_SCAN = "SLOPE_ERROR_SCAN";
 		private static final String	CONTROLLER_CRASH_RECOVERY	= "CONTROLLER_CRASH_RECOVERY";
 	}
 
@@ -80,7 +81,7 @@ public class Main extends AbstractCommunicationPortFrame implements ActionListen
 			this.setIconImage(ImageIO.read(new File("ltpcontroller.jpg")));
 			this.addWindowFocusListener(new MainWindowAdapter(this));
 			this.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
-			this.setBounds(50, 50, 450, 760);
+			this.setBounds(3270, 20, 330, 760);
 
 			GridBagLayout gridBagLayout = new GridBagLayout();
 			gridBagLayout.columnWidths = new int[] { 0, 0 };
@@ -134,32 +135,32 @@ public class Main extends AbstractCommunicationPortFrame implements ActionListen
 			alignementOperationsTabbedPane.addTab("Alignement Operations", null, alignementOperationsPanel, null);
 			GridBagLayout gbl_alignementOperationsPanel = new GridBagLayout();
 			gbl_alignementOperationsPanel.columnWidths = new int[] { 0 };
-			gbl_alignementOperationsPanel.rowHeights = new int[] { 0, 0, 0, 0 };
+			gbl_alignementOperationsPanel.rowHeights = new int[] { 0, 0 };
 			gbl_alignementOperationsPanel.columnWeights = new double[] { 1.0 };
-			gbl_alignementOperationsPanel.rowWeights = new double[] { 1.0, 1.0, 1.0, 1.0 };
+			gbl_alignementOperationsPanel.rowWeights = new double[] { 1.0, 1.0};
 			alignementOperationsPanel.setLayout(gbl_alignementOperationsPanel);
 
-			JButton monocromatorAlignementButton = new JButton("...");
-			monocromatorAlignementButton.addActionListener(this);
-			// monocromatorAlignementButton.setActionCommand(ActionCommands.ALIGNEMENT_OF_THE_DIFFRACTOMETER_WITH_THE_XBEAM);
-			monocromatorAlignementButton.setFont(new Font("Tahoma", Font.PLAIN, 14));
-			GridBagConstraints gbc_monocromatorAlignementButton = new GridBagConstraints();
-			gbc_monocromatorAlignementButton.fill = GridBagConstraints.BOTH;
-			gbc_monocromatorAlignementButton.insets = new Insets(0, 5, 5, 5);
-			gbc_monocromatorAlignementButton.gridx = 0;
-			gbc_monocromatorAlignementButton.gridy = 1;
-			alignementOperationsPanel.add(monocromatorAlignementButton, gbc_monocromatorAlignementButton);
+			JButton alignementOperation1Button = new JButton("MOTORS ALIGNEMENT THROUGH SCAN");
+			alignementOperation1Button.addActionListener(this);
+			alignementOperation1Button.setActionCommand(ActionCommands.FREE_MOVEMENTS_AND_SCANS);
+			alignementOperation1Button.setFont(new Font("Tahoma", Font.PLAIN, 14));
+			GridBagConstraints gbc_alignementOperation1Button = new GridBagConstraints();
+			gbc_alignementOperation1Button.fill = GridBagConstraints.BOTH;
+			gbc_alignementOperation1Button.insets = new Insets(10, 5, 5, 5);
+			gbc_alignementOperation1Button.gridx = 0;
+			gbc_alignementOperation1Button.gridy = 0;
+			alignementOperationsPanel.add(alignementOperation1Button, gbc_alignementOperation1Button);
 
-			JButton sampleAlignementButton = new JButton("...");
-			sampleAlignementButton.addActionListener(this);
+			JButton alignementOperation2Button = new JButton("CHECK ALIGNEMENT ON CCD");
+			alignementOperation2Button.addActionListener(this);
 			// sampleAlignementButton.setActionCommand(ActionCommands.ALIGNEMENT_OF_THE_SAMPLE_WITH_THE_XBEAM);
-			sampleAlignementButton.setFont(new Font("Tahoma", Font.PLAIN, 14));
+			alignementOperation2Button.setFont(new Font("Tahoma", Font.PLAIN, 14));
 			GridBagConstraints gbc_sampleAlignementButton = new GridBagConstraints();
 			gbc_sampleAlignementButton.insets = new Insets(0, 5, 5, 5);
 			gbc_sampleAlignementButton.fill = GridBagConstraints.BOTH;
 			gbc_sampleAlignementButton.gridx = 0;
-			gbc_sampleAlignementButton.gridy = 2;
-			alignementOperationsPanel.add(sampleAlignementButton, gbc_sampleAlignementButton);
+			gbc_sampleAlignementButton.gridy = 1;
+			alignementOperationsPanel.add(alignementOperation2Button, gbc_sampleAlignementButton);
 			alignementOperationsTabbedPane.setForegroundAt(0, new Color(0, 102, 51));
 
 			JTabbedPane measureOperationsTabbedPane = new JTabbedPane(JTabbedPane.TOP);
@@ -179,27 +180,27 @@ public class Main extends AbstractCommunicationPortFrame implements ActionListen
 			gbl_measureOperationPanel.rowWeights = new double[] { 1.0, 1.0, Double.MIN_VALUE };
 			measureOperationPanel.setLayout(gbl_measureOperationPanel);
 
-			JButton residualStressMeasureButton = new JButton("SLOPE ERROR MEASUREMENT");
-			residualStressMeasureButton.addActionListener(this);
-			// residualStressMeasureButton.setActionCommand(ActionCommands.RESIDUAL_STRESS_MEASURE);
-			residualStressMeasureButton.setFont(new Font("Tahoma", Font.PLAIN, 14));
+			JButton slopeErrorMeasureButton = new JButton("SLOPE ERROR MEASUREMENT");
+			slopeErrorMeasureButton.addActionListener(this);
+			slopeErrorMeasureButton.setActionCommand(ActionCommands.SLOPE_ERROR_SCAN);
+			slopeErrorMeasureButton.setFont(new Font("Tahoma", Font.PLAIN, 14));
 			GridBagConstraints gbc_ResidualStressMeasureButton = new GridBagConstraints();
 			gbc_ResidualStressMeasureButton.fill = GridBagConstraints.BOTH;
 			gbc_ResidualStressMeasureButton.insets = new Insets(10, 5, 5, 5);
 			gbc_ResidualStressMeasureButton.gridx = 0;
 			gbc_ResidualStressMeasureButton.gridy = 0;
-			measureOperationPanel.add(residualStressMeasureButton, gbc_ResidualStressMeasureButton);
+			measureOperationPanel.add(slopeErrorMeasureButton, gbc_ResidualStressMeasureButton);
 
-			JButton omega2ThetaScanButton = new JButton("SLOPE ERROR CALCULATION (POST)");
-			omega2ThetaScanButton.addActionListener(this);
+			JButton sloperErrorCalculation = new JButton("SLOPE ERROR CALCULATION (POST)");
+			sloperErrorCalculation.addActionListener(this);
 			// omega2ThetaScanButton.setActionCommand(ActionCommands.RESIDUAL_STRESS_MEASURE);
-			omega2ThetaScanButton.setFont(new Font("Tahoma", Font.PLAIN, 14));
+			sloperErrorCalculation.setFont(new Font("Tahoma", Font.PLAIN, 14));
 			GridBagConstraints gbc_omega2ThetaScanButton = new GridBagConstraints();
 			gbc_omega2ThetaScanButton.fill = GridBagConstraints.BOTH;
 			gbc_omega2ThetaScanButton.insets = new Insets(0, 5, 5, 5);
 			gbc_omega2ThetaScanButton.gridx = 0;
 			gbc_omega2ThetaScanButton.gridy = 1;
-			measureOperationPanel.add(omega2ThetaScanButton, gbc_omega2ThetaScanButton);
+			measureOperationPanel.add(sloperErrorCalculation, gbc_omega2ThetaScanButton);
 			measureOperationsTabbedPane.setForegroundAt(0, new Color(0, 102, 51));
 
 			JTabbedPane supportOperationsTabbedPane = new JTabbedPane(JTabbedPane.TOP);
@@ -219,16 +220,16 @@ public class Main extends AbstractCommunicationPortFrame implements ActionListen
 			gbl_supportOperationsPanel.rowWeights = new double[] { 1.0, 1.0, 1.0, Double.MIN_VALUE };
 			supportOperationsPanel.setLayout(gbl_supportOperationsPanel);
 
-			JButton freeMovementsButton = new JButton("FREE MOVEMENTS AND SCANS OF ALL THE AXIS");
-			freeMovementsButton.addActionListener(this);
-			freeMovementsButton.setActionCommand(ActionCommands.FREE_MOVEMENTS_AND_SCANS);
-			freeMovementsButton.setFont(new Font("Tahoma", Font.PLAIN, 14));
-			GridBagConstraints gbc_freeMovementsButton = new GridBagConstraints();
-			gbc_freeMovementsButton.fill = GridBagConstraints.BOTH;
-			gbc_freeMovementsButton.insets = new Insets(10, 5, 5, 5);
-			gbc_freeMovementsButton.gridx = 0;
-			gbc_freeMovementsButton.gridy = 0;
-			supportOperationsPanel.add(freeMovementsButton, gbc_freeMovementsButton);
+			JButton supportOperation1Button = new JButton("...");
+			supportOperation1Button.addActionListener(this);
+			//supportOperation1Button.setActionCommand(ActionCommands.FREE_MOVEMENTS_AND_SCANS);
+			supportOperation1Button.setFont(new Font("Tahoma", Font.PLAIN, 14));
+			GridBagConstraints gbc_supportOperation1Button = new GridBagConstraints();
+			gbc_supportOperation1Button.fill = GridBagConstraints.BOTH;
+			gbc_supportOperation1Button.insets = new Insets(10, 5, 5, 5);
+			gbc_supportOperation1Button.gridx = 0;
+			gbc_supportOperation1Button.gridy = 0;
+			supportOperationsPanel.add(supportOperation1Button, gbc_supportOperation1Button);
 
 			JButton recoveryCrashButton = new JButton("RECOVERY CRASH OF THE CONTROLLER");
 			recoveryCrashButton.addActionListener(this);
@@ -338,6 +339,8 @@ public class Main extends AbstractCommunicationPortFrame implements ActionListen
 				this.terminate();
 			else if (eventName.equals(ActionCommands.FREE_MOVEMENTS_AND_SCANS))
 				FreeMovementsAndScansWindow.getInstance(this.getPort()).setVisible(true);
+			else if (eventName.equals(ActionCommands.SLOPE_ERROR_SCAN))
+				SlopeErrorMeasurementWindow.getInstance(this.getPort()).setVisible(true);
 			else if (eventName.equals(ActionCommands.CONTROLLER_CRASH_RECOVERY))
 				ControllerCrashRecoveryWindow.getInstance(this.getPort()).setVisible(true);
 		}
@@ -463,18 +466,7 @@ public class Main extends AbstractCommunicationPortFrame implements ActionListen
 	{
 		if (DriverUtilities.getKindOfController().equals(DriverUtilities.getGalilController()))
 		{
-			// CommandsFacade.executeCommand(CommandsFacade.Commands.MOTOR_CONFIGURATION,
-			// new CommandParameters(Axis.MOTOR1, GuiUtilities.getNullListener()),
-			// port);
-			// CommandsFacade.executeCommand(CommandsFacade.Commands.MOTOR_CONFIGURATION,
-			// new CommandParameters(Axis.MOTOR2, GuiUtilities.getNullListener()),
-			// port);
-			// CommandsFacade.executeCommand(CommandsFacade.Commands.MOTOR_CONFIGURATION,
-			// new CommandParameters(Axis.MOTOR3, GuiUtilities.getNullListener()),
-			// port);
-			// CommandsFacade.executeCommand(CommandsFacade.Commands.MOTOR_CONFIGURATION,
-			// new CommandParameters(Axis.MOTOR4, GuiUtilities.getNullListener()),
-			// port);
+			CommandsFacade.executeCommand(CommandsFacade.Commands.MOTOR_CONFIGURATION, new CommandParameters(Axis.MOTOR1, GuiUtilities.getNullListener()), port);
 			CommandsFacade.executeCommand(CommandsFacade.Commands.MOTOR_CONFIGURATION, new CommandParameters(Axis.MOTOR5, GuiUtilities.getNullListener()), port);
 		}
 	}

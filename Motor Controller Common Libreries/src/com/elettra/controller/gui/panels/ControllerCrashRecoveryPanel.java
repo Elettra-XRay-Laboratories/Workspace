@@ -33,27 +33,27 @@ public class ControllerCrashRecoveryPanel extends JPanel implements ActionListen
 	/**
    * 
    */
-	private static final long serialVersionUID = -3376307440591186627L;
+	private static final long	serialVersionUID	= -3376307440591186627L;
 
 	static class ActionCommands
 	{
-		private static final String RUNMINUS = "RUN-";
-		private static final String RUNPLUS  = "RUN+";
-		private static final String SET      = "SET";
-		private static final String REF      = "REF";
-		private static final String STOP     = "STOP";
-		private static final String MOVE     = "MOVE";
+		private static final String	RUNMINUS	= "RUN-";
+		private static final String	RUNPLUS		= "RUN+";
+		private static final String	SET		   = "SET";
+		private static final String	REF		   = "REF";
+		private static final String	STOP		 = "STOP";
+		private static final String	MOVE		 = "MOVE";
 	}
 
-	private int                axis;
-	private ICommunicationPort port;
-	private JTextField         emergencyDumpTextField;
+	private int	               axis;
+	private ICommunicationPort	port;
+	private JTextField	       emergencyDumpTextField;
 
-	private JTextField         axisName;
-	private JButton            runPlusButton;
-	private JButton            runMinusButton;
-	private JButton            refButton;
-	private JButton            stopButton;
+	private JTextField	       axisName;
+	private JButton	           runPlusButton;
+	private JButton	           runMinusButton;
+	private JButton	           refButton;
+	private JButton	           stopButton;
 
 	/**
 	 * Create the panel.
@@ -146,7 +146,8 @@ public class ControllerCrashRecoveryPanel extends JPanel implements ActionListen
 		gbc_emergencyDumpTextField.gridy = 0;
 		recoveryPanel.add(emergencyDumpTextField, gbc_emergencyDumpTextField);
 		emergencyDumpTextField.setColumns(10);
-		emergencyDumpTextField.setText(DriverUtilities.formatControllerPositionTextField(this.axis, DriverUtilities.parseAxisPositionResponse(this.axis, DriverUtilities.getEmergencyAxisPosition(this.axis))));
+		emergencyDumpTextField.setText(DriverUtilities.formatControllerPositionTextField(this.axis,
+		    DriverUtilities.parseAxisPositionResponse(this.axis, DriverUtilities.getEmergencyAxisPosition(this.axis))));
 
 		JButton setButton = new JButton("SET");
 		setButton.addActionListener(this);
@@ -170,7 +171,7 @@ public class ControllerCrashRecoveryPanel extends JPanel implements ActionListen
 		moveButton.setEnabled(axisConfiguration.isRefEnabled());
 
 		JPanel huberPanel = new JPanel();
-		tabbedPane.addTab("Huber", null, huberPanel, null);
+		tabbedPane.addTab("Controller", null, huberPanel, null);
 		tabbedPane.setForegroundAt(1, new Color(0, 102, 51));
 
 		GridBagLayout gbl_huberPanel = new GridBagLayout();
@@ -305,7 +306,8 @@ public class ControllerCrashRecoveryPanel extends JPanel implements ActionListen
 
 	private void manageEventRef() throws CommunicationPortException
 	{
-		if (GuiUtilities.showConfirmPopup("Warning: the requested operation is irreversible and it will erase every setting on the controller (SET command)\nContinue?", this))
+		if (GuiUtilities.showConfirmPopup(
+		    "Warning: the requested operation is irreversible and it will erase every setting on the controller (SET command)\nContinue?", this))
 		{
 			CommandsFacade.executeCommand(CommandsFacade.Commands.REF, new CommandParameters(this.axis, GuiUtilities.getNullListener()), this.port);
 		}
@@ -317,24 +319,27 @@ public class ControllerCrashRecoveryPanel extends JPanel implements ActionListen
 		{
 			ControllerPosition position = DriverUtilities.parseHuberAxisPosition(this.emergencyDumpTextField.getText());
 
-			CommandsFacade.executeCommand(CommandsFacade.Commands.POS, new CommandParameters(this.axis, position.getSign(), position.getAbsolutePosition(), GuiUtilities.getNullListener()), this.port);
+			CommandsFacade.executeCommand(CommandsFacade.Commands.POS, new CommandParameters(this.axis, position.getSign(), position.getAbsolutePosition(),
+			    GuiUtilities.getNullListener()), this.port);
 		}
 	}
 
 	private void manageEventRunPlus() throws CommunicationPortException
 	{
-		CommandsFacade.executeCommand(CommandsFacade.Commands.RUN, new CommandParameters(this.axis, DriverUtilities.getPlus(), 0.0, GuiUtilities.getNullListener()), this.port);
+		CommandsFacade.executeCommand(CommandsFacade.Commands.RUN,
+		    new CommandParameters(this.axis, DriverUtilities.getPlus(), 0.0, GuiUtilities.getNullListener()), this.port);
 	}
 
 	private void manageEventRunMinus() throws CommunicationPortException
 	{
-		CommandsFacade.executeCommand(CommandsFacade.Commands.RUN, new CommandParameters(this.axis, DriverUtilities.getMinus(), 0.0, GuiUtilities.getNullListener()), this.port);
+		CommandsFacade.executeCommand(CommandsFacade.Commands.RUN,
+		    new CommandParameters(this.axis, DriverUtilities.getMinus(), 0.0, GuiUtilities.getNullListener()), this.port);
 	}
 
 	class StartMoveProgram extends Thread
 	{
-		private ProgramParameters  moveParameters;
-		private ICommunicationPort port;
+		private ProgramParameters		moveParameters;
+		private ICommunicationPort	port;
 
 		public StartMoveProgram(ProgramParameters moveParameters, ICommunicationPort port)
 		{

@@ -172,7 +172,7 @@ public class MovePanel extends MovementListener implements ActionListener
 		add(tabbedPaneUp, gbc_tabbedPaneUp);
 
 		JPanel panelUp = new JPanel();
-		tabbedPaneUp.addTab("Huber", null, panelUp, null);
+		tabbedPaneUp.addTab("Controller", null, panelUp, null);
 		tabbedPaneUp.setEnabledAt(0, true);
 		tabbedPaneUp.setBackgroundAt(0, UIManager.getColor("Panel.background"));
 		tabbedPaneUp.setForegroundAt(0, new Color(51, 102, 0));

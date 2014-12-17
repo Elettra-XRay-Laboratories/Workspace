@@ -190,6 +190,8 @@ public class LPTScanProgram extends SCANProgram
 
 	protected void executeMoveProgram(ICommunicationPort port, MoveParameters axisMoveParameters) throws CommunicationPortException
 	{
+		axisMoveParameters.addCustomParameter("PRECISION", 0.005);
+
 		ProgramsFacade.executeProgram(LPTMOVEProgram.PROGRAM_NAME, axisMoveParameters, port);
 	}
 }

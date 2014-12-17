@@ -13,9 +13,13 @@ import java.awt.event.ActionListener;
 import java.awt.event.FocusAdapter;
 import java.awt.event.FocusEvent;
 import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.IOException;
 
+import javax.imageio.ImageIO;
 import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
+import javax.swing.JCheckBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
@@ -52,9 +56,24 @@ public class LPTScanPanel extends ScanPanel
 
 	private JTextField	        numberOfCaptures;
 
+	private JCheckBox	          renderCheckBox;
+
+	private BufferedImage	      imageEnabled;
+	private BufferedImage	      imageDisabled;
+
 	public LPTScanPanel(int axis, ICommunicationPort port, boolean sendDataEnabled) throws CommunicationPortException
 	{
 		super(axis, port, sendDataEnabled);
+
+		try
+		{
+			imageEnabled = ImageIO.read(new File("Files/enabled.png"));
+			imageDisabled = ImageIO.read(new File("Files/disabled.png"));
+		}
+		catch (IOException e)
+		{
+			throw new RuntimeException(e.getMessage());
+		}
 
 		GridBagLayout gridBagLayout = (GridBagLayout) this.getLayout();
 
@@ -81,15 +100,44 @@ public class LPTScanPanel extends ScanPanel
 
 		GridBagLayout panelGridBagLayout = new GridBagLayout();
 
-		panelGridBagLayout.columnWidths = new int[] { 250, 150 };
-		panelGridBagLayout.rowHeights = new int[] { 380, 20, 20 };
+		panelGridBagLayout.columnWidths = new int[] { 60, 300 };
+		panelGridBagLayout.rowHeights = new int[] { 10, 380, 20, 20 };
 		panelGridBagLayout.columnWeights = new double[] { 0, 0 };
-		panelGridBagLayout.rowWeights = new double[] { 0, 0, 0 };
+		panelGridBagLayout.rowWeights = new double[] { 0, 0, 0, 0 };
 
 		imagePanel.setLayout(panelGridBagLayout);
+		
+		renderCheckBox = new JCheckBox("");
+		renderCheckBox.setSelected(true);
+		renderCheckBox.addActionListener(new ActionListener()
+		{
+			public void actionPerformed(ActionEvent e)
+			{
+				if (renderCheckBox.isSelected())
+					imageLabel.setIcon(new ImageIcon(imageEnabled));
+				else
+					imageLabel.setIcon(new ImageIcon(imageDisabled));
+			}
+		});
 
+		GridBagConstraints gbc_renderCheckBox = new GridBagConstraints();
+		gbc_renderCheckBox.anchor = GridBagConstraints.WEST;
+		gbc_renderCheckBox.insets = new Insets(5, 0, 5, 5);
+		gbc_renderCheckBox.gridx = 0;
+		gbc_renderCheckBox.gridy = 0;
+		imagePanel.add(renderCheckBox, gbc_renderCheckBox);
+
+		GridBagConstraints gbc_renderCheckBoxLabel = new GridBagConstraints();
+		gbc_renderCheckBoxLabel.anchor = GridBagConstraints.WEST;
+		gbc_renderCheckBoxLabel.insets = new Insets(5, -90, 5, 5);
+		gbc_renderCheckBoxLabel.gridx = 1;
+		gbc_renderCheckBoxLabel.gridy = 0;
+		imagePanel.add(new JLabel("Render Image"), gbc_renderCheckBoxLabel);		
+		
+		
 		this.imageLabel = new JLabel("");
-
+		this.imageLabel.setIcon(new ImageIcon(imageEnabled));
+		
 		JPanel imageLabelPanel = new JPanel();
 		imageLabelPanel.setBorder(BorderFactory.createBevelBorder(BevelBorder.RAISED));
 
@@ -98,10 +146,10 @@ public class LPTScanPanel extends ScanPanel
 		GridBagConstraints gbc_imagePanel = new GridBagConstraints();
 		gbc_imagePanel.anchor = GridBagConstraints.CENTER;
 		gbc_imagePanel.fill = GridBagConstraints.BOTH;
-		gbc_imagePanel.insets = new Insets(0, 0, 40, 0);
+		gbc_imagePanel.insets = new Insets(0, 0, 10, 0);
 		gbc_imagePanel.gridwidth = 2;
 		gbc_imagePanel.gridx = 0;
-		gbc_imagePanel.gridy = 0;
+		gbc_imagePanel.gridy = 1;
 		imagePanel.add(imageLabelPanel, gbc_imagePanel);
 
 		GridBagConstraints gbc_imagePanel_2 = new GridBagConstraints();
@@ -109,7 +157,7 @@ public class LPTScanPanel extends ScanPanel
 		gbc_imagePanel_2.fill = GridBagConstraints.VERTICAL;
 		gbc_imagePanel_2.insets = new Insets(0, 5, 5, 0);
 		gbc_imagePanel_2.gridx = 0;
-		gbc_imagePanel_2.gridy = 1;
+		gbc_imagePanel_2.gridy = 2;
 
 		imagePanel.add(new JLabel("Centroid X Position (um)"), gbc_imagePanel_2);
 
@@ -118,7 +166,7 @@ public class LPTScanPanel extends ScanPanel
 		gbc_imagePanel_3.fill = GridBagConstraints.VERTICAL;
 		gbc_imagePanel_3.insets = new Insets(0, 5, 5, 0);
 		gbc_imagePanel_3.gridx = 0;
-		gbc_imagePanel_3.gridy = 2;
+		gbc_imagePanel_3.gridy = 3;
 
 		imagePanel.add(new JLabel("Centroid Y Position (um)"), gbc_imagePanel_3);
 
@@ -133,7 +181,7 @@ public class LPTScanPanel extends ScanPanel
 		gbc_imagePanel_4.fill = GridBagConstraints.VERTICAL;
 		gbc_imagePanel_4.insets = new Insets(0, 5, 5, 5);
 		gbc_imagePanel_4.gridx = 1;
-		gbc_imagePanel_4.gridy = 1;
+		gbc_imagePanel_4.gridy = 2;
 
 		imagePanel.add(this.centroid_x_position, gbc_imagePanel_4);
 
@@ -142,14 +190,15 @@ public class LPTScanPanel extends ScanPanel
 		gbc_imagePanel_5.fill = GridBagConstraints.VERTICAL;
 		gbc_imagePanel_5.insets = new Insets(0, 5, 5, 5);
 		gbc_imagePanel_5.gridx = 1;
-		gbc_imagePanel_5.gridy = 2;
+		gbc_imagePanel_5.gridy = 3;
 
 		imagePanel.add(this.centroid_y_position, gbc_imagePanel_5);
 
 		JTabbedPane scanManagementTabbedPane = new JTabbedPane(JTabbedPane.TOP);
 		GridBagConstraints gbc_scanManagementTabbedPane = new GridBagConstraints();
 		gbc_scanManagementTabbedPane.insets = new Insets(5, 10, 0, 0);
-		gbc_scanManagementTabbedPane.fill = GridBagConstraints.BOTH;
+		gbc_scanManagementTabbedPane.anchor = GridBagConstraints.NORTHEAST;
+		gbc_scanManagementTabbedPane.fill = GridBagConstraints.HORIZONTAL;
 		gbc_scanManagementTabbedPane.gridx = 1;
 		gbc_scanManagementTabbedPane.gridy = 2;
 		gbc_scanManagementTabbedPane.gridheight = 2;
@@ -167,7 +216,6 @@ public class LPTScanPanel extends ScanPanel
 
 		GridBagConstraints gbc_scanPanel_1 = new GridBagConstraints();
 		gbc_scanPanel_1.anchor = GridBagConstraints.EAST;
-		gbc_scanPanel_1.fill = GridBagConstraints.VERTICAL;
 		gbc_scanPanel_1.insets = new Insets(0, 5, 5, 0);
 		gbc_scanPanel_1.gridx = 0;
 		gbc_scanPanel_1.gridy = 0;
@@ -291,20 +339,24 @@ public class LPTScanPanel extends ScanPanel
 
 	protected void drawCapture(MeasurePoint point)
 	{
-		BufferedImage capture = (BufferedImage) point.getCustomData(LPTScanProgram.LAST_IMAGE);
+		if (this.renderCheckBox.isSelected())
+		{
+			BufferedImage capture = (BufferedImage) point.getCustomData(LPTScanProgram.LAST_IMAGE);
 
-		int imageHSize = 390;
+			int imageHSize = 390;
 
-		BufferedImage resizedImage = new BufferedImage(imageHSize, (int) (imageHSize * HEIGHT_TO_WIDTH_RATIO), BufferedImage.TYPE_INT_RGB);
-		Graphics2D g = resizedImage.createGraphics();
-		g.setComposite(AlphaComposite.Src);
-		g.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR);
-		g.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
-		g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-		g.drawImage(capture, 0, 0, imageHSize, (int) (imageHSize * HEIGHT_TO_WIDTH_RATIO), null);
-		g.dispose();
+			BufferedImage resizedImage = new BufferedImage(imageHSize, (int) (imageHSize * HEIGHT_TO_WIDTH_RATIO), BufferedImage.TYPE_INT_RGB);
+			Graphics2D g = resizedImage.createGraphics();
+			g.setComposite(AlphaComposite.Src);
+			g.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR);
+			g.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
+			g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+			g.drawImage(capture, 0, 0, imageHSize, (int) (imageHSize * HEIGHT_TO_WIDTH_RATIO), null);
+			g.dispose();
 
-		this.imageLabel.setIcon(new ImageIcon(resizedImage));
+			this.imageLabel.setIcon(new ImageIcon(resizedImage));
+		}
+
 		this.centroid_x_position.setText(GuiUtilities.parseDouble(point.getAdditionalInformation1()) + " ± "
 		    + GuiUtilities.parseDouble(((Double) point.getCustomData(LPTScanProgram.X_STANDARD_DEVIATION)).doubleValue()));
 		this.centroid_y_position.setText(GuiUtilities.parseDouble(point.getAdditionalInformation2()) + " ± "
