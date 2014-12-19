@@ -96,23 +96,37 @@ public class LPTLiveCCDProgram extends AbstractProgram
 
 	protected MeasureResult getMeasureFromDetector() throws CommunicationPortException
 	{
+		MeasureResult result = new MeasureResult(0.0);
+
 		try
 		{
 			int[] buffer = this.ccd.getImageByMemory(this.dimx, this.dimy, mode);
-			Point centroid = this.ccd.getCentroid(buffer, this.dimx, this.dimy, false);
 
 			BufferedImage capture = ccd.buildImage(buffer, this.dimx, this.dimy);
-
 			Graphics2D g = capture.createGraphics();
 			g.setColor(Color.YELLOW);
-			g.fillOval((int) centroid.x - 10, (int) centroid.y - 10, 20, 20);
 
-			double centroid_x = (centroid.x - this.dimx / 2) * IIDSCCD.PIXEL_SIZE;
-			double centroid_y = -(centroid.y - this.dimy / 2) * IIDSCCD.PIXEL_SIZE;
+			try
+			{
+				Point centroid = this.ccd.getCentroid(buffer, this.dimx, this.dimy, false);
 
-			g.setFont(new Font("Verdana", Font.BOLD, 40));
-			g.drawString("(" + GuiUtilities.parseDouble(centroid_x, 1, true) + "," + GuiUtilities.parseDouble(centroid_y, 1, true) + ")", (int) centroid.x + 50,
-			    (int) centroid.y - 50);
+				g.fillOval((int) centroid.x - 10, (int) centroid.y - 10, 20, 20);
+
+				double centroid_x = (centroid.x - this.dimx / 2) * IIDSCCD.PIXEL_SIZE;
+				double centroid_y = -(centroid.y - this.dimy / 2) * IIDSCCD.PIXEL_SIZE;
+
+				result.setAdditionalInformation1(centroid_x);
+				result.setAdditionalInformation2(centroid_y);
+
+				g.setFont(new Font("Verdana", Font.BOLD, 40));
+				g.drawString("(" + GuiUtilities.parseDouble(centroid_x, 1, true) + "," + GuiUtilities.parseDouble(centroid_y, 1, true) + ")", (int) centroid.x + 50,
+				    (int) centroid.y - 50);
+			}
+			catch (Exception e)
+			{
+				g.setFont(new Font("Verdana", Font.BOLD, 40));
+				g.drawString("Centroid not calculated", 50, 50);
+			}
 
 			if (this.drawMainGrid)
 			{
@@ -132,9 +146,6 @@ public class LPTLiveCCDProgram extends AbstractProgram
 				g.drawLine(3 * this.dimx / 4, 0, 3 * this.dimx / 4, this.dimy);
 			}
 
-			MeasureResult result = new MeasureResult(0.0);
-			result.setAdditionalInformation1(centroid_x);
-			result.setAdditionalInformation2(centroid_y);
 			result.addCustomData(LAST_IMAGE, capture);
 
 			return result;

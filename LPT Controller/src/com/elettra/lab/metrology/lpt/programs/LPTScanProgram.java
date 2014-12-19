@@ -127,7 +127,15 @@ public class LPTScanProgram extends SCANProgram
 			for (int index = 0; index < this.numberOfCaptures; index++)
 			{
 				buffer = this.ccd.getImageByMemory(this.dimx, this.dimy, mode);
-				centroid = this.ccd.getCentroid(buffer, this.dimx, this.dimy, false);
+				
+				try
+				{
+					centroid = this.ccd.getCentroid(buffer, this.dimx, this.dimy, false);
+				}
+				catch (Exception e)
+				{
+					throw new RuntimeException("Centroid not calculated, measurement interrupted");
+				}
 
 				x_positions[index] = centroid.x;
 				average_x_position += centroid.x;
@@ -194,9 +202,9 @@ public class LPTScanProgram extends SCANProgram
 
 	private double calculateSlopeError(double average_x_position, double average_y_position)
 	{
-		double delta = Math.atan(((average_x_position - this.lastXn) - this.X0) / this.focalDistance);
+		double delta = Math.atan((((average_x_position - this.lastXn) / 2) - this.X0) / this.focalDistance);
 
-		return ((average_x_position - this.lastXn) * Math.cos(delta)) / this.focalDistance;
+		return (((average_x_position - this.lastXn) * Math.cos(delta)) / this.focalDistance) / 2;
 	}
 
 	protected void openShutter() throws IOException, InterruptedException
