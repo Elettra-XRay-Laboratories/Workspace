@@ -10,7 +10,9 @@ import org.apache.commons.math.optimization.OptimizationException;
 @SuppressWarnings("deprecation")
 public interface IIDSCCD
 {
-	public static final double PIXEL_SIZE = 3.3;
+	public static final double	PIXEL_SIZE	= 3.3;
+	public static final int	   DIM_X	     = 2448;
+	public static final int	   DIM_Y	     = 2048;
 
 	public abstract void exit() throws IDSCCDException, IllegalAccessException;
 

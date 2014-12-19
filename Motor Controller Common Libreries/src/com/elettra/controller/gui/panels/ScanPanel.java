@@ -360,8 +360,8 @@ public class ScanPanel extends MeasureListener implements ActionListener
 			plot.getRangeAxis(0).setStandardTickUnits(NumberAxis.createStandardTickUnits());
 
 		plot.getRangeAxis(0).setAutoRange(false);
-		plot.getRangeAxis(0).setLowerBound(0);
-		plot.getRangeAxis(0).setUpperBound(10);
+		plot.getRangeAxis(0).setLowerBound(getPlotLowerBound());
+		plot.getRangeAxis(0).setUpperBound(getPlotUpperBound());
 
 		plot.getDomainAxis(0).setAutoRange(false);
 		plot.getDomainAxis(0).setLowerBound(-10);
@@ -2356,6 +2356,16 @@ public class ScanPanel extends MeasureListener implements ActionListener
 		return true;
 	}
 
+	protected double getPlotUpperBound()
+	{
+		return 10;
+	}
+
+	protected double getPlotLowerBound()
+	{
+		return 0;
+	}
+
 	protected boolean isAdditionalInformation1Visible()
 	{
 		return false;
@@ -2469,13 +2479,23 @@ public class ScanPanel extends MeasureListener implements ActionListener
 			this.progressBar.setValue(progress.getProgress());
 
 			if (point.getMeasure() > plot.getRangeAxis(0).getUpperBound())
-				plot.getRangeAxis(0).setUpperBound(point.getMeasure() * 1.1);
+				plot.getRangeAxis(0).setUpperBound(point.getMeasure() > 0 ? point.getMeasure() * 1.1 : point.getMeasure() * 0.9);
+			else if (point.getMeasure() < plot.getRangeAxis(0).getLowerBound())
+				plot.getRangeAxis(0).setLowerBound(point.getMeasure() > 0 ? point.getMeasure() * 0.9 : point.getMeasure() * 1.1);
 
 			if (point.getAdditionalInformation1() > plotAI1.getRangeAxis(0).getUpperBound())
-				plotAI1.getRangeAxis(0).setUpperBound(point.getAdditionalInformation1() * 1.1);
+				plotAI1.getRangeAxis(0).setUpperBound(
+				    point.getAdditionalInformation1() > 0 ? point.getAdditionalInformation1() * 1.1 : point.getAdditionalInformation1() * 0.9);
+			else if (point.getAdditionalInformation1() < plotAI1.getRangeAxis(0).getLowerBound())
+				plotAI1.getRangeAxis(0).setLowerBound(
+				    point.getAdditionalInformation1() > 0 ? point.getAdditionalInformation1() * 0.9 : point.getAdditionalInformation1() * 1.1);
 
 			if (point.getAdditionalInformation2() > plotAI2.getRangeAxis(0).getUpperBound())
-				plotAI2.getRangeAxis(0).setUpperBound(point.getAdditionalInformation2() * 1.1);
+				plotAI2.getRangeAxis(0).setUpperBound(
+				    point.getAdditionalInformation2() > 0 ? point.getAdditionalInformation2() * 1.1 : point.getAdditionalInformation2() * 0.9);
+			else if (point.getAdditionalInformation2() < plotAI2.getRangeAxis(0).getLowerBound())
+				plotAI2.getRangeAxis(0).setLowerBound(
+				    point.getAdditionalInformation2() > 0 ? point.getAdditionalInformation2() * 0.9 : point.getAdditionalInformation2() * 1.1);
 		}
 	}
 

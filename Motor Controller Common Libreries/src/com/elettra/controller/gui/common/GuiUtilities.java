@@ -234,6 +234,13 @@ public final class GuiUtilities
 		return String.format("%7.4f", number);
 	}
 
+	public static String parseDouble(double number, int digits, boolean trim)
+	{
+		String value = String.format("%7." + digits + "f", number);
+
+		return trim ? value.trim() : value;
+	}
+
 	public static String parseDateElement(double element)
 	{
 		String temp = Integer.toString((int) element);
@@ -243,7 +250,10 @@ public final class GuiUtilities
 
 	public static String getNowString()
 	{
-		return GregorianCalendar.getInstance().get(GregorianCalendar.YEAR) + "-" + GuiUtilities.parseDateElement(GregorianCalendar.getInstance().get(GregorianCalendar.MONTH)) + "-" + GuiUtilities.parseDateElement(GregorianCalendar.getInstance().get(GregorianCalendar.DAY_OF_MONTH)) + "_" + GuiUtilities.parseDateElement(GregorianCalendar.getInstance()
-		    .get(GregorianCalendar.HOUR_OF_DAY)) + "-" + GuiUtilities.parseDateElement(GregorianCalendar.getInstance().get(GregorianCalendar.MINUTE));
+		return GregorianCalendar.getInstance().get(GregorianCalendar.YEAR) + "-"
+		    + GuiUtilities.parseDateElement(GregorianCalendar.getInstance().get(GregorianCalendar.MONTH)) + "-"
+		    + GuiUtilities.parseDateElement(GregorianCalendar.getInstance().get(GregorianCalendar.DAY_OF_MONTH)) + "_"
+		    + GuiUtilities.parseDateElement(GregorianCalendar.getInstance().get(GregorianCalendar.HOUR_OF_DAY)) + "-"
+		    + GuiUtilities.parseDateElement(GregorianCalendar.getInstance().get(GregorianCalendar.MINUTE));
 	}
 }

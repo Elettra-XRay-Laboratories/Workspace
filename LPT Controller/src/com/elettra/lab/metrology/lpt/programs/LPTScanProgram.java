@@ -1,10 +1,10 @@
 package com.elettra.lab.metrology.lpt.programs;
 
+import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.Point;
 import java.awt.image.BufferedImage;
-import java.io.File;
 import java.io.IOException;
 
 import com.elettra.common.io.CommunicationPortException;
@@ -24,6 +24,7 @@ import com.elettra.idsccd.driver.IDSCCDFactory;
 import com.elettra.idsccd.driver.IIDSCCD;
 import com.elettra.lab.metrology.lpt.Axis;
 import com.elettra.lab.metrology.lpt.encoder.EncoderReaderFactory;
+import com.elettra.lab.metrology.lpt.panels.References;
 
 public class LPTScanProgram extends SCANProgram
 {
@@ -37,24 +38,16 @@ public class LPTScanProgram extends SCANProgram
 	public static final String	DIM_X	               = "DIM_X";
 	public static final String	DIM_Y	               = "DIM_Y";
 	public static final String	NUMBER_OF_CAPTURES	 = "NUMBER_OF_CAPTURES";
+	public static final String	PREVIOUS_X0	         = "PREVIOUS_X0";
 
 	private IIDSCCD	           ccd;
 	private int	               numberOfCaptures;
 	private int	               dimx;
 	private int	               dimy;
 	private IDSCCDColorModes	 mode;
-
-	static
-	{
-		try
-		{
-			System.setProperty("jna.library.path", System.getProperty("user.dir") + File.pathSeparator + "lib");
-		}
-		catch (Throwable t)
-		{
-			throw new RuntimeException(t);
-		}
-	}
+	private double	           lastXn;
+	private double	           X0;
+	private double	           focalDistance;
 
 	public LPTScanProgram() throws IDSCCDException
 	{
@@ -67,6 +60,18 @@ public class LPTScanProgram extends SCANProgram
 	{
 		try
 		{
+			try
+			{
+				this.X0 = Double.parseDouble(References.getInstance().get(References.LTP_X_0));
+				this.focalDistance = Double.parseDouble(References.getInstance().get(References.FOCAL_DISTANCE));
+			}
+			catch (Exception e)
+			{
+				throw new IllegalArgumentException("Reference values X0 or Focal Distance not defined! Please configure them");
+			}
+
+			this.lastXn = this.X0;
+
 			this.mode = (IDSCCDColorModes) parameters.getCustomParameter(COLOR_MODE);
 
 			this.dimx = ((Integer) parameters.getCustomParameter(DIM_X)).intValue();
@@ -140,8 +145,8 @@ public class LPTScanProgram extends SCANProgram
 				y_standard_deviation += Math.pow(y_positions[index] - average_y_position, 2);
 			}
 
-			x_standard_deviation = x_standard_deviation / (this.numberOfCaptures - 1);
-			y_standard_deviation = y_standard_deviation / (this.numberOfCaptures - 1);
+			x_standard_deviation = this.numberOfCaptures > 1 ? x_standard_deviation / (this.numberOfCaptures - 1) : 0.0;
+			y_standard_deviation = this.numberOfCaptures > 1 ? y_standard_deviation / (this.numberOfCaptures - 1) : 0.0;
 
 			// save last image
 
@@ -151,7 +156,20 @@ public class LPTScanProgram extends SCANProgram
 			g.setColor(Color.YELLOW);
 			g.fillOval((int) average_x_position - 10, (int) average_y_position - 10, 20, 20);
 
+			g.setColor(Color.WHITE);
+			g.setStroke(new BasicStroke(7, BasicStroke.CAP_BUTT, BasicStroke.JOIN_BEVEL, 0, new float[] { 9 }, 0));
+			g.drawLine(0, this.dimy / 2, this.dimx, this.dimy / 2);
+			g.drawLine(this.dimx / 2, 0, this.dimx / 2, this.dimy);
+
+			// Refer to the center of the image
+
+			average_x_position = (average_x_position - this.dimx / 2);
+			average_y_position = -(average_y_position - this.dimy / 2);
+
 			MeasureResult result = new MeasureResult(this.calculateSlopeError(average_x_position, average_y_position));
+
+			this.lastXn = average_x_position;
+
 			result.setAdditionalInformation1(average_x_position * IIDSCCD.PIXEL_SIZE);
 			result.setAdditionalInformation2(average_y_position * IIDSCCD.PIXEL_SIZE);
 
@@ -176,7 +194,9 @@ public class LPTScanProgram extends SCANProgram
 
 	private double calculateSlopeError(double average_x_position, double average_y_position)
 	{
-		return 0;
+		double delta = Math.atan(((average_x_position - this.lastXn) - this.X0) / this.focalDistance);
+
+		return ((average_x_position - this.lastXn) * Math.cos(delta)) / this.focalDistance;
 	}
 
 	protected void openShutter() throws IOException, InterruptedException

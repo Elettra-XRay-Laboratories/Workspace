@@ -41,12 +41,14 @@ import com.elettra.controller.driver.programs.DefaultAxisConfigurationMap;
 import com.elettra.controller.driver.programs.ProgramsFacade;
 import com.elettra.controller.gui.common.GuiUtilities;
 import com.elettra.controller.gui.windows.AbstractCommunicationPortFrame;
-import com.elettra.controller.gui.windows.ControllerCrashRecoveryWindow;
 import com.elettra.idsccd.driver.IDSCCDException;
 import com.elettra.lab.metrology.lpt.encoder.EncoderReaderFactory;
+import com.elettra.lab.metrology.lpt.programs.LPTLiveCCDProgram;
 import com.elettra.lab.metrology.lpt.programs.LPTMOVEProgram;
 import com.elettra.lab.metrology.lpt.programs.LPTScanProgram;
 import com.elettra.lab.metrology.lpt.windows.FreeMovementsAndScansWindow;
+import com.elettra.lab.metrology.lpt.windows.IndividualAlignementWindow;
+import com.elettra.lab.metrology.lpt.windows.LTPControllerCrashRecoveryWindow;
 import com.elettra.lab.metrology.lpt.windows.SlopeErrorMeasurementWindow;
 
 public class Main extends AbstractCommunicationPortFrame implements ActionListener
@@ -56,13 +58,26 @@ public class Main extends AbstractCommunicationPortFrame implements ActionListen
 	 */
 	private static final long	  serialVersionUID	= 7553655482497838545L;
 
+	static
+	{
+		try
+		{
+			System.setProperty("jna.library.path", System.getProperty("user.dir") + File.pathSeparator + "lib");
+		}
+		catch (Throwable t)
+		{
+			throw new RuntimeException(t);
+		}
+	}
+
 	private static final String	APPLICATION_NAME	= "LTP Controller";
 
 	static class ActionCommands
 	{
 		private static final String	EXIT		                  = "EXIT";
+		private static final String	INDIVIDUAL_ALIGNEMENT	= "INDIVIDUAL_ALIGNEMENT";
 		private static final String	FREE_MOVEMENTS_AND_SCANS	= "FREE_MOVEMENTS_AND_SCANS";
-		private static final String SLOPE_ERROR_SCAN = "SLOPE_ERROR_SCAN";
+		private static final String	SLOPE_ERROR_SCAN		      = "SLOPE_ERROR_SCAN";
 		private static final String	CONTROLLER_CRASH_RECOVERY	= "CONTROLLER_CRASH_RECOVERY";
 	}
 
@@ -137,10 +152,10 @@ public class Main extends AbstractCommunicationPortFrame implements ActionListen
 			gbl_alignementOperationsPanel.columnWidths = new int[] { 0 };
 			gbl_alignementOperationsPanel.rowHeights = new int[] { 0, 0 };
 			gbl_alignementOperationsPanel.columnWeights = new double[] { 1.0 };
-			gbl_alignementOperationsPanel.rowWeights = new double[] { 1.0, 1.0};
+			gbl_alignementOperationsPanel.rowWeights = new double[] { 1.0, 1.0 };
 			alignementOperationsPanel.setLayout(gbl_alignementOperationsPanel);
 
-			JButton alignementOperation1Button = new JButton("MOTORS ALIGNEMENT THROUGH SCAN");
+			JButton alignementOperation1Button = new JButton("LTP ALIGNEMENT THROUGH SCAN");
 			alignementOperation1Button.addActionListener(this);
 			alignementOperation1Button.setActionCommand(ActionCommands.FREE_MOVEMENTS_AND_SCANS);
 			alignementOperation1Button.setFont(new Font("Tahoma", Font.PLAIN, 14));
@@ -151,9 +166,9 @@ public class Main extends AbstractCommunicationPortFrame implements ActionListen
 			gbc_alignementOperation1Button.gridy = 0;
 			alignementOperationsPanel.add(alignementOperation1Button, gbc_alignementOperation1Button);
 
-			JButton alignementOperation2Button = new JButton("CHECK ALIGNEMENT ON CCD");
+			JButton alignementOperation2Button = new JButton("LTP ALIGNEMENT THROUGH LIVE CCD");
 			alignementOperation2Button.addActionListener(this);
-			// sampleAlignementButton.setActionCommand(ActionCommands.ALIGNEMENT_OF_THE_SAMPLE_WITH_THE_XBEAM);
+			alignementOperation2Button.setActionCommand(ActionCommands.INDIVIDUAL_ALIGNEMENT);
 			alignementOperation2Button.setFont(new Font("Tahoma", Font.PLAIN, 14));
 			GridBagConstraints gbc_sampleAlignementButton = new GridBagConstraints();
 			gbc_sampleAlignementButton.insets = new Insets(0, 5, 5, 5);
@@ -222,7 +237,7 @@ public class Main extends AbstractCommunicationPortFrame implements ActionListen
 
 			JButton supportOperation1Button = new JButton("...");
 			supportOperation1Button.addActionListener(this);
-			//supportOperation1Button.setActionCommand(ActionCommands.FREE_MOVEMENTS_AND_SCANS);
+			// supportOperation1Button.setActionCommand(ActionCommands.FREE_MOVEMENTS_AND_SCANS);
 			supportOperation1Button.setFont(new Font("Tahoma", Font.PLAIN, 14));
 			GridBagConstraints gbc_supportOperation1Button = new GridBagConstraints();
 			gbc_supportOperation1Button.fill = GridBagConstraints.BOTH;
@@ -339,10 +354,12 @@ public class Main extends AbstractCommunicationPortFrame implements ActionListen
 				this.terminate();
 			else if (eventName.equals(ActionCommands.FREE_MOVEMENTS_AND_SCANS))
 				FreeMovementsAndScansWindow.getInstance(this.getPort()).setVisible(true);
+			else if (eventName.equals(ActionCommands.INDIVIDUAL_ALIGNEMENT))
+				IndividualAlignementWindow.getInstance(this.getPort()).setVisible(true);
 			else if (eventName.equals(ActionCommands.SLOPE_ERROR_SCAN))
 				SlopeErrorMeasurementWindow.getInstance(this.getPort()).setVisible(true);
 			else if (eventName.equals(ActionCommands.CONTROLLER_CRASH_RECOVERY))
-				ControllerCrashRecoveryWindow.getInstance(this.getPort()).setVisible(true);
+				LTPControllerCrashRecoveryWindow.getInstance(this.getPort()).setVisible(true);
 		}
 		catch (Exception e)
 		{
@@ -403,6 +420,7 @@ public class Main extends AbstractCommunicationPortFrame implements ActionListen
 		{
 			ProgramsFacade.addCustomCommand(new LPTScanProgram());
 			ProgramsFacade.addCustomCommand(new LPTMOVEProgram());
+			ProgramsFacade.addCustomCommand(new LPTLiveCCDProgram());
 		}
 		catch (IDSCCDException exception)
 		{
