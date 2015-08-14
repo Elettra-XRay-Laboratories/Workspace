@@ -23,7 +23,9 @@ import javax.swing.border.BevelBorder;
 import com.elettra.common.io.CommunicationPortException;
 import com.elettra.common.io.CommunicationPortFactory;
 import com.elettra.common.io.CommunicationPortUtilies;
+import com.elettra.common.io.EthernetPortParameters;
 import com.elettra.common.io.ICommunicationPort;
+import com.elettra.common.io.KindOfPort;
 import com.elettra.common.io.SerialPortParameters;
 import com.elettra.controller.driver.commands.CommandsFacade;
 import com.elettra.controller.driver.common.AxisConfiguration;
@@ -325,14 +327,29 @@ public class MainBasement extends AbstractGenericFrame implements ActionListener
 	{
 		CommunicationPortFactory.setApplicationName(APPLICATION_NAME);
 
-		String portName = GuiUtilities.getPortNames().listIterator().next();
+		ICommunicationPort port = null;
+		KindOfPort kindOfPort = GuiUtilities.getKindOfPort();
 
-		ICommunicationPort port = CommunicationPortFactory.getPort(portName, CommunicationPortUtilies.getSerialPort());
+		if (kindOfPort.equals(CommunicationPortUtilies.getSerialPort()))
+		{
+			String portName = GuiUtilities.getPortNames().listIterator().next();
 
-		SerialPortParameters parameters = new SerialPortParameters();
-		parameters.deserialize(GuiUtilities.getPortConfFileName(portName));
+			port = CommunicationPortFactory.getPort(portName, kindOfPort);
 
-		port.initialize(parameters);
+			SerialPortParameters parameters = new SerialPortParameters();
+			parameters.deserialize(GuiUtilities.getPortConfFileName(portName));
+
+			port.initialize(parameters);
+		}
+		else if (kindOfPort.equals(CommunicationPortUtilies.getEthernetPort()))
+		{
+			port = CommunicationPortFactory.getPort("Eth1", kindOfPort);
+
+			EthernetPortParameters parameters = new EthernetPortParameters();
+			parameters.deserialize(GuiUtilities.getPortConfFileName("Eth1"));
+
+			port.initialize(parameters);
+		}
 
 		return port;
 	}
@@ -347,10 +364,17 @@ public class MainBasement extends AbstractGenericFrame implements ActionListener
 	{
 		DefaultAxisConfigurationMap map = new DefaultAxisConfigurationMap();
 
-		map.setAxisConfiguration(Axis.ZFIRST, new AxisConfiguration(DriverUtilities.getMillimeters(), 1000, 2000, 33, 0, DriverUtilities.getPlus(), false, false, 1, "Z'", 0.0, 0.0));
-		map.setAxisConfiguration(Axis.TWOTHETAFIRST, new AxisConfiguration(DriverUtilities.getDecimalGrades(), 1000, 2000, 33, 0, DriverUtilities.getPlus(), false, false, 1, "2Theta'", 0.0, 0.0));
+		//map.setAxisConfiguration(Axis.ZFIRST, new AxisConfiguration(DriverUtilities.getMillimeters(), 1000, 2000, 33, 0, DriverUtilities.getPlus(), false, false, 1, "Z'", 0.0, 0.0));
+		//map.setAxisConfiguration(Axis.TWOTHETAFIRST, new AxisConfiguration(DriverUtilities.getDecimalGrades(), 1000, 2000, 33, 0, DriverUtilities.getPlus(), false, false, 1, "2Theta'", 0.0, 0.0));
+		map.setAxisConfiguration(Axis.ZFIRST, new AxisConfiguration(DriverUtilities.getMillimeters(), 2500, 5000, 50000, 0.002, DriverUtilities.getPlus(), false, false, 1, "Z'", 0.0, 0.0));
+		map.setAxisConfiguration(Axis.TWOTHETAFIRST, new AxisConfiguration(DriverUtilities.getDecimalGrades(), 1000, 2000, 20000, 0.00025, DriverUtilities.getPlus(), false, false, 1, "2Theta'", 0.0, 0.0));
 
 		return map;
+	}
+	
+	static void restoreAxisConfiguration()
+	{
+		
 	}
 
 	// ------------------------------------------------------------------------------------------------------
