@@ -21,10 +21,9 @@ import com.elettra.controller.gui.panels.EmergencyStopPanel;
 import com.elettra.controller.gui.panels.MovePanel;
 import com.elettra.controller.gui.windows.AbstractGenericFrame;
 import com.elettra.lab.metrology.lpt.Axis;
-import com.elettra.lab.metrology.lpt.panels.LPTMovePanel;
-import com.elettra.lab.metrology.lpt.panels.LPTScanPanel;
+import com.elettra.lab.metrology.lpt.panels.LiveCCDPanel;
 
-public class FreeMovementsAndScansWindow extends AbstractGenericFrame
+public class IndividualAlignementWindow extends AbstractGenericFrame
 {
 	static class ActionCommands
 	{
@@ -32,22 +31,23 @@ public class FreeMovementsAndScansWindow extends AbstractGenericFrame
 	}
 
 	private static final long serialVersionUID = -513690344812082943L;
+	private JPanel liveCCDPanel;
 
-	public static synchronized FreeMovementsAndScansWindow getInstance(ICommunicationPort port) throws HeadlessException, IOException
+	public static synchronized IndividualAlignementWindow getInstance(ICommunicationPort port) throws HeadlessException, IOException
 	{
-		return new FreeMovementsAndScansWindow(port);
+		return new IndividualAlignementWindow(port);
 	}
 
-	private FreeMovementsAndScansWindow(ICommunicationPort port) throws HeadlessException, IOException
+	private IndividualAlignementWindow(ICommunicationPort port) throws HeadlessException, IOException
 	{
-		super("LTP Alignement Through Scan", port);
+		super("LTP Alignement Through Live CCD", port);
 
 		this.setIconImage(ImageIO.read(new File("ltpcontroller.jpg")));
 
-		this.setBounds(245, 20, 2700, 900);
+		this.setBounds(530, 20, 2350, 900);
 
 		GridBagLayout gridBagLayout = new GridBagLayout();
-		gridBagLayout.columnWidths = new int[] { 1435, 1250};
+		gridBagLayout.columnWidths = new int[] { 1140, 1180};
 		gridBagLayout.rowHeights = new int[] { 0 };
 		gridBagLayout.columnWeights = new double[] { 0.0, 0.0};
 		gridBagLayout.rowWeights = new double[] { 1.0 };
@@ -63,9 +63,9 @@ public class FreeMovementsAndScansWindow extends AbstractGenericFrame
 		gbc_leftPanel.gridy = 0;
 		getContentPane().add(leftPanel, gbc_leftPanel);
 		GridBagLayout gbl_leftPanel = new GridBagLayout();
-		gbl_leftPanel.columnWidths = new int[] { 280, 280, 280, 280, 280 };
+		gbl_leftPanel.columnWidths = new int[] { 280, 280, 280, 280};
 		gbl_leftPanel.rowHeights = new int[] { 450, 450 };
-		gbl_leftPanel.columnWeights = new double[] { 0.0, 0.0, 0.0, 0, 0 };
+		gbl_leftPanel.columnWeights = new double[] { 0.0, 0.0, 0.0, 0};
 		gbl_leftPanel.rowWeights = new double[] { 1.0, 1.0 };
 		leftPanel.setLayout(gbl_leftPanel);
 
@@ -109,23 +109,13 @@ public class FreeMovementsAndScansWindow extends AbstractGenericFrame
 		leftPanel.add(movePanel5, gbc_movePanel5);
 		movePanel5.add(new MovePanel(Axis.MOTOR4, this.getPort()));
 
-		JPanel movePanel6 = new JPanel();
-		movePanel6.setBorder(new BevelBorder(BevelBorder.LOWERED, null, null, null, null));
-		GridBagConstraints gbc_movePanel6 = new GridBagConstraints();
-		gbc_movePanel6.insets = new Insets(10, 0, 5, 5);
-		gbc_movePanel6.fill = GridBagConstraints.BOTH;
-		gbc_movePanel6.gridx = 4;
-		gbc_movePanel6.gridy = 0;
-		leftPanel.add(movePanel6, gbc_movePanel6);
-		movePanel6.add(new LPTMovePanel(Axis.MOTOR5, this.getPort()));
-
 		// --------------
 
 		JPanel buttonPanel = new JPanel();
 		GridBagConstraints gbc_buttonPanel = new GridBagConstraints();
 		gbc_buttonPanel.insets = new Insets(0, 0, 0, 0);
 		gbc_buttonPanel.fill = GridBagConstraints.BOTH;
-		gbc_buttonPanel.gridx = 4;
+		gbc_buttonPanel.gridx = 3;
 		gbc_buttonPanel.gridy = 1;
 		leftPanel.add(buttonPanel, gbc_buttonPanel);
 
@@ -163,10 +153,10 @@ public class FreeMovementsAndScansWindow extends AbstractGenericFrame
 		// --------------------------------------------------------------------
 
 
-		JPanel scan4Panel = new JPanel();
-		scan4Panel.setBorder(BorderFactory.createBevelBorder(BevelBorder.LOWERED));
-		scan4Panel.setBounds(new Rectangle(0, 0, 1250, 845));
-		scan4Panel.add(new LPTScanPanel(Axis.MOTOR5, this.getPort(), false));
+		liveCCDPanel = new JPanel();
+		liveCCDPanel.setBorder(BorderFactory.createBevelBorder(BevelBorder.LOWERED));
+		liveCCDPanel.setBounds(new Rectangle(0, 0, 1150, 845));
+		liveCCDPanel.add(new LiveCCDPanel());
 
 
 		GridBagConstraints gbc_rightPanel = new GridBagConstraints();
@@ -174,10 +164,18 @@ public class FreeMovementsAndScansWindow extends AbstractGenericFrame
 		gbc_rightPanel.insets = new Insets(10, 10, 5, 5);
 		gbc_rightPanel.gridx = 1;
 		gbc_rightPanel.gridy = 0;
-		getContentPane().add(scan4Panel, gbc_rightPanel);
+		getContentPane().add(liveCCDPanel, gbc_rightPanel);
 
 		// --------------------------------------------------------------------
 	}
+	
+	@Override
+  public void dispose()
+  {
+	  super.dispose();
+	  
+	  ((LiveCCDPanel) this.liveCCDPanel.getComponent(0)).setCCDOff();
+  }
 
 	public void manageOtherActions(ActionEvent event)
 	{

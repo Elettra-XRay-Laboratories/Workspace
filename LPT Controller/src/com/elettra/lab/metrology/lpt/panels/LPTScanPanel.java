@@ -36,12 +36,13 @@ import com.elettra.controller.driver.programs.ScanParameters;
 import com.elettra.controller.gui.common.GuiUtilities;
 import com.elettra.controller.gui.panels.ScanPanel;
 import com.elettra.idsccd.driver.IDSCCDColorModes;
+import com.elettra.idsccd.driver.IIDSCCD;
 import com.elettra.lab.metrology.lpt.Axis;
 import com.elettra.lab.metrology.lpt.programs.LPTScanProgram;
 
 public class LPTScanPanel extends ScanPanel
 {
-	private static final double	HEIGHT_TO_WIDTH_RATIO	= 0.8366;
+	private static final double	HEIGHT_TO_WIDTH_RATIO	= ((double) IIDSCCD.DIM_Y / (double) IIDSCCD.DIM_X);
 
 	private JLabel	            imageLabel;
 
@@ -51,11 +52,8 @@ public class LPTScanPanel extends ScanPanel
 	private static final long	  serialVersionUID	    = -1195319609096497524L;
 
 	private JTextField	        centroid_x_position;
-
 	private JTextField	        centroid_y_position;
-
 	private JTextField	        numberOfCaptures;
-
 	private JCheckBox	          renderCheckBox;
 
 	private BufferedImage	      imageEnabled;
@@ -106,7 +104,7 @@ public class LPTScanPanel extends ScanPanel
 		panelGridBagLayout.rowWeights = new double[] { 0, 0, 0, 0 };
 
 		imagePanel.setLayout(panelGridBagLayout);
-		
+
 		renderCheckBox = new JCheckBox("");
 		renderCheckBox.setSelected(true);
 		renderCheckBox.addActionListener(new ActionListener()
@@ -132,12 +130,11 @@ public class LPTScanPanel extends ScanPanel
 		gbc_renderCheckBoxLabel.insets = new Insets(5, -90, 5, 5);
 		gbc_renderCheckBoxLabel.gridx = 1;
 		gbc_renderCheckBoxLabel.gridy = 0;
-		imagePanel.add(new JLabel("Render Image"), gbc_renderCheckBoxLabel);		
-		
-		
+		imagePanel.add(new JLabel("Render Image"), gbc_renderCheckBoxLabel);
+
 		this.imageLabel = new JLabel("");
 		this.imageLabel.setIcon(new ImageIcon(imageEnabled));
-		
+
 		JPanel imageLabelPanel = new JPanel();
 		imageLabelPanel.setBorder(BorderFactory.createBevelBorder(BevelBorder.RAISED));
 
@@ -170,11 +167,13 @@ public class LPTScanPanel extends ScanPanel
 
 		imagePanel.add(new JLabel("Centroid Y Position (um)"), gbc_imagePanel_3);
 
-		this.centroid_x_position = new JTextField(GuiUtilities.parseDouble(0.0) + " ± " + GuiUtilities.parseDouble(0.0));
+		this.centroid_x_position = new JTextField(GuiUtilities.parseDouble(0.0, 1, true) + " ± " + GuiUtilities.parseDouble(0.0, 1, true));
 		this.centroid_x_position.setEditable(false);
+		this.centroid_x_position.setColumns(10);
 
-		this.centroid_y_position = new JTextField(GuiUtilities.parseDouble(0.0) + " ± " + GuiUtilities.parseDouble(0.0));
+		this.centroid_y_position = new JTextField(GuiUtilities.parseDouble(0.0, 1, true) + " ± " + GuiUtilities.parseDouble(0.0, 1, true));
 		this.centroid_y_position.setEditable(false);
+		this.centroid_y_position.setColumns(10);
 
 		GridBagConstraints gbc_imagePanel_4 = new GridBagConstraints();
 		gbc_imagePanel_4.anchor = GridBagConstraints.WEST;
@@ -222,7 +221,7 @@ public class LPTScanPanel extends ScanPanel
 
 		scanManagementPanel.add(new JLabel("Number of Captures per Step"), gbc_scanPanel_1);
 
-		this.numberOfCaptures = new JTextField(GuiUtilities.parseDouble(0.0));
+		this.numberOfCaptures = new JTextField("0");
 
 		this.numberOfCaptures.setHorizontalAlignment(SwingConstants.RIGHT);
 		this.numberOfCaptures.addFocusListener(new FocusAdapter()
@@ -307,6 +306,18 @@ public class LPTScanPanel extends ScanPanel
 		return false;
 	}
 
+	@Override
+	protected double getPlotUpperBound()
+	{
+		return 0.001;
+	}
+
+	@Override
+	protected double getPlotLowerBound()
+	{
+		return -0.001;
+	}
+
 	protected boolean isAdditionalInformation1Visible()
 	{
 		return true;
@@ -337,6 +348,16 @@ public class LPTScanPanel extends ScanPanel
 		return "Centroid Y Position (um)";
 	}
 
+	protected String getAdditionalInfo1Format()
+	{
+		return "%9.1f";
+	}
+
+	protected String getAdditionalInfo2Format()
+	{
+		return "%9.1f";
+	}
+
 	protected void drawCapture(MeasurePoint point)
 	{
 		if (this.renderCheckBox.isSelected())
@@ -357,10 +378,10 @@ public class LPTScanPanel extends ScanPanel
 			this.imageLabel.setIcon(new ImageIcon(resizedImage));
 		}
 
-		this.centroid_x_position.setText(GuiUtilities.parseDouble(point.getAdditionalInformation1()) + " ± "
-		    + GuiUtilities.parseDouble(((Double) point.getCustomData(LPTScanProgram.X_STANDARD_DEVIATION)).doubleValue()));
-		this.centroid_y_position.setText(GuiUtilities.parseDouble(point.getAdditionalInformation2()) + " ± "
-		    + GuiUtilities.parseDouble(((Double) point.getCustomData(LPTScanProgram.Y_STANDARD_DEVIATION)).doubleValue()));
+		this.centroid_x_position.setText(GuiUtilities.parseDouble(point.getAdditionalInformation1(), 1, true) + " ± "
+		    + GuiUtilities.parseDouble(((Double) point.getCustomData(LPTScanProgram.X_STANDARD_DEVIATION)).doubleValue(), 1, true));
+		this.centroid_y_position.setText(GuiUtilities.parseDouble(point.getAdditionalInformation2(), 1, true) + " ± "
+		    + GuiUtilities.parseDouble(((Double) point.getCustomData(LPTScanProgram.Y_STANDARD_DEVIATION)).doubleValue(), 1, true));
 	}
 
 	class LPTScanThread extends ScanPanel.ScanThread
@@ -394,8 +415,8 @@ public class LPTScanPanel extends ScanPanel
 		protected void addCustomParameters(ScanParameters scanParameters)
 		{
 			scanParameters.addCustomParameter(LPTScanProgram.COLOR_MODE, IDSCCDColorModes.IS_CM_MONO8);
-			scanParameters.addCustomParameter(LPTScanProgram.DIM_X, 2448);
-			scanParameters.addCustomParameter(LPTScanProgram.DIM_Y, 2048);
+			scanParameters.addCustomParameter(LPTScanProgram.DIM_X, IIDSCCD.DIM_X);
+			scanParameters.addCustomParameter(LPTScanProgram.DIM_Y, IIDSCCD.DIM_Y);
 			scanParameters.addCustomParameter(LPTScanProgram.NUMBER_OF_CAPTURES, Integer.parseInt(((LPTScanPanel) super.panel).numberOfCaptures.getText()));
 		}
 
