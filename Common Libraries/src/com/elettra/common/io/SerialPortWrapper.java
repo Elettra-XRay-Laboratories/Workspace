@@ -112,6 +112,8 @@ class SerialPortWrapper implements ICommunicationPort
 	{
 		try
 		{
+			Thread.sleep(1000);
+			
 			if (this.inputStream == null)
 				this.inputStream = new BufferedReader(new InputStreamReader(this.port.getInputStream()));
 
