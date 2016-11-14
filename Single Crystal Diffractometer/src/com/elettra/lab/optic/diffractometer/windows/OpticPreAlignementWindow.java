@@ -37,7 +37,7 @@ public class OpticPreAlignementWindow extends AbstractGenericFrame
 	static class Messages
 	{
 		public static final String PHASE1 = "  1 - Posizionare il laser al posto del detector, eseguire il comando REF per l'asse 2THETA.\n\n  2 - Muovere il monocromatore (asse THETA') fino ad ottenere l'allineamento del fascio laser.\n\n  3 - Eseguire l'operazione SET dell'asse THETA', ponendo +90.0000 come posizione.";
-		public static final String PHASE2 = "  1 - Muovere il monocromatore (asse THETA') alla posizione ASSOLUTA +45.000\n\n  2 - Muovere il tubo (asse 2THETA') fino ad ottenere l'allineamento del fascio laser.\n\n  3 - Eseguire l'operazione SET, ponendo -90.0000 come posizione.";
+		public static final String PHASE2 = "  1 - Muovere il monocromatore (asse THETA') alla posizione ASSOLUTA +45.000\n\n  2 - Muovere il tubo (asse 2THETA') fino ad ottenere l'allineamento del fascio laser.\n\n  3 - Eseguire l'operazione SET, ponendo +90.0000 come posizione.";
 	}
 
 	public static synchronized OpticPreAlignementWindow getInstance(ICommunicationPort port) throws HeadlessException, CommunicationPortException

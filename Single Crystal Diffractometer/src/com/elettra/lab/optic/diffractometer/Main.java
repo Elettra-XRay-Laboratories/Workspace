@@ -31,6 +31,7 @@ import com.elettra.common.io.EthernetPortParameters;
 import com.elettra.common.io.ICommunicationPort;
 import com.elettra.common.io.KindOfPort;
 import com.elettra.common.io.SerialPortParameters;
+import com.elettra.controller.driver.commands.CommandParameters;
 import com.elettra.controller.driver.commands.CommandsFacade;
 import com.elettra.controller.driver.common.AxisConfiguration;
 import com.elettra.controller.driver.common.DriverUtilities;
@@ -48,6 +49,7 @@ import com.elettra.lab.optic.diffractometer.windows.OpticPreAlignementWindow;
 import com.elettra.lab.optic.diffractometer.windows.RockingCurveMeasureWindow;
 import com.elettra.lab.optic.diffractometer.windows.Theta2ThetaScanWindow;
 import com.elettra.lab.optic.diffractometer.windows.TubeStabilityScanWindow;
+import com.elettra.lab.optic.diffractometer.Axis;
 
 public class Main extends AbstractCommunicationPortFrame implements ActionListener
 {
@@ -510,9 +512,21 @@ public class Main extends AbstractCommunicationPortFrame implements ActionListen
 		map.setAxisConfiguration(Axis.Y, axisConfigurationArray[7]);
 
 		map.setAxisConfiguration(Axis.THETA2THETA, new AxisConfiguration(DriverUtilities.getDecimalGrades(), new MultipleAxis(Axis.THETA, Axis.TWOTHETA, DriverUtilities.getPlus(), 1), "Theta - 2Theta"));
-		map.setAxisConfiguration(Axis.THETA2THETAFIRST, new AxisConfiguration(DriverUtilities.getDecimalGrades(), new MultipleAxis(Axis.THETAFIRST, Axis.TWOTHETAFIRST, DriverUtilities.getMinus(), 1), "Theta' - 2Theta'"));
+		map.setAxisConfiguration(Axis.THETA2THETAFIRST, new AxisConfiguration(DriverUtilities.getDecimalGrades(), new MultipleAxis(Axis.THETAFIRST, Axis.TWOTHETAFIRST, DriverUtilities.getPlus(), 1), "Theta' - 2Theta'"));
 
 		return map;
+	}
+
+	static void changeAxisMotorConfiguration(ICommunicationPort port) throws CommunicationPortException
+	{
+		if (DriverUtilities.getKindOfController().equals(DriverUtilities.getGalilController()))
+		{
+			CommandsFacade.executeCommand(CommandsFacade.Commands.MOTOR_CONFIGURATION, new CommandParameters(Axis.THETA, GuiUtilities.getNullListener()), port);
+			CommandsFacade.executeCommand(CommandsFacade.Commands.MOTOR_CONFIGURATION, new CommandParameters(Axis.TWOTHETA, GuiUtilities.getNullListener()), port);
+			CommandsFacade.executeCommand(CommandsFacade.Commands.MOTOR_CONFIGURATION, new CommandParameters(Axis.THETAFIRST, GuiUtilities.getNullListener()), port);
+			CommandsFacade.executeCommand(CommandsFacade.Commands.MOTOR_CONFIGURATION, new CommandParameters(Axis.TWOTHETAFIRST, GuiUtilities.getNullListener()), port);
+		}
+
 	}
 
 	// ------------------------------------------------------------------------------------------------------

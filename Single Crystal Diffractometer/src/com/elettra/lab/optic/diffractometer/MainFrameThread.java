@@ -6,6 +6,7 @@ import com.elettra.common.io.ICommunicationPort;
 import com.elettra.controller.driver.common.DriverUtilities;
 import com.elettra.controller.gui.common.GuiUtilities;
 import com.elettra.controller.gui.common.ListenerRegister;
+import com.elettra.lab.optic.diffractometer.Main;
 
 public class MainFrameThread extends Thread
 {
@@ -23,6 +24,8 @@ public class MainFrameThread extends Thread
 			ICommunicationPort port = Main.initializeCommunicationPort();
 			DriverUtilities.initialiazeAxisConfigurationMap(Main.getAxisConf());
 			Main.restoreSavedAxisPosition(port);
+			Main.changeAxisMotorConfiguration(port);
+			
 			ListenerRegister.getInstance().reset();
 
 			Main frame = new Main(port);
