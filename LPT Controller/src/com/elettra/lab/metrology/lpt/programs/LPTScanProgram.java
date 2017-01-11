@@ -45,7 +45,6 @@ public class LPTScanProgram extends SCANProgram
 	private int	               dimx;
 	private int	               dimy;
 	private IDSCCDColorModes	 mode;
-	private double	           lastXn;
 	private double	           X0;
 	private double	           focalDistance;
 
@@ -69,8 +68,6 @@ public class LPTScanProgram extends SCANProgram
 			{
 				throw new IllegalArgumentException("Reference values X0 or Focal Distance not defined! Please configure them");
 			}
-
-			this.lastXn = this.X0;
 
 			this.mode = (IDSCCDColorModes) parameters.getCustomParameter(COLOR_MODE);
 
@@ -176,8 +173,6 @@ public class LPTScanProgram extends SCANProgram
 
 			MeasureResult result = new MeasureResult(this.calculateSlopeError(average_x_position, average_y_position));
 
-			this.lastXn = average_x_position;
-
 			result.setAdditionalInformation1(average_x_position * IIDSCCD.PIXEL_SIZE);
 			result.setAdditionalInformation2(average_y_position * IIDSCCD.PIXEL_SIZE);
 
@@ -202,9 +197,7 @@ public class LPTScanProgram extends SCANProgram
 
 	private double calculateSlopeError(double average_x_position, double average_y_position)
 	{
-		double delta = Math.atan((((average_x_position - this.lastXn) / 2) - this.X0) / this.focalDistance);
-
-		return (((average_x_position - this.lastXn) * Math.cos(delta)) / this.focalDistance) / 2;
+		return 0.5 * Math.atan((average_x_position-this.X0) / this.focalDistance );
 	}
 
 	protected void openShutter() throws IOException, InterruptedException
