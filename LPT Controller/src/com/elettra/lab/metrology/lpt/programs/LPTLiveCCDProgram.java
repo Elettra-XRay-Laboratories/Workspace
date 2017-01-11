@@ -108,7 +108,7 @@ public class LPTLiveCCDProgram extends AbstractProgram
 
 			try
 			{
-				Point centroid = this.ccd.getCentroid(buffer, this.dimx, this.dimy, true);
+				Point centroid = this.ccd.getCentroid(buffer, this.dimx, this.dimy, false);
 
 				//g.fillOval((int) centroid.x - 2, (int) centroid.y - 2, 4, 4);
 				g.drawLine((int) centroid.x - 10, (int) centroid.y, (int) centroid.x + 10, (int) centroid.y);
