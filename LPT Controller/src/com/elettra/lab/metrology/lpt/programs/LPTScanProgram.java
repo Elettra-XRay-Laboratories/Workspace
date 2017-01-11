@@ -3,7 +3,6 @@ package com.elettra.lab.metrology.lpt.programs;
 import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Graphics2D;
-import java.awt.Point;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 
@@ -22,6 +21,7 @@ import com.elettra.idsccd.driver.IDSCCDDisplayModes;
 import com.elettra.idsccd.driver.IDSCCDException;
 import com.elettra.idsccd.driver.IDSCCDFactory;
 import com.elettra.idsccd.driver.IIDSCCD;
+import com.elettra.idsccd.driver.Point;
 import com.elettra.lab.metrology.lpt.Axis;
 import com.elettra.lab.metrology.lpt.encoder.EncoderReaderFactory;
 import com.elettra.lab.metrology.lpt.panels.References;

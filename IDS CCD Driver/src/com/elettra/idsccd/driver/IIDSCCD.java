@@ -1,6 +1,5 @@
 package com.elettra.idsccd.driver;
 
-import java.awt.Point;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 

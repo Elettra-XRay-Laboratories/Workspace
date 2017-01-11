@@ -2,7 +2,6 @@ package com.elettra.idsccd.driver;
 
 import java.awt.Color;
 import java.awt.Graphics2D;
-import java.awt.Point;
 import java.awt.image.BufferedImage;
 import java.awt.image.WritableRaster;
 import java.io.BufferedWriter;
@@ -345,7 +344,7 @@ class IDSCCD implements IIDSCCD
 		GaussianFitResult resultX = FitUtilities.executeGaussianFit(0, dimx, FitUtilities.Optimizers.LEVENBERG_MARQUARDT, histograms[0]);
 		GaussianFitResult resultY = FitUtilities.executeGaussianFit(0, dimy, FitUtilities.Optimizers.LEVENBERG_MARQUARDT, histograms[1]);
 
-		return new Point((int) resultX.getPosition(), (int) resultY.getPosition());
+		return new Point(resultX.getPosition(), resultY.getPosition());
 	}
 
 	//----------------------------------------------------------------------------
@@ -415,11 +414,11 @@ class IDSCCD implements IIDSCCD
 
 			Graphics2D g = capture.createGraphics();
 			g.setColor(Color.WHITE);
-			g.fillOval(centroid.x - 3, centroid.y - 3, 6, 6);
+			g.fillOval((int)centroid.x - 3, (int)centroid.y - 3, 6, 6);
 
 			Graphics2D g2 = capture.createGraphics();
 			g2.setColor(Color.WHITE);
-			g2.drawOval(centroid.x - 15, centroid.y - 15, 30, 30);
+			g2.drawOval((int)centroid.x - 15, (int)centroid.y - 15, 30, 30);
 
 			ImageIO.write(capture, "jpg", new File("out.jpg"));
 

@@ -4,7 +4,6 @@ import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Font;
 import java.awt.Graphics2D;
-import java.awt.Point;
 import java.awt.image.BufferedImage;
 
 import com.elettra.common.io.CommunicationPortException;
@@ -20,6 +19,7 @@ import com.elettra.idsccd.driver.IDSCCDDisplayModes;
 import com.elettra.idsccd.driver.IDSCCDException;
 import com.elettra.idsccd.driver.IDSCCDFactory;
 import com.elettra.idsccd.driver.IIDSCCD;
+import com.elettra.idsccd.driver.Point;
 
 public class LPTLiveCCDProgram extends AbstractProgram
 {
@@ -108,10 +108,12 @@ public class LPTLiveCCDProgram extends AbstractProgram
 
 			try
 			{
-				Point centroid = this.ccd.getCentroid(buffer, this.dimx, this.dimy, false);
+				Point centroid = this.ccd.getCentroid(buffer, this.dimx, this.dimy, true);
 
-				g.fillOval((int) centroid.x - 10, (int) centroid.y - 10, 20, 20);
-
+				//g.fillOval((int) centroid.x - 2, (int) centroid.y - 2, 4, 4);
+				g.drawLine((int) centroid.x - 10, (int) centroid.y, (int) centroid.x + 10, (int) centroid.y);
+				g.drawLine((int) centroid.x , (int) centroid.y - 10, (int) centroid.x, (int) centroid.y + 10);
+				
 				double centroid_x = (centroid.x - this.dimx / 2) * IIDSCCD.PIXEL_SIZE;
 				double centroid_y = -(centroid.y - this.dimy / 2) * IIDSCCD.PIXEL_SIZE;
 
