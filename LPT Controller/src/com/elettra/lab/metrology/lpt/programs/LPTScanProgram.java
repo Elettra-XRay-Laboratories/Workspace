@@ -39,7 +39,8 @@ public class LPTScanProgram extends SCANProgram
 	public static final String	DIM_Y	               = "DIM_Y";
 	public static final String	NUMBER_OF_CAPTURES	 = "NUMBER_OF_CAPTURES";
 	public static final String	PREVIOUS_X0	         = "PREVIOUS_X0";
-
+  public static final String  DRAW_IMAGE           = "DRAW_IMAGE";
+  
 	private IIDSCCD	           ccd;
 	private int	               numberOfCaptures;
 	private int	               dimx;
@@ -47,6 +48,7 @@ public class LPTScanProgram extends SCANProgram
 	private IDSCCDColorModes	 mode;
 	private double	           X0;
 	private double	           focalDistance;
+	private boolean            renderImage;
 
 	public LPTScanProgram() throws IDSCCDException
 	{
@@ -74,7 +76,8 @@ public class LPTScanProgram extends SCANProgram
 			this.dimx = ((Integer) parameters.getCustomParameter(DIM_X)).intValue();
 			this.dimy = ((Integer) parameters.getCustomParameter(DIM_Y)).intValue();
 			this.numberOfCaptures = ((Integer) parameters.getCustomParameter(NUMBER_OF_CAPTURES)).intValue();
-
+			this.renderImage = ((Boolean) parameters.getCustomParameter(DRAW_IMAGE)).booleanValue();
+			
 			this.ccd.setColorMode(mode);
 			this.ccd.setDisplayMode(IDSCCDDisplayModes.IS_SET_DM_DIB);
 
@@ -140,7 +143,7 @@ public class LPTScanProgram extends SCANProgram
 				y_positions[index] = centroid.y;
 				average_y_position += centroid.y;
 			}
-
+					
 			average_x_position = average_x_position / this.numberOfCaptures;
 			average_y_position = average_y_position / this.numberOfCaptures;
 
@@ -155,16 +158,21 @@ public class LPTScanProgram extends SCANProgram
 
 			// save last image
 
-			capture = ccd.buildImage(buffer, this.dimx, this.dimy);
+			if (this.renderImage)
+			{
+				capture = ccd.buildImage(buffer, this.dimx, this.dimy);
+				
+				Graphics2D g = capture.createGraphics();
+				g.setColor(Color.YELLOW);
+				g.fillOval((int) average_x_position - 10, (int) average_y_position - 10, 20, 20);
+	
+				g.setColor(Color.WHITE);
+				g.setStroke(new BasicStroke(7, BasicStroke.CAP_BUTT, BasicStroke.JOIN_BEVEL, 0, new float[] { 9 }, 0));
+				g.drawLine(0, this.dimy / 2, this.dimx, this.dimy / 2);
+				g.drawLine(this.dimx / 2, 0, this.dimx / 2, this.dimy);
+			}
 
-			Graphics2D g = capture.createGraphics();
-			g.setColor(Color.YELLOW);
-			g.fillOval((int) average_x_position - 10, (int) average_y_position - 10, 20, 20);
-
-			g.setColor(Color.WHITE);
-			g.setStroke(new BasicStroke(7, BasicStroke.CAP_BUTT, BasicStroke.JOIN_BEVEL, 0, new float[] { 9 }, 0));
-			g.drawLine(0, this.dimy / 2, this.dimx, this.dimy / 2);
-			g.drawLine(this.dimx / 2, 0, this.dimx / 2, this.dimy);
+			buffer = null;
 
 			// Refer to the center of the image
 
@@ -192,6 +200,10 @@ public class LPTScanProgram extends SCANProgram
 		catch (Throwable t)
 		{
 			throw new CommunicationPortException(t);
+		}
+		finally
+		{
+			System.gc();
 		}
 	}
 

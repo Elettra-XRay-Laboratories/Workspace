@@ -54,7 +54,7 @@ public class LPTScanPanel extends ScanPanel
 	private JTextField	        centroid_x_position;
 	private JTextField	        centroid_y_position;
 	private JTextField	        numberOfCaptures;
-	private JCheckBox	          renderCheckBox;
+	protected JCheckBox	          renderCheckBox;
 
 	private BufferedImage	      imageEnabled;
 	private BufferedImage	      imageDisabled;
@@ -418,6 +418,7 @@ public class LPTScanPanel extends ScanPanel
 			scanParameters.addCustomParameter(LPTScanProgram.DIM_X, IIDSCCD.DIM_X);
 			scanParameters.addCustomParameter(LPTScanProgram.DIM_Y, IIDSCCD.DIM_Y);
 			scanParameters.addCustomParameter(LPTScanProgram.NUMBER_OF_CAPTURES, Integer.parseInt(((LPTScanPanel) super.panel).numberOfCaptures.getText()));
+			scanParameters.addCustomParameter(LPTScanProgram.DRAW_IMAGE, Boolean.valueOf(((LPTScanPanel) super.panel).renderCheckBox.isSelected()));
 		}
 
 		protected String getScanProgramName()
