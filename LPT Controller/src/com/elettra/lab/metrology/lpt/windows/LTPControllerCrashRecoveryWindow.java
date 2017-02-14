@@ -32,7 +32,7 @@ public class LTPControllerCrashRecoveryWindow extends ControllerCrashRecoveryWin
 		
 		this.setIconImage(ImageIO.read(new File("ltpcontroller.jpg")));
 
-		this.setBounds((int) bounds.getX() + 1800, (int) bounds.getY(),(int)  bounds.getWidth(),(int)  bounds.getHeight());
+		//this.setBounds((int) bounds.getX() + 1800, (int) bounds.getY(),(int)  bounds.getWidth(),(int)  bounds.getHeight());
 	}
 
 }

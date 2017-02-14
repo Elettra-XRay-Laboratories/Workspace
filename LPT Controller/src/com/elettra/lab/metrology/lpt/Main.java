@@ -96,7 +96,7 @@ public class Main extends AbstractCommunicationPortFrame implements ActionListen
 			this.setIconImage(ImageIO.read(new File("ltpcontroller.jpg")));
 			this.addWindowFocusListener(new MainWindowAdapter(this));
 			this.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
-			this.setBounds(3270, 20, 330, 760);
+			this.setBounds(5, 5, 330, 760);
 
 			GridBagLayout gridBagLayout = new GridBagLayout();
 			gridBagLayout.columnWidths = new int[] { 0, 0 };

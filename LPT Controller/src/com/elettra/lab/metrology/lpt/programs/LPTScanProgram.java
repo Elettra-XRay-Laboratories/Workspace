@@ -53,6 +53,8 @@ public class LPTScanProgram extends SCANProgram
 	public LPTScanProgram() throws IDSCCDException
 	{
 		super(PROGRAM_NAME);
+		
+		this.dump_measure = DumpMeasure.NO_DUMP;
 
 		this.ccd = IDSCCDFactory.getIDSCCD();
 	}
@@ -127,7 +129,7 @@ public class LPTScanProgram extends SCANProgram
 			for (int index = 0; index < this.numberOfCaptures; index++)
 			{
 				buffer = this.ccd.getImageByMemory(this.dimx, this.dimy, mode);
-				
+
 				try
 				{
 					centroid = this.ccd.getCentroid(buffer, this.dimx, this.dimy, false);
@@ -209,7 +211,7 @@ public class LPTScanProgram extends SCANProgram
 
 	private double calculateSlopeError(double average_x_position, double average_y_position)
 	{
-		return 0.5 * Math.atan((average_x_position-this.X0) / this.focalDistance );
+		return 0.5 * Math.atan((average_x_position-this.X0) / (this.focalDistance*1000) );
 	}
 
 	protected void openShutter() throws IOException, InterruptedException

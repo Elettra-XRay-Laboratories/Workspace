@@ -69,7 +69,7 @@ public class LiveCCDPanel extends MeasureListener
 
 		try
 		{
-			imageDisabled = ImageIO.read(new File("Files/disabled.png")).getScaledInstance(845, (int) (845 * HEIGHT_TO_WIDTH_RATIO), Image.SCALE_FAST);
+			imageDisabled = ImageIO.read(new File("Files/disabled.png")).getScaledInstance(645, (int) (645 * HEIGHT_TO_WIDTH_RATIO), Image.SCALE_FAST);
 		}
 		catch (IOException e)
 		{
@@ -78,7 +78,7 @@ public class LiveCCDPanel extends MeasureListener
 
 		GridBagLayout gridBagLayout = new GridBagLayout();
 
-		gridBagLayout.columnWidths = new int[] { 845, 305 };
+		gridBagLayout.columnWidths = new int[] { 645, 205 };
 		gridBagLayout.rowHeights = new int[] { 300, 545 };
 		gridBagLayout.columnWeights = new double[] { 1.0, 1.0 };
 		gridBagLayout.rowWeights = new double[] { 1.0, 1.0 };
@@ -339,7 +339,7 @@ public class LiveCCDPanel extends MeasureListener
 	{
 		BufferedImage capture = (BufferedImage) point.getCustomData(LPTScanProgram.LAST_IMAGE);
 
-		int imageHSize = 845;
+		int imageHSize = 645;
 
 		BufferedImage resizedImage = new BufferedImage(imageHSize, (int) (imageHSize * HEIGHT_TO_WIDTH_RATIO), BufferedImage.TYPE_INT_RGB);
 		Graphics2D g = resizedImage.createGraphics();

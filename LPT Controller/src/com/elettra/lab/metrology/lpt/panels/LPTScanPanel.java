@@ -75,7 +75,7 @@ public class LPTScanPanel extends ScanPanel
 
 		GridBagLayout gridBagLayout = (GridBagLayout) this.getLayout();
 
-		gridBagLayout.columnWidths = new int[] { 750, 450 };
+		gridBagLayout.columnWidths = new int[] { 700, 290 };
 		gridBagLayout.rowHeights = new int[] { 0, 0, 0, 0, 0 };
 		gridBagLayout.columnWeights = new double[] { 0, 0 };
 		gridBagLayout.rowWeights = new double[] { 2, 58, 15, 25, Double.MIN_VALUE };
@@ -88,7 +88,7 @@ public class LPTScanPanel extends ScanPanel
 		panelTopTabbedPane.setForegroundAt(0, new Color(0, 102, 51));
 
 		GridBagConstraints gbc_panelTop = new GridBagConstraints();
-		imagePanel.setBounds(new Rectangle(0, 0, 400, 400));
+		imagePanel.setBounds(new Rectangle(0, 0, 100, 100));
 		gbc_panelTop.anchor = GridBagConstraints.EAST;
 		gbc_panelTop.fill = GridBagConstraints.BOTH;
 		gbc_panelTop.insets = new Insets(0, 10, 5, 0);
@@ -98,15 +98,15 @@ public class LPTScanPanel extends ScanPanel
 
 		GridBagLayout panelGridBagLayout = new GridBagLayout();
 
-		panelGridBagLayout.columnWidths = new int[] { 60, 300 };
-		panelGridBagLayout.rowHeights = new int[] { 10, 380, 20, 20 };
+		panelGridBagLayout.columnWidths = new int[] { 60, 100 };
+		panelGridBagLayout.rowHeights = new int[] { 10, 210, 20, 20 };
 		panelGridBagLayout.columnWeights = new double[] { 0, 0 };
 		panelGridBagLayout.rowWeights = new double[] { 0, 0, 0, 0 };
 
 		imagePanel.setLayout(panelGridBagLayout);
 
 		renderCheckBox = new JCheckBox("");
-		renderCheckBox.setSelected(true);
+		renderCheckBox.setSelected(false);
 		renderCheckBox.addActionListener(new ActionListener()
 		{
 			public void actionPerformed(ActionEvent e)
@@ -133,7 +133,7 @@ public class LPTScanPanel extends ScanPanel
 		imagePanel.add(new JLabel("Render Image"), gbc_renderCheckBoxLabel);
 
 		this.imageLabel = new JLabel("");
-		this.imageLabel.setIcon(new ImageIcon(imageEnabled));
+		this.imageLabel.setIcon(new ImageIcon(imageDisabled));
 
 		JPanel imageLabelPanel = new JPanel();
 		imageLabelPanel.setBorder(BorderFactory.createBevelBorder(BevelBorder.RAISED));
@@ -364,7 +364,7 @@ public class LPTScanPanel extends ScanPanel
 		{
 			BufferedImage capture = (BufferedImage) point.getCustomData(LPTScanProgram.LAST_IMAGE);
 
-			int imageHSize = 390;
+			int imageHSize = 250;
 
 			BufferedImage resizedImage = new BufferedImage(imageHSize, (int) (imageHSize * HEIGHT_TO_WIDTH_RATIO), BufferedImage.TYPE_INT_RGB);
 			Graphics2D g = resizedImage.createGraphics();

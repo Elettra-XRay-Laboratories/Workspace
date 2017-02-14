@@ -43,10 +43,10 @@ public class SlopeErrorMeasurementWindow extends AbstractGenericFrame
 
 		this.setIconImage(ImageIO.read(new File("ltpcontroller.jpg")));
 
-		this.setBounds(1680, 20, 1590, 900);
+		this.setBounds(5, 5, 1390, 900);
 
 		GridBagLayout gridBagLayout = new GridBagLayout();
-		gridBagLayout.columnWidths = new int[] { 300, 1250 };
+		gridBagLayout.columnWidths = new int[] { 300, 1050 };
 		gridBagLayout.rowHeights = new int[] { 0 };
 		gridBagLayout.columnWeights = new double[] { 0.0, 0.0 };
 		gridBagLayout.rowWeights = new double[] { 1.0 };
