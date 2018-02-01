@@ -35,6 +35,14 @@ public final class SerialPortParameters extends CommunicationPortParameters impl
 		this.baudrate = baudrate;
 	}
 
+	public String toString()
+	{
+	 return String.valueOf(this.baudrate) + "," +
+			 String.valueOf(this.databits) + "," +
+			 String.valueOf(this.stopbits) + "," +
+			 String.valueOf(this.parity);
+	}
+	
 	public SerialPortParameters(int baudrate, int databits, int stopbits, int parity)
 	{
 		this(baudrate);

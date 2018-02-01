@@ -64,7 +64,7 @@ public abstract class AbstractCommand implements ICommand
 	public final CommandResult execute(CommandParameters commandParameters, ICommunicationPort port) throws CommunicationPortException
 	{
 		ObjectUtilities.checkObject(port, "port");
-
+		
 		return this.executeSpecificCommand(this.getCommandString(commandParameters), commandParameters, port);
 	}
 

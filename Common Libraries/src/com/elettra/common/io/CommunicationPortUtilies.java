@@ -14,6 +14,11 @@ public class CommunicationPortUtilies
 		return new SerialPort();
 	}
 
+	public static KindOfPort getSerialPortRemote()
+	{
+		return new SerialPortRemote();
+	}
+
 	public static KindOfPort getSerialPort64()
 	{
 		return new SerialPort64();
@@ -25,6 +30,8 @@ public class CommunicationPortUtilies
 
 		if (kindOfPortString.equalsIgnoreCase(SerialPort.PORT))
 			return new SerialPort();
+		else if (kindOfPortString.equalsIgnoreCase(SerialPortRemote.PORT))
+			return new SerialPortRemote();
 		else if (kindOfPortString.equalsIgnoreCase(SerialPort64.PORT))
 			return new SerialPort64();
 		else if (kindOfPortString.equalsIgnoreCase(EthernetPort.PORT))
