@@ -83,7 +83,9 @@ public class MOVEProgram extends AbstractProgram
 		commandString += DriverUtilities.buildHuberCommand("START:");
 
 		commandString = this.correctCommandString(commandString);
-
+		
+		System.out.println(commandString);
+		
 		port.write(commandString);
 
 		moveParameters.getListener().signalAxisMovement(moveParameters.getAxis(), port);

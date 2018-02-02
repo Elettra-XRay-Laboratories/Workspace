@@ -45,6 +45,17 @@ public class BrutalTest
   	  
   	  System.out.println(buffer);
   	  
+  	  cmd = "";
+  	  cmd = "CLR;\r\n";
+  	  cmd += "CA4;\r\n";
+  	  cmd += "3:-2.000S1000L2000B33;\r\n";
+  	  cmd += "4:-2.000S1000L2000B33;\r\n";
+  	  cmd += "NL;\r\n";
+  	  cmd += "START:;\r\n";
+  	  
+  		output.write(cmd.getBytes()); 
+  	  output.flush();
+
   	  port.close();
     }
     catch (Exception e)

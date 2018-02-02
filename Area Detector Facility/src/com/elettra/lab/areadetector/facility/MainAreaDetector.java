@@ -31,13 +31,14 @@ import com.elettra.controller.driver.commands.CommandsFacade;
 import com.elettra.controller.driver.common.AxisConfiguration;
 import com.elettra.controller.driver.common.DriverUtilities;
 import com.elettra.controller.driver.common.IAxisConfigurationMap;
+import com.elettra.controller.driver.common.MultipleAxis;
 import com.elettra.controller.driver.programs.DefaultAxisConfigurationMap;
 import com.elettra.controller.gui.common.GuiUtilities;
 import com.elettra.controller.gui.panels.MovePanel;
 import com.elettra.controller.gui.panels.ScanPanel;
 import com.elettra.controller.gui.windows.AbstractGenericFrame;
 
-public class MainBasement extends AbstractGenericFrame implements ActionListener
+public class MainAreaDetector extends AbstractGenericFrame implements ActionListener
 {
 	/**
 	 * 
@@ -58,7 +59,7 @@ public class MainBasement extends AbstractGenericFrame implements ActionListener
 	 * 
 	 */
 
-	public MainBasement(ICommunicationPort port) throws HeadlessException
+	public MainAreaDetector(ICommunicationPort port) throws HeadlessException
 	{
 		super(APPLICATION_NAME, port);
 
@@ -98,7 +99,7 @@ public class MainBasement extends AbstractGenericFrame implements ActionListener
 			gbc_movePanel7.gridx = 0;
 			gbc_movePanel7.gridy = 0;
 			leftPanel.add(movePanel7, gbc_movePanel7);
-			movePanel7.add(new MovePanel(Axis.TEST, this.getPort()));
+			movePanel7.add(new MovePanel(Axis.ROTATION, this.getPort()));
 			
 			/*
 			JPanel movePanel5 = new JPanel();
@@ -147,7 +148,7 @@ public class MainBasement extends AbstractGenericFrame implements ActionListener
 			JPanel scan0Panel = new JPanel();
 			scan0Panel.setBorder(BorderFactory.createBevelBorder(BevelBorder.LOWERED));
 			scan0Panel.setBounds(bounds);
-			scan0Panel.add(new ScanPanel(Axis.TEST, this.getPort(), false));
+			scan0Panel.add(new ScanPanel(Axis.ROTATION, this.getPort(), false));
 			GridBagConstraints gbc_scan0Panel = new GridBagConstraints();
 			gbc_scan0Panel.insets = new Insets(10, 5, 5, 5);
 			gbc_scan0Panel.fill = GridBagConstraints.BOTH;
@@ -286,9 +287,9 @@ public class MainBasement extends AbstractGenericFrame implements ActionListener
 
 	private class MainWindowAdapter extends WindowAdapter
 	{
-		private MainBasement main;
+		private MainAreaDetector main;
 
-		public MainWindowAdapter(MainBasement main)
+		public MainWindowAdapter(MainAreaDetector main)
 		{
 			this.main = main;
 		}
@@ -359,18 +360,21 @@ public class MainBasement extends AbstractGenericFrame implements ActionListener
 
 	static void restoreSavedAxisPosition(ICommunicationPort port) throws IOException, CommunicationPortException
 	{
-		DriverUtilities.restoreSavedAxisPosition(Axis.TEST, GuiUtilities.getNullListener(), port);
+		DriverUtilities.restoreSavedAxisPosition(Axis.ROTATION, GuiUtilities.getNullListener(), port);
+		DriverUtilities.restoreSavedAxisPosition(Axis.X, GuiUtilities.getNullListener(), port);
+		DriverUtilities.restoreSavedAxisPosition(Axis.Z1, GuiUtilities.getNullListener(), port);
 	}
 
 	static IAxisConfigurationMap getAxisConf()
 	{
 		DefaultAxisConfigurationMap map = new DefaultAxisConfigurationMap();
 
-		map.setAxisConfiguration(Axis.TEST, new AxisConfiguration(DriverUtilities.getDecimalGrades(), 1000, 2000, 33, 0, DriverUtilities.getPlus(), false, false, 1, "TEST", 0.0, 0.0));
-		//map.setAxisConfiguration(Axis.TWOTHETAFIRST, new AxisConfiguration(DriverUtilities.getDecimalGrades(), 1000, 2000, 33, 0, DriverUtilities.getPlus(), false, false, 1, "2Theta'", 0.0, 0.0));
-		//map.setAxisConfiguration(Axis.ZFIRST, new AxisConfiguration(DriverUtilities.getMillimeters(), 2500, 5000, 50000, 0.002, DriverUtilities.getPlus(), false, false, 1, "Z'", 0.0, 0.0));
-		//map.setAxisConfiguration(Axis.THETAFIRST, new AxisConfiguration(DriverUtilities.getDecimalGrades(), 1000, 2000, 20000, 0.00025, DriverUtilities.getPlus(), false, false, 1, "Theta'", 0.0, 0.0));
-
+		map.setAxisConfiguration(Axis.ROTATION, new AxisConfiguration(DriverUtilities.getDecimalGrades(), 1000, 2000, 33, 0, DriverUtilities.getPlus(), false, false, 1, "ROTATION", 0.0, 0.0));
+		map.setAxisConfiguration(Axis.X, new AxisConfiguration(DriverUtilities.getMillimeters(), 1000, 2000, 33, 0, DriverUtilities.getPlus(), false, false, 1, "X", 0.0, 0.0));
+		map.setAxisConfiguration(Axis.Z1, new AxisConfiguration(DriverUtilities.getMillimeters(), 1000, 2000, 33, 0, DriverUtilities.getPlus(), false, false, 1, "Z1", 0.0, 0.0));
+		map.setAxisConfiguration(Axis.Z2, new AxisConfiguration(DriverUtilities.getDecimalGrades(), 1000, 2000, 20000, 0.00025, DriverUtilities.getPlus(), false, false, 1, "Z2", 0.0, 0.0));
+		map.setAxisConfiguration(Axis.Z, new AxisConfiguration(DriverUtilities.getMillimeters(), new MultipleAxis(Axis.Z1, Axis.Z2, DriverUtilities.getPlus(), 2), "Z (Z1,Z2)"));
+		
 		return map;
 	}
 	

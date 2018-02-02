@@ -21,19 +21,19 @@ public class MainFrameThread extends Thread
 
 			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
 
-			ICommunicationPort port = MainBasement.initializeCommunicationPort();
+			ICommunicationPort port = MainAreaDetector.initializeCommunicationPort();
 			
 			CommandsFacade.executeCommand(CommandsFacade.Commands.REMOTE, null, port);
 			
-			DriverUtilities.initialiazeAxisConfigurationMap(MainBasement.getAxisConf());
+			DriverUtilities.initialiazeAxisConfigurationMap(MainAreaDetector.getAxisConf());
 			
-			//MainBasement.restoreSavedAxisPosition(port);
+			MainAreaDetector.restoreSavedAxisPosition(port);
 			
 			ListenerRegister.getInstance().reset();
 			
 			System.out.println("SW: " + CommandsFacade.executeAction(CommandsFacade.Actions.REQUEST_SOFTWARE_VERSION, null, port));
 			
-			MainBasement frame = new MainBasement(port);
+			MainAreaDetector frame = new MainAreaDetector(port);
 			frame.setVisible(true);
 		}
 		catch (Throwable t)
