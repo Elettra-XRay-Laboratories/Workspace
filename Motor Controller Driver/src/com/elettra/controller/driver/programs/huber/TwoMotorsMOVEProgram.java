@@ -59,10 +59,13 @@ public class TwoMotorsMOVEProgram extends AbstractProgram
 			String position1 = CommandsFacade.executeAction(Actions.REQUEST_AXIS_POSITION, new CommandParameters(moveParameters.getAxis1(), moveParameters.getListener()), port);
 			String position2 = CommandsFacade.executeAction(Actions.REQUEST_AXIS_POSITION, new CommandParameters(moveParameters.getAxis2(), moveParameters.getListener()), port);
 
-			if (!position1.equals(position2))
-				throw new CommunicationPortException("Position of the two motors should be identical");
+			double axis1Position = DriverUtilities.parseAxisPositionResponse(moveParameters.getAxis1(), position1).getSignedPosition();
+			double axis2Position = DriverUtilities.parseAxisPositionResponse(moveParameters.getAxis2(), position2).getSignedPosition();
 
-			double currentPosition = DriverUtilities.parseAxisPositionResponse(moveParameters.getAxis1(), position1).getSignedPosition();
+			if (axis1Position != axis2Position)
+				throw new CommunicationPortException("Position of the two motors should be identical");
+			
+			double currentPosition = axis1Position;
 			double finalPosition = DriverUtilities.controllerToNumber(new ControllerPosition(moveParameters.getSign(), moveParameters.getPosition()));
 
 			if (finalPosition < currentPosition)
@@ -85,8 +88,6 @@ public class TwoMotorsMOVEProgram extends AbstractProgram
 		commandString += DriverUtilities.buildHuberCommand("START:");
 
 		commandString = this.correctCommandString(commandString);
-
-		System.out.println(commandString);
 
 		port.write(commandString);
 

@@ -5,14 +5,12 @@ import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.HeadlessException;
 import java.awt.Insets;
-import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.IOException;
 
-import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -35,7 +33,7 @@ import com.elettra.controller.driver.common.MultipleAxis;
 import com.elettra.controller.driver.programs.DefaultAxisConfigurationMap;
 import com.elettra.controller.gui.common.GuiUtilities;
 import com.elettra.controller.gui.panels.MovePanel;
-import com.elettra.controller.gui.panels.ScanPanel;
+import com.elettra.controller.gui.panels.TwoMotorsMovePanel;
 import com.elettra.controller.gui.windows.AbstractGenericFrame;
 
 public class MainAreaDetector extends AbstractGenericFrame implements ActionListener
@@ -48,7 +46,7 @@ public class MainAreaDetector extends AbstractGenericFrame implements ActionList
 	 * 
 	 */
 
-	private static final String APPLICATION_NAME = "Basement Alignement";
+	private static final String APPLICATION_NAME = "Area Detector Facility";
 
 	static class ActionCommands
 	{
@@ -67,10 +65,10 @@ public class MainAreaDetector extends AbstractGenericFrame implements ActionList
 		{
 			this.addWindowFocusListener(new MainWindowAdapter(this));
 
-			this.setBounds(5, 5, 1600, 900);
+			this.setBounds(5, 5, 1435, 900);
 
 			GridBagLayout gridBagLayout = new GridBagLayout();
-			gridBagLayout.columnWidths = new int[] { 1200, 500 };
+			gridBagLayout.columnWidths = new int[] { 1400, 600 };
 			gridBagLayout.rowHeights = new int[] { 0 };
 			gridBagLayout.columnWeights = new double[] { 0.0, 0.0 };
 			gridBagLayout.rowWeights = new double[] { 1.0 };
@@ -101,7 +99,6 @@ public class MainAreaDetector extends AbstractGenericFrame implements ActionList
 			leftPanel.add(movePanel7, gbc_movePanel7);
 			movePanel7.add(new MovePanel(Axis.ROTATION, this.getPort()));
 			
-
 			JPanel movePanel5 = new JPanel();
 			movePanel5.setBorder(new BevelBorder(BevelBorder.LOWERED, null, null, null, null));
 			GridBagConstraints gbc_movePanel5 = new GridBagConstraints();
@@ -112,6 +109,25 @@ public class MainAreaDetector extends AbstractGenericFrame implements ActionList
 			leftPanel.add(movePanel5, gbc_movePanel5);
 			movePanel5.add(new MovePanel(Axis.X, this.getPort()));
 			
+			JPanel movePanel9 = new JPanel();
+			movePanel9.setBorder(new BevelBorder(BevelBorder.LOWERED, null, null, null, null));
+			GridBagConstraints gbc_movePanel9 = new GridBagConstraints();
+			gbc_movePanel9.insets = new Insets(10, 0, 5, 5);
+			gbc_movePanel9.fill = GridBagConstraints.BOTH;
+			gbc_movePanel9.gridx = 2;
+			gbc_movePanel9.gridy = 0;
+			leftPanel.add(movePanel9, gbc_movePanel9);
+			movePanel9.add(new TwoMotorsMovePanel(Axis.Z, this.getPort()));
+
+			JPanel movePanle10 = new JPanel();
+			//movePanle10.setBorder(new BevelBorder(BevelBorder.LOWERED, null, null, null, null));
+			GridBagConstraints gbc_movePanle10 = new GridBagConstraints();
+			gbc_movePanle10.insets = new Insets(10, 0, 5, 5);
+			gbc_movePanle10.fill = GridBagConstraints.BOTH;
+			gbc_movePanle10.gridx = 3;
+			gbc_movePanle10.gridy = 0;
+			leftPanel.add(movePanle10, gbc_movePanle10);
+
 			JPanel movePanel6 = new JPanel();
 			movePanel6.setBorder(new BevelBorder(BevelBorder.LOWERED, null, null, null, null));
 			GridBagConstraints gbc_movePanel6 = new GridBagConstraints();
@@ -132,15 +148,25 @@ public class MainAreaDetector extends AbstractGenericFrame implements ActionList
 			leftPanel.add(movePanel8, gbc_movePanel8);
 			movePanel8.add(new MovePanel(Axis.Z2, this.getPort()));
 			
-			/*
-			JPanel doubleMovePanel1 = new JPanel();
-			GridBagConstraints gbc_doubleMovePanel1 = new GridBagConstraints();
-			gbc_doubleMovePanel1.insets = new Insets(0, 0, 5, 5);
-			gbc_doubleMovePanel1.fill = GridBagConstraints.BOTH;
-			gbc_doubleMovePanel1.gridx = 1;
-			gbc_doubleMovePanel1.gridy = 1;
-			leftPanel.add(doubleMovePanel1, gbc_doubleMovePanel1);
-			*/
+			JPanel movePanel11 = new JPanel();
+			movePanel11.setBorder(new BevelBorder(BevelBorder.LOWERED, null, null, null, null));
+			GridBagConstraints gbc_movePanel11 = new GridBagConstraints();
+			gbc_movePanel11.insets = new Insets(0, 0, 5, 5);
+			gbc_movePanel11.fill = GridBagConstraints.BOTH;
+			gbc_movePanel11.gridx = 2;
+			gbc_movePanel11.gridy = 1;
+			leftPanel.add(movePanel11, gbc_movePanel11);
+			//movePanel11.add(new MovePanel(Axis.SAMPLE_X, this.getPort()));
+
+			JPanel movePanel12 = new JPanel();
+			movePanel12.setBorder(new BevelBorder(BevelBorder.LOWERED, null, null, null, null));
+			GridBagConstraints gbc_movePanel12 = new GridBagConstraints();
+			gbc_movePanel12.insets = new Insets(0, 0, 5, 5);
+			gbc_movePanel12.fill = GridBagConstraints.BOTH;
+			gbc_movePanel12.gridx = 3;
+			gbc_movePanel12.gridy = 1;
+			leftPanel.add(movePanel12, gbc_movePanel12);
+			//movePanel12.add(new MovePanel(Axis.SAMPLE_SPINNER, this.getPort()));
 
 			JPanel lateralPanel = new JPanel();
 			GridBagConstraints gbc_lateralPanel = new GridBagConstraints();
@@ -337,6 +363,8 @@ public class MainAreaDetector extends AbstractGenericFrame implements ActionList
 		DriverUtilities.restoreSavedAxisPosition(Axis.X, GuiUtilities.getNullListener(), port);
 		DriverUtilities.restoreSavedAxisPosition(Axis.Z1, GuiUtilities.getNullListener(), port);
 		DriverUtilities.restoreSavedAxisPosition(Axis.Z2, GuiUtilities.getNullListener(), port);
+		//DriverUtilities.restoreSavedAxisPosition(Axis.SAMPLE_X, GuiUtilities.getNullListener(), port);
+		//DriverUtilities.restoreSavedAxisPosition(Axis.SAMPLE_SPINNER, GuiUtilities.getNullListener(), port);
 	}
 
 	static IAxisConfigurationMap getAxisConf()
@@ -346,7 +374,9 @@ public class MainAreaDetector extends AbstractGenericFrame implements ActionList
 		map.setAxisConfiguration(Axis.ROTATION, new AxisConfiguration(DriverUtilities.getDecimalGrades(), 1000, 2000, 33, 0, DriverUtilities.getPlus(), false, false, 1, "ROTATION", 0.0, 0.0));
 		map.setAxisConfiguration(Axis.X, new AxisConfiguration(DriverUtilities.getMillimeters(), 1000, 2000, 33, 0, DriverUtilities.getPlus(), false, false, 1, "X", 0.0, 0.0));
 		map.setAxisConfiguration(Axis.Z1, new AxisConfiguration(DriverUtilities.getMillimeters(), 1000, 2000, 33, 0, DriverUtilities.getPlus(), false, false, 1, "Z1", 0.0, 0.0));
-		map.setAxisConfiguration(Axis.Z2, new AxisConfiguration(DriverUtilities.getDecimalGrades(), 1000, 2000, 20000, 0.00025, DriverUtilities.getPlus(), false, false, 1, "Z2", 0.0, 0.0));
+		map.setAxisConfiguration(Axis.Z2, new AxisConfiguration(DriverUtilities.getMillimeters(), 1000, 2000, 33, 0, DriverUtilities.getPlus(), false, false, 1, "Z2", 0.0, 0.0));
+		map.setAxisConfiguration(Axis.SAMPLE_X, new AxisConfiguration(DriverUtilities.getMillimeters(), 1000, 2000, 33, 0, DriverUtilities.getPlus(), false, false, 1, "Sample X", 0.0, 0.0));
+		map.setAxisConfiguration(Axis.SAMPLE_SPINNER, new AxisConfiguration(DriverUtilities.getDecimalGrades(), 2000, 5000, 33, 0, DriverUtilities.getPlus(), false, false, 1, "Spinner", 0.0, 0.0));
 		map.setAxisConfiguration(Axis.Z, new AxisConfiguration(DriverUtilities.getMillimeters(), new MultipleAxis(Axis.Z1, Axis.Z2, DriverUtilities.getPlus(), 2), "Z (Z1,Z2)"));
 		
 		return map;
