@@ -67,12 +67,12 @@ public class MainAreaDetector extends AbstractGenericFrame implements ActionList
 		{
 			this.addWindowFocusListener(new MainWindowAdapter(this));
 
-			this.setBounds(5, 5, 2870, 900);
+			this.setBounds(5, 5, 1600, 900);
 
 			GridBagLayout gridBagLayout = new GridBagLayout();
-			gridBagLayout.columnWidths = new int[] { 600, 1670, 600 };
+			gridBagLayout.columnWidths = new int[] { 1200, 500 };
 			gridBagLayout.rowHeights = new int[] { 0 };
-			gridBagLayout.columnWeights = new double[] { 0.0, 0.0, 0.0 };
+			gridBagLayout.columnWeights = new double[] { 0.0, 0.0 };
 			gridBagLayout.rowWeights = new double[] { 1.0 };
 			getContentPane().setLayout(gridBagLayout);
 
@@ -85,9 +85,9 @@ public class MainAreaDetector extends AbstractGenericFrame implements ActionList
 			gbc_leftPanel.gridy = 0;
 			getContentPane().add(leftPanel, gbc_leftPanel);
 			GridBagLayout gbl_leftPanel = new GridBagLayout();
-			gbl_leftPanel.columnWidths = new int[] { 280, 280 };
-			gbl_leftPanel.rowHeights = new int[] { 450, 450 };
-			gbl_leftPanel.columnWeights = new double[] { 0.0, 0.0 };
+			gbl_leftPanel.columnWidths = new int[] { 280, 280, 280, 280 };
+			gbl_leftPanel.rowHeights = new int[] { 425, 425 };
+			gbl_leftPanel.columnWeights = new double[] { 0.0, 0.0, 0.0, 0.0 };
 			gbl_leftPanel.rowWeights = new double[] { 0.0, 0.0 };
 			leftPanel.setLayout(gbl_leftPanel);
 
@@ -101,7 +101,7 @@ public class MainAreaDetector extends AbstractGenericFrame implements ActionList
 			leftPanel.add(movePanel7, gbc_movePanel7);
 			movePanel7.add(new MovePanel(Axis.ROTATION, this.getPort()));
 			
-			/*
+
 			JPanel movePanel5 = new JPanel();
 			movePanel5.setBorder(new BevelBorder(BevelBorder.LOWERED, null, null, null, null));
 			GridBagConstraints gbc_movePanel5 = new GridBagConstraints();
@@ -110,17 +110,29 @@ public class MainAreaDetector extends AbstractGenericFrame implements ActionList
 			gbc_movePanel5.gridx = 1;
 			gbc_movePanel5.gridy = 0;
 			leftPanel.add(movePanel5, gbc_movePanel5);
-			movePanel5.add(new MovePanel(Axis.THETAFIRST, this.getPort()));
-      */
+			movePanel5.add(new MovePanel(Axis.X, this.getPort()));
 			
 			JPanel movePanel6 = new JPanel();
+			movePanel6.setBorder(new BevelBorder(BevelBorder.LOWERED, null, null, null, null));
 			GridBagConstraints gbc_movePanel6 = new GridBagConstraints();
 			gbc_movePanel6.insets = new Insets(0, 5, 5, 5);
 			gbc_movePanel6.fill = GridBagConstraints.BOTH;
 			gbc_movePanel6.gridx = 0;
 			gbc_movePanel6.gridy = 1;
 			leftPanel.add(movePanel6, gbc_movePanel6);
-
+			movePanel6.add(new MovePanel(Axis.Z1, this.getPort()));
+      
+			JPanel movePanel8 = new JPanel();
+			movePanel8.setBorder(new BevelBorder(BevelBorder.LOWERED, null, null, null, null));
+			GridBagConstraints gbc_movePanel8 = new GridBagConstraints();
+			gbc_movePanel8.insets = new Insets(0, 0, 5, 5);
+			gbc_movePanel8.fill = GridBagConstraints.BOTH;
+			gbc_movePanel8.gridx = 1;
+			gbc_movePanel8.gridy = 1;
+			leftPanel.add(movePanel8, gbc_movePanel8);
+			movePanel8.add(new MovePanel(Axis.Z2, this.getPort()));
+			
+			/*
 			JPanel doubleMovePanel1 = new JPanel();
 			GridBagConstraints gbc_doubleMovePanel1 = new GridBagConstraints();
 			gbc_doubleMovePanel1.insets = new Insets(0, 0, 5, 5);
@@ -128,53 +140,14 @@ public class MainAreaDetector extends AbstractGenericFrame implements ActionList
 			gbc_doubleMovePanel1.gridx = 1;
 			gbc_doubleMovePanel1.gridy = 1;
 			leftPanel.add(doubleMovePanel1, gbc_doubleMovePanel1);
-
-			JPanel rightPanel = new JPanel();
-			GridBagConstraints gbc_rightPanel = new GridBagConstraints();
-			gbc_rightPanel.fill = GridBagConstraints.BOTH;
-			gbc_rightPanel.insets = new Insets(0, 0, 0, 5);
-			gbc_rightPanel.gridx = 1;
-			gbc_rightPanel.gridy = 0;
-			getContentPane().add(rightPanel, gbc_rightPanel);
-			GridBagLayout gbl_rightPanel = new GridBagLayout();
-			gbl_rightPanel.columnWidths = new int[] { 0, 0 };
-			gbl_rightPanel.rowHeights = new int[] { 0 };
-			gbl_rightPanel.columnWeights = new double[] { 1.0, 1.0 };
-			gbl_rightPanel.rowWeights = new double[] { 1.0 };
-			rightPanel.setLayout(gbl_rightPanel);
-
-			Rectangle bounds = new Rectangle(0, 0, 750, 845);
-
-			JPanel scan0Panel = new JPanel();
-			scan0Panel.setBorder(BorderFactory.createBevelBorder(BevelBorder.LOWERED));
-			scan0Panel.setBounds(bounds);
-			scan0Panel.add(new ScanPanel(Axis.ROTATION, this.getPort(), false));
-			GridBagConstraints gbc_scan0Panel = new GridBagConstraints();
-			gbc_scan0Panel.insets = new Insets(10, 5, 5, 5);
-			gbc_scan0Panel.fill = GridBagConstraints.BOTH;
-			gbc_scan0Panel.gridx = 0;
-			gbc_scan0Panel.gridy = 0;
-			rightPanel.add(scan0Panel, gbc_scan0Panel);
-			
-			/*
-			JPanel scan1Panel = new JPanel();
-			scan1Panel.setBorder(BorderFactory.createBevelBorder(BevelBorder.LOWERED));
-			scan1Panel.setBounds(bounds);
-			scan1Panel.add(new ScanPanel(Axis.THETAFIRST, this.getPort(), false));
-			GridBagConstraints gbc_scan1Panel = new GridBagConstraints();
-			gbc_scan1Panel.insets = new Insets(10, 5, 5, 5);
-			gbc_scan1Panel.fill = GridBagConstraints.BOTH;
-			gbc_scan1Panel.gridx = 1;
-			gbc_scan1Panel.gridy = 0;
-			rightPanel.add(scan1Panel, gbc_scan1Panel);
 			*/
-			
+
 			JPanel lateralPanel = new JPanel();
 			GridBagConstraints gbc_lateralPanel = new GridBagConstraints();
 			gbc_lateralPanel.insets = new Insets(0, 0, 0, 5);
 			gbc_lateralPanel.anchor = GridBagConstraints.WEST;
 			gbc_lateralPanel.fill = GridBagConstraints.BOTH;
-			gbc_lateralPanel.gridx = 2;
+			gbc_lateralPanel.gridx = 1;
 			gbc_lateralPanel.gridy = 0;
 			getContentPane().add(lateralPanel, gbc_lateralPanel);
 			GridBagLayout gbl_lateralPanel = new GridBagLayout();
@@ -363,6 +336,7 @@ public class MainAreaDetector extends AbstractGenericFrame implements ActionList
 		DriverUtilities.restoreSavedAxisPosition(Axis.ROTATION, GuiUtilities.getNullListener(), port);
 		DriverUtilities.restoreSavedAxisPosition(Axis.X, GuiUtilities.getNullListener(), port);
 		DriverUtilities.restoreSavedAxisPosition(Axis.Z1, GuiUtilities.getNullListener(), port);
+		DriverUtilities.restoreSavedAxisPosition(Axis.Z2, GuiUtilities.getNullListener(), port);
 	}
 
 	static IAxisConfigurationMap getAxisConf()
