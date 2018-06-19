@@ -15,7 +15,6 @@ import com.elettra.controller.driver.common.IAxisConfigurationMap;
 import com.elettra.controller.driver.common.MultipleAxis;
 import com.elettra.controller.driver.common.RelativeMovement;
 import com.elettra.controller.driver.programs.DefaultAxisConfigurationMap;
-import com.elettra.controller.driver.programs.MoveParameters;
 import com.elettra.controller.driver.programs.ProgramsFacade;
 import com.elettra.controller.driver.programs.TwoMotorsMoveParameters;
 import com.elettra.controller.gui.common.GuiUtilities;
@@ -83,11 +82,11 @@ public class Test
 	{
 		DefaultAxisConfigurationMap map = new DefaultAxisConfigurationMap();
 
-		map.setAxisConfiguration(Axis.ROTATION, new AxisConfiguration(DriverUtilities.getDecimalGrades(), 1000, 2000, 33, 0, DriverUtilities.getPlus(), false, false, 1, "ROTATION", 0.0, 0.0));
-		map.setAxisConfiguration(Axis.X, new AxisConfiguration(DriverUtilities.getMillimeters(), 1000, 2000, 33, 0, DriverUtilities.getPlus(), false, false, 1, "X", 0.0, 0.0));
-		map.setAxisConfiguration(Axis.Z1, new AxisConfiguration(DriverUtilities.getMillimeters(), 1000, 2000, 33, 0, DriverUtilities.getPlus(), false, false, 1, "Z1", 0.0, 0.0));
-		map.setAxisConfiguration(Axis.Z2, new AxisConfiguration(DriverUtilities.getDecimalGrades(), 1000, 2000, 20000, 0.00025, DriverUtilities.getPlus(), false, false, 1, "Z2", 0.0, 0.0));
-		map.setAxisConfiguration(Axis.Z, new AxisConfiguration(DriverUtilities.getMillimeters(), new MultipleAxis(Axis.Z1, Axis.Z2, DriverUtilities.getPlus(), 2), "Z (Z1,Z2)"));
+		map.setAxisConfiguration(Axis.DETECTOR_ROTATION, new AxisConfiguration(DriverUtilities.getDecimalGrades(), 1000, 2000, 33, 0, DriverUtilities.getPlus(), false, false, 1, "Detector \u03c9", 0.0, 0.0));
+		map.setAxisConfiguration(Axis.DETECTOR_X, new AxisConfiguration(DriverUtilities.getMillimeters(), 1000, 2000, 33, 0, DriverUtilities.getPlus(), false, false, 1, "Detector X", 0.0, 0.0));
+		map.setAxisConfiguration(Axis.DETECTOR_Z1, new AxisConfiguration(DriverUtilities.getMillimeters(), 1000, 2000, 33, 0, DriverUtilities.getPlus(), false, false, 1, "Detector Z1", 0.0, 0.0));
+		map.setAxisConfiguration(Axis.DETECTOR_Z2, new AxisConfiguration(DriverUtilities.getDecimalGrades(), 1000, 2000, 20000, 0.00025, DriverUtilities.getPlus(), false, false, 1, "Detector Z2", 0.0, 0.0));
+		map.setAxisConfiguration(Axis.DETECTOR_Z, new AxisConfiguration(DriverUtilities.getMillimeters(), new MultipleAxis(Axis.DETECTOR_Z1, Axis.DETECTOR_Z2, DriverUtilities.getPlus(), 2), "Detector Z (Z1,Z2)"));
 		
 		return map;
 	}
