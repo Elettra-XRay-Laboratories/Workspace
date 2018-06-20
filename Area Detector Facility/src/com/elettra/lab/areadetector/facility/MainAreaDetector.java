@@ -51,6 +51,7 @@ public class MainAreaDetector extends AbstractGenericFrame implements ActionList
 	static class ActionCommands
 	{
 		private static final String EXIT = "EXIT";
+		private static final String START_WEBCAM = "START_WEBCAM";
 	}
 
 	/**
@@ -126,7 +127,7 @@ public class MainAreaDetector extends AbstractGenericFrame implements ActionList
 			JPanel movePanel6 = new JPanel();
 			movePanel6.setBorder(new BevelBorder(BevelBorder.LOWERED, null, null, null, null));
 			GridBagConstraints gbc_movePanel6 = new GridBagConstraints();
-			gbc_movePanel6.insets = new Insets(0, 5, 5, 5);
+			gbc_movePanel6.insets = new Insets(10, 0, 5, 5);
 			gbc_movePanel6.fill = GridBagConstraints.BOTH;
 			gbc_movePanel6.gridx = 3;
 			gbc_movePanel6.gridy = 0;
@@ -136,7 +137,7 @@ public class MainAreaDetector extends AbstractGenericFrame implements ActionList
 			JPanel movePanel8 = new JPanel();
 			movePanel8.setBorder(new BevelBorder(BevelBorder.LOWERED, null, null, null, null));
 			GridBagConstraints gbc_movePanel8 = new GridBagConstraints();
-			gbc_movePanel8.insets = new Insets(0, 0, 5, 5);
+			gbc_movePanel8.insets = new Insets(10, 0, 5, 5);
 			gbc_movePanel8.fill = GridBagConstraints.BOTH;
 			gbc_movePanel8.gridx = 4;
 			gbc_movePanel8.gridy = 0;
@@ -149,7 +150,7 @@ public class MainAreaDetector extends AbstractGenericFrame implements ActionList
 			JPanel movePanel20 = new JPanel();
 			movePanel20.setBorder(new BevelBorder(BevelBorder.LOWERED, null, null, null, null));
 			GridBagConstraints gbc_movePanel20 = new GridBagConstraints();
-			gbc_movePanel20.insets = new Insets(10, 5, 5, 5);
+			gbc_movePanel20.insets = new Insets(5, 5, 5, 5);
 			gbc_movePanel20.fill = GridBagConstraints.BOTH;
 			gbc_movePanel20.gridx = 0;
 			gbc_movePanel20.gridy = 1;
@@ -160,7 +161,7 @@ public class MainAreaDetector extends AbstractGenericFrame implements ActionList
 			JPanel movePanel21 = new JPanel();
 			movePanel21.setBorder(new BevelBorder(BevelBorder.LOWERED, null, null, null, null));
 			GridBagConstraints gbc_movePanel21 = new GridBagConstraints();
-			gbc_movePanel21.insets = new Insets(10, 0, 5, 5);
+			gbc_movePanel21.insets = new Insets(5, 0, 5, 5);
 			gbc_movePanel21.fill = GridBagConstraints.BOTH;
 			gbc_movePanel21.gridx = 1;
 			gbc_movePanel21.gridy = 1;
@@ -171,7 +172,7 @@ public class MainAreaDetector extends AbstractGenericFrame implements ActionList
 			JPanel movePanel22 = new JPanel();
 			movePanel22.setBorder(new BevelBorder(BevelBorder.LOWERED, null, null, null, null));
 			GridBagConstraints gbc_movePanel22 = new GridBagConstraints();
-			gbc_movePanel22.insets = new Insets(10, 0, 5, 5);
+			gbc_movePanel22.insets = new Insets(5, 0, 5, 5);
 			gbc_movePanel22.fill = GridBagConstraints.BOTH;
 			gbc_movePanel22.gridx = 2;
 			gbc_movePanel22.gridy = 1;
@@ -182,7 +183,7 @@ public class MainAreaDetector extends AbstractGenericFrame implements ActionList
 			JPanel movePanel23 = new JPanel();
 			movePanel23.setBorder(new BevelBorder(BevelBorder.LOWERED, null, null, null, null));
 			GridBagConstraints gbc_movePanel23 = new GridBagConstraints();
-			gbc_movePanel23.insets = new Insets(10, 5, 5, 5);
+			gbc_movePanel23.insets = new Insets(5, 0, 5, 5);
 			gbc_movePanel23.fill = GridBagConstraints.BOTH;
 			gbc_movePanel23.gridx = 3;
 			gbc_movePanel23.gridy = 1;
@@ -202,9 +203,9 @@ public class MainAreaDetector extends AbstractGenericFrame implements ActionList
 			leftPanel.add(lateralPanel, gbc_lateralPanel);
 			GridBagLayout gbl_lateralPanel = new GridBagLayout();
 			gbl_lateralPanel.columnWidths = new int[] { 0 };
-			gbl_lateralPanel.rowHeights = new int[] { 0, 0 };
+			gbl_lateralPanel.rowHeights = new int[] { 0, 0, 0 };
 			gbl_lateralPanel.columnWeights = new double[] { 1.0 };
-			gbl_lateralPanel.rowWeights = new double[] { 1.0, 1.0 };
+			gbl_lateralPanel.rowWeights = new double[] { 1.0, 1.0, 1.0 };
 			lateralPanel.setLayout(gbl_lateralPanel);
 
 			JTabbedPane statusTabbedPane = new JTabbedPane(JTabbedPane.TOP);
@@ -262,15 +263,24 @@ public class MainAreaDetector extends AbstractGenericFrame implements ActionList
 			statusPanel.add(ioStatusTextField, gbc_ioStatusTextField);
 			ioStatusTextField.setColumns(10);
 
+			JButton openButton = new JButton("Start WebCam");
+			openButton.setActionCommand(ActionCommands.START_WEBCAM);
+			openButton.addActionListener(this);
+			GridBagConstraints gbc_openButton = new GridBagConstraints();
+			gbc_openButton.fill = GridBagConstraints.BOTH;
+			gbc_openButton.insets = new Insets(200, 0, 5, 5);
+			gbc_openButton.gridx = 0;
+			gbc_openButton.gridy = 1;
+			lateralPanel.add(openButton, gbc_openButton);
 
 			JButton exitButton = new JButton("EXIT");
 			exitButton.setActionCommand(ActionCommands.EXIT);
 			exitButton.addActionListener(this);
 			GridBagConstraints gbc_exitButton = new GridBagConstraints();
 			gbc_exitButton.fill = GridBagConstraints.BOTH;
-			gbc_exitButton.insets = new Insets(250, 0, 5, 5);
+			gbc_exitButton.insets = new Insets(5, 0, 5, 5);
 			gbc_exitButton.gridx = 0;
-			gbc_exitButton.gridy = 1;
+			gbc_exitButton.gridy = 2;
 			lateralPanel.add(exitButton, gbc_exitButton);
 			
 			
@@ -425,5 +435,17 @@ public class MainAreaDetector extends AbstractGenericFrame implements ActionList
 
 	protected void manageOtherActions(ActionEvent event)
 	{
+		if (event.getActionCommand().equals(ActionCommands.START_WEBCAM))
+		{
+			try
+			{
+				new ProcessBuilder("C:\\Program Files (x86)\\Common Files\\LogiShrd\\LWSPlugins\\LWS\\Applets\\HelpMain\\launchershortcut.exe").start();
+			}
+			catch (IOException exception)
+			{
+				// TODO Auto-generated catch block
+				exception.printStackTrace();
+			}
+		}
 	}
 }
