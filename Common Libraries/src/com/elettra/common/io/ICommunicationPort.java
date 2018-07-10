@@ -1,6 +1,6 @@
 package com.elettra.common.io;
 
-public interface ICommunicationPort
+public interface ICommunicationPort 
 {
 	public String getName();
 

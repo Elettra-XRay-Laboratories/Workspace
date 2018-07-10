@@ -22,12 +22,13 @@ public final class ProgramsFacade
 		public static final String DOUBLEMOVE = "DOUBLEMOVE";
 		public static final String SCAN       = "SCAN";
 		public static final String STABILITY  = "STABILITY";
+		public static final String TMMOVE       = "TMMOVE";
 	}
 
 	static
 	{
 		huberProgramChainOfReponsibility = new com.elettra.controller.driver.programs.huber.MOVEProgram();
-		lastOfHuberProgramChainOfReponsibility = huberProgramChainOfReponsibility.setNext(new com.elettra.controller.driver.programs.huber.COUNTProgram()).setNext(new SCANProgram()).setNext(new com.elettra.controller.driver.programs.huber.DOUBLEMOVEProgram()).setNext(new STABILITYProgram());
+		lastOfHuberProgramChainOfReponsibility = huberProgramChainOfReponsibility.setNext(new com.elettra.controller.driver.programs.huber.COUNTProgram()).setNext(new SCANProgram()).setNext(new com.elettra.controller.driver.programs.huber.DOUBLEMOVEProgram()).setNext(new STABILITYProgram()).setNext(new com.elettra.controller.driver.programs.huber.TwoMotorsMOVEProgram());
 
 		galilProgramChainOfReponsibility = new com.elettra.controller.driver.programs.galil.MOVEProgram();
 		lastOfGalilProgramChainOfReponsibility = galilProgramChainOfReponsibility.setNext(new com.elettra.controller.driver.programs.galil.COUNTProgram()).setNext(new SCANProgram()).setNext(new com.elettra.controller.driver.programs.galil.DOUBLEMOVEProgram()).setNext(new STABILITYProgram());

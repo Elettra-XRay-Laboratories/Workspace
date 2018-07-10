@@ -1,8 +1,5 @@
 package com.elettra.common.io;
 
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
-import java.io.PrintStream;
 import java.util.Enumeration;
 
 import javax.comm.CommPortIdentifier;
@@ -15,9 +12,6 @@ class SerialPortWrapper implements ICommunicationPort
 
 	private String	         portName;
 	private SerialPort	     port;
-
-	private PrintStream	     outputStream;
-	private BufferedReader	 inputStream;
 
 	private static final int	TIMEOUT	= 5000;
 
@@ -36,10 +30,15 @@ class SerialPortWrapper implements ICommunicationPort
 		// (a) it indicates a serial (not a parallel) port, and
 		// (b) matches the desired name.
 		//
-
-		while (portIdentifiers.hasMoreElements())
+		
+		this.port = null;
+		this.portName = null;
+				
+		while (portIdentifiers.hasMoreElements() && this.port == null)
 		{
 			CommPortIdentifier pid = (CommPortIdentifier) portIdentifiers.nextElement();
+			
+			
 			if (pid.getPortType() == CommPortIdentifier.PORT_SERIAL && portName.equals(pid.getName()))
 			{
 				try
@@ -55,6 +54,8 @@ class SerialPortWrapper implements ICommunicationPort
 				}
 			}
 		}
+		
+		if (this.port == null) throw new CommunicationPortException("Com Port " + portName + " Not Found");
 	}
 
 	public synchronized String getName()
@@ -66,9 +67,13 @@ class SerialPortWrapper implements ICommunicationPort
 	{
 		try
 		{
-			this.port.setSerialPortParams(((SerialPortParameters) parameters).getBaudrate(), ((SerialPortParameters) parameters).getDatabits(),
-			    ((SerialPortParameters) parameters).getStopbits(), ((SerialPortParameters) parameters).getParity());
-
+			this.port.setFlowControlMode(SerialPort.FLOWCONTROL_NONE);
+			
+			this.port.setSerialPortParams(
+					((SerialPortParameters) parameters).getBaudrate(), 
+					((SerialPortParameters) parameters).getDatabits(),
+			    ((SerialPortParameters) parameters).getStopbits(), 
+			    ((SerialPortParameters) parameters).getParity());
 		}
 		catch (Throwable e)
 		{
@@ -85,12 +90,9 @@ class SerialPortWrapper implements ICommunicationPort
 	{
 		try
 		{
-			if (this.outputStream == null)
-				this.outputStream = new PrintStream(this.port.getOutputStream());
-
-			this.outputStream.print(buffer);
-			this.outputStream.flush();
-
+			
+			this.port.getOutputStream().write(buffer); 
+			this.port.getOutputStream().flush();
 		}
 		catch (Throwable t)
 		{
@@ -113,11 +115,14 @@ class SerialPortWrapper implements ICommunicationPort
 		try
 		{
 			Thread.sleep(1000);
-			
-			if (this.inputStream == null)
-				this.inputStream = new BufferedReader(new InputStreamReader(this.port.getInputStream()));
 
-			return this.inputStream.readLine();
+  	  StringBuffer buffer = new StringBuffer();
+  	  do{
+  	  	buffer.append((char) this.port.getInputStream().read());
+  	  	
+  	  } while (this.port.getInputStream().available() > 0);
+  	  
+  	  return buffer.toString();
 		}
 		catch (Throwable t)
 		{
@@ -129,14 +134,11 @@ class SerialPortWrapper implements ICommunicationPort
 	{
 		try
 		{
-			if (this.inputStream == null)
-				this.inputStream = new BufferedReader(new InputStreamReader(this.port.getInputStream()));
+			byte[] cbuf = new byte[bytes];
 
-			char[] cbuf = new char[bytes];
+			this.port.getInputStream().read(cbuf, 0, bytes);
 
-			this.inputStream.read(cbuf, 0, bytes);
-
-			return String.copyValueOf(cbuf);
+			return new String(cbuf);
 		}
 		catch (Throwable t)
 		{
@@ -148,22 +150,6 @@ class SerialPortWrapper implements ICommunicationPort
 	{
 		if (this.port != null)
 		{
-			try
-			{
-				this.inputStream.close();
-			}
-			catch (Throwable t)
-			{
-			}
-
-			try
-			{
-				this.outputStream.close();
-			}
-			catch (Throwable t)
-			{
-			}
-
 			this.port.close();
 		}
 	}

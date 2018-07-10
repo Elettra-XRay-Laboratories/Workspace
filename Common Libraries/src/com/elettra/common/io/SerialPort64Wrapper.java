@@ -123,7 +123,7 @@ class SerialPort64Wrapper implements ICommunicationPort
 			byte[] array = this.readBytes();
 
 			if (array == null)
-				return null;
+				return "";
 			else
 				return new String(array);
 		}
