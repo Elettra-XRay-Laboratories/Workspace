@@ -19,6 +19,7 @@ import java.io.IOException;
 import javax.imageio.ImageIO;
 import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
+import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -274,6 +275,40 @@ public class LPTScanPanel extends ScanPanel
 		gbl_calculationManagementPanel.rowWeights = new double[] { 0.0, 0.0, Double.MIN_VALUE };
 		calculationManagementPanel.setLayout(gbl_calculationManagementPanel);
 
+		
+		JButton buttonTemp = new JButton("Launch Python Script");
+		GridBagConstraints gbc_buttonTemp = new GridBagConstraints();
+		gbc_buttonTemp.insets = new Insets(5, 10, 0, 0);
+		gbc_buttonTemp.anchor = GridBagConstraints.NORTHEAST;
+		gbc_buttonTemp.fill = GridBagConstraints.HORIZONTAL;
+		gbc_buttonTemp.gridx = 1;
+		gbc_buttonTemp.gridy = 3;
+		gbc_buttonTemp.gridheight = 1;
+		add(buttonTemp, gbc_buttonTemp);
+				
+		buttonTemp.addActionListener(new ActionListener()
+		{
+			
+			@Override
+			public void actionPerformed(ActionEvent e)
+			{	
+				try
+        {
+					String fileName = GuiUtilities.showDatFileChooser("./data", null, "myscan.dat");
+					
+	        (new ProcessBuilder(
+	        		"C:\\Users\\lorenzo.raimondi\\AppData\\Local\\Programs\\Python\\Python36\\pythonw.exe", 
+	        		"C:\\Users\\lorenzo.raimondi\\Desktop\\LTP Controller\\Files\\slope_handle.py", 
+	        		fileName, References.getInstance().get(References.LTP_X_0))).start();
+        }
+        catch (IOException e1)
+        {
+	        // TODO Auto-generated catch block
+	        e1.printStackTrace();
+        }
+			}
+		});
+
 	}
 
 	public synchronized void signalMeasure(int axis, MeasurePoint point, Progress progress, ICommunicationPort port) throws CommunicationPortException
@@ -426,4 +461,21 @@ public class LPTScanPanel extends ScanPanel
 			return LPTScanProgram.PROGRAM_NAME;
 		}
 	}
+	
+	public static void main(String args[])
+	{
+		try
+    {
+      (new ProcessBuilder(
+      		"C:\\Users\\lorenzo.raimondi\\AppData\\Local\\Programs\\Python\\Python36\\pythonw.exe", 
+      		"C:\\Users\\lorenzo.raimondi\\Desktop\\slope_handle.py", "doublet_new24.dat")).start();
+    }
+    catch (IOException e1)
+    {
+      // TODO Auto-generated catch block
+      e1.printStackTrace();
+    }
+
+	}
+	
 }

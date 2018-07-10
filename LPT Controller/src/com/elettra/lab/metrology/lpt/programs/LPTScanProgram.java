@@ -54,7 +54,7 @@ public class LPTScanProgram extends SCANProgram
 	{
 		super(PROGRAM_NAME);
 		
-		this.dump_measure = DumpMeasure.NO_DUMP;
+		this.dump_measure = DumpMeasure.DUMP_AT_END;
 
 		this.ccd = IDSCCDFactory.getIDSCCD();
 	}
@@ -180,11 +180,13 @@ public class LPTScanProgram extends SCANProgram
 
 			average_x_position = (average_x_position - this.dimx / 2);
 			average_y_position = -(average_y_position - this.dimy / 2);
+			average_x_position *= IIDSCCD.PIXEL_SIZE;
+			average_y_position *= IIDSCCD.PIXEL_SIZE;
+						
+			MeasureResult result = new MeasureResult(this.calculateSlopeError(average_x_position));
 
-			MeasureResult result = new MeasureResult(this.calculateSlopeError(average_x_position, average_y_position));
-
-			result.setAdditionalInformation1(average_x_position * IIDSCCD.PIXEL_SIZE);
-			result.setAdditionalInformation2(average_y_position * IIDSCCD.PIXEL_SIZE);
+			result.setAdditionalInformation1(average_x_position);
+			result.setAdditionalInformation2(average_y_position);
 
 			if (measureParameters.getAxis() == Axis.MOTOR5)
 				result.addCustomData(ENCODER_POSITION, Double.valueOf(EncoderReaderFactory.getEncoderReader().readPosition()));
@@ -209,9 +211,9 @@ public class LPTScanProgram extends SCANProgram
 		}
 	}
 
-	private double calculateSlopeError(double average_x_position, double average_y_position)
+	private double calculateSlopeError(double average_x_position)
 	{
-		return 0.5 * Math.atan((average_x_position-this.X0) / (this.focalDistance*1000) );
+		return 0.5 * Math.atan((average_x_position-this.X0) / (this.focalDistance*1000));
 	}
 
 	protected void openShutter() throws IOException, InterruptedException
@@ -228,5 +230,11 @@ public class LPTScanProgram extends SCANProgram
 		axisMoveParameters.addCustomParameter("PRECISION", 0.005);
 
 		ProgramsFacade.executeProgram(LPTMOVEProgram.PROGRAM_NAME, axisMoveParameters, port);
+	}
+	
+	
+	public static void main(String args[])
+	{
+		System.out.println(0.5 * Math.atan((-650+449)/(249.5*1000)));
 	}
 }
