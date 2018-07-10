@@ -14,6 +14,7 @@ import java.awt.event.FocusEvent;
 import java.awt.geom.Ellipse2D;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
+import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -2828,38 +2829,49 @@ public class ScanPanel extends MeasureListener implements ActionListener
 
 			if (!fileName.toLowerCase().endsWith(".dat"))
 				fileName += ".dat";
-
-			BufferedWriter writer = new BufferedWriter(new FileWriter(fileName));
-
-			try
+			
+			boolean proceed = true;
+			
+			File file = new File(fileName);
+			if (file.exists())
 			{
-				XYSeries series = this.xyDataset.getSeries(this.scanIndex);
-				XYSeries seriesAddInfo1 = this.xyDatasetAddInfo1.getSeries(this.scanIndex);
-				XYSeries seriesAddInfo2 = this.xyDatasetAddInfo2.getSeries(this.scanIndex);
-
-				this.writeDataFileHeading(series, writer);
-				writer.newLine();
-
-				int nItems = series.getItemCount();
-
-				for (int index = 0; index < nItems; index++)
+				proceed = GuiUtilities.showConfirmPopup("Confirm Overwriting File?", this);
+			}
+			
+			if (proceed)
+			{
+				BufferedWriter writer = new BufferedWriter(new FileWriter(fileName));
+	
+				try
 				{
-					writer.write(GuiUtilities.parseDouble(series.getX(index).doubleValue()).trim() + " "
-					    + (this.isOrdinateInteger() ? series.getY(index).intValue() : series.getY(index).doubleValue()) + " "
-					    + String.format(getAdditionalInfo1Format(), seriesAddInfo1.getY(index).doubleValue()) + " "
-					    + String.format(getAdditionalInfo2Format(), seriesAddInfo2.getY(index).doubleValue()));
+					XYSeries series = this.xyDataset.getSeries(this.scanIndex);
+					XYSeries seriesAddInfo1 = this.xyDatasetAddInfo1.getSeries(this.scanIndex);
+					XYSeries seriesAddInfo2 = this.xyDatasetAddInfo2.getSeries(this.scanIndex);
+	
+					this.writeDataFileHeading(series, writer);
 					writer.newLine();
+	
+					int nItems = series.getItemCount();
+	
+					for (int index = 0; index < nItems; index++)
+					{
+						writer.write(GuiUtilities.parseDouble(series.getX(index).doubleValue()).trim() + " "
+						    + (this.isOrdinateInteger() ? series.getY(index).intValue() : series.getY(index).doubleValue()) + " "
+						    + String.format(getAdditionalInfo1Format(), seriesAddInfo1.getY(index).doubleValue()) + " "
+						    + String.format(getAdditionalInfo2Format(), seriesAddInfo2.getY(index).doubleValue()));
+						writer.newLine();
+					}
+	
+					writer.flush();
 				}
-
-				writer.flush();
-			}
-			catch (IllegalArgumentException e)
-			{
-				throw new RuntimeException(e);
-			}
-			finally
-			{
-				writer.close();
+				catch (IllegalArgumentException e)
+				{
+					throw new RuntimeException(e);
+				}
+				finally
+				{
+					writer.close();
+				}
 			}
 		}
 		catch (IllegalArgumentException e)
@@ -2881,43 +2893,55 @@ public class ScanPanel extends MeasureListener implements ActionListener
 			if (!fileName.toLowerCase().endsWith(".dat"))
 				fileName += ".dat";
 
-			BufferedWriter writer = new BufferedWriter(new FileWriter(fileName));
-
-			try
+			boolean proceed = true;
+			
+			File file = new File(fileName);
+			if (file.exists())
+			{
+				proceed = GuiUtilities.showConfirmPopup("Confirm Overwriting File?", this);
+			}
+			
+			if (proceed)
 			{
 
-				for (int seriesIndex = 0; seriesIndex < 3; seriesIndex++)
+				BufferedWriter writer = new BufferedWriter(new FileWriter(fileName));
+
+				try
 				{
-					XYSeries series = this.xyDataset.getSeries(seriesIndex);
-					XYSeries seriesAddInfo1 = this.xyDatasetAddInfo1.getSeries(seriesIndex);
-					XYSeries seriesAddInfo2 = this.xyDatasetAddInfo2.getSeries(seriesIndex);
-
-					this.writeDataFileHeading(series, writer);
-					writer.newLine();
-
-					int nItems = series.getItemCount();
-
-					for (int index = 0; index < nItems; index++)
+	
+					for (int seriesIndex = 0; seriesIndex < 3; seriesIndex++)
 					{
-						writer.write(GuiUtilities.parseDouble(series.getX(index).doubleValue()).trim() + " "
-						    + (this.isOrdinateInteger() ? series.getY(index).intValue() : series.getY(index).doubleValue()) + " "
-						    + String.format(getAdditionalInfo1Format(), seriesAddInfo1.getY(index).doubleValue()) + " "
-						    + String.format(getAdditionalInfo2Format(), seriesAddInfo2.getY(index).doubleValue()));
+						XYSeries series = this.xyDataset.getSeries(seriesIndex);
+						XYSeries seriesAddInfo1 = this.xyDatasetAddInfo1.getSeries(seriesIndex);
+						XYSeries seriesAddInfo2 = this.xyDatasetAddInfo2.getSeries(seriesIndex);
+	
+						this.writeDataFileHeading(series, writer);
+						writer.newLine();
+	
+						int nItems = series.getItemCount();
+	
+						for (int index = 0; index < nItems; index++)
+						{
+							writer.write(GuiUtilities.parseDouble(series.getX(index).doubleValue()).trim() + " "
+							    + (this.isOrdinateInteger() ? series.getY(index).intValue() : series.getY(index).doubleValue()) + " "
+							    + String.format(getAdditionalInfo1Format(), seriesAddInfo1.getY(index).doubleValue()) + " "
+							    + String.format(getAdditionalInfo2Format(), seriesAddInfo2.getY(index).doubleValue()));
+							writer.newLine();
+						}
+	
 						writer.newLine();
 					}
-
-					writer.newLine();
+	
+					writer.flush();
 				}
-
-				writer.flush();
-			}
-			catch (IllegalArgumentException e)
-			{
-				throw new RuntimeException(e);
-			}
-			finally
-			{
-				writer.close();
+				catch (IllegalArgumentException e)
+				{
+					throw new RuntimeException(e);
+				}
+				finally
+				{
+					writer.close();
+				}
 			}
 		}
 		catch (IllegalArgumentException e)

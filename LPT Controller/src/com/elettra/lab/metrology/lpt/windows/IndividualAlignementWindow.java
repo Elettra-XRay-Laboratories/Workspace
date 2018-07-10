@@ -109,6 +109,16 @@ public class IndividualAlignementWindow extends AbstractGenericFrame
 		leftPanel.add(movePanel5, gbc_movePanel5);
 		movePanel5.add(new MovePanel(Axis.MOTOR4, this.getPort()));
 
+		JPanel movePanel6 = new JPanel();
+		movePanel6.setBorder(new BevelBorder(BevelBorder.LOWERED, null, null, null, null));
+		GridBagConstraints gbc_movePanel6 = new GridBagConstraints();
+		gbc_movePanel6.insets = new Insets(10, 0, 5, 5);
+		gbc_movePanel6.fill = GridBagConstraints.BOTH;
+		gbc_movePanel6.gridx = 1;
+		gbc_movePanel6.gridy = 1;
+		leftPanel.add(movePanel6, gbc_movePanel6);
+		movePanel6.add(new MovePanel(Axis.MOTOR5, this.getPort()));
+
 		// --------------
 
 		JPanel buttonPanel = new JPanel();

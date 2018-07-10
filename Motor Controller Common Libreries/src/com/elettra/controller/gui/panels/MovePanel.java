@@ -32,9 +32,12 @@ import com.elettra.controller.driver.programs.ProgramsFacade;
 import com.elettra.controller.gui.common.GuiUtilities;
 import com.elettra.controller.gui.common.ListenerRegister;
 import com.elettra.controller.gui.common.MovementListener;
+
 import java.awt.Font;
 import java.awt.event.FocusAdapter;
 import java.awt.event.FocusEvent;
+import java.io.IOException;
+
 import javax.swing.JCheckBox;
 
 @SuppressWarnings({ "unchecked", "rawtypes" })
@@ -362,7 +365,40 @@ public class MovePanel extends MovementListener implements ActionListener
 
 		kindOfMovementComboBox = new JComboBox();
 		kindOfMovementComboBox.setModel(new DefaultComboBoxModel(new String[] { "A", "R" }));
-		kindOfMovementComboBox.setSelectedIndex(0);
+		
+		try
+    {
+	    if (Defaults.getInstance().get(Defaults.ABS_REL).equals("A")) 
+	    {
+	  		kindOfMovementComboBox.setSelectedIndex(0);
+	    }
+	    else
+	    {
+	  		kindOfMovementComboBox.setSelectedIndex(1);	    	
+	    }
+    }
+    catch (Exception e1)
+    {
+  		kindOfMovementComboBox.setSelectedIndex(0);
+    }
+		
+		try
+    {
+	    if (Defaults.getInstance().get(Defaults.ABS_REL_ENABLED).equals("False")) 
+	    {
+	  		kindOfMovementComboBox.setEnabled(false);
+	    }
+	    else
+	    {
+	  		kindOfMovementComboBox.setEnabled(true);	    	
+	    }
+    }
+    catch (Exception e1)
+    {
+  		kindOfMovementComboBox.setEnabled(true);
+    }
+		
+		
 		kindOfMovementComboBox.setMaximumRowCount(2);
 		GridBagConstraints gbc_kindOfMovementComboBox = new GridBagConstraints();
 		gbc_kindOfMovementComboBox.anchor = GridBagConstraints.SOUTH;
