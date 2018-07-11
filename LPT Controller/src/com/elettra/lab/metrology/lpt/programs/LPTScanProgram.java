@@ -28,11 +28,13 @@ import com.elettra.lab.metrology.lpt.panels.References;
 
 public class LPTScanProgram extends SCANProgram
 {
-	public static final String	ENCODER_POSITION	   = "ENCODER_POSITION";
-	public static final String	LAST_IMAGE	         = "LAST_IMAGE";
+	public static final String	ENCODER_POSITION	    = "ENCODER_POSITION";
+	public static final String	LAST_IMAGE	          = "LAST_IMAGE";
+	public static final String	Y	                    = "Y";
+	public static final String	X                    	= "X";
 	public static final String	Y_STANDARD_DEVIATION	= "Y_STANDARD_DEVIATION";
 	public static final String	X_STANDARD_DEVIATION	= "X_STANDARD_DEVIATION";
-	public static final String	PROGRAM_NAME	       = "LPT_SCAN";
+	public static final String	PROGRAM_NAME	        = "LPT_SCAN";
 
 	public static final String	COLOR_MODE	         = "COLOR_MODE";
 	public static final String	DIM_X	               = "DIM_X";
@@ -185,9 +187,9 @@ public class LPTScanProgram extends SCANProgram
 						
 			MeasureResult result = new MeasureResult(this.calculateSlopeError(average_x_position));
 
-			result.setAdditionalInformation1(average_x_position);
-			result.setAdditionalInformation2(average_y_position);
-
+			result.addCustomData(X, Double.valueOf(average_x_position));
+			result.addCustomData(Y, Double.valueOf(average_x_position));
+			
 			if (measureParameters.getAxis() == Axis.MOTOR5)
 				result.addCustomData(ENCODER_POSITION, Double.valueOf(EncoderReaderFactory.getEncoderReader().readPosition()));
 

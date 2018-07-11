@@ -91,6 +91,19 @@ class IDSCCD implements IIDSCCD
 
 	//----------------------------------------------------------------------------
 
+	public void setHardwareGain(int gain) throws IDSCCDException
+	{
+		if (gain < 0) gain = 0;
+		else if (gain > 100) gain = 100;
+		
+		IDSCCDErrorCodes result = IDSCCDWrapper.INSTANCE.is_SetHardwareGain(this.cameraHandle.getValue(), gain, gain, gain, gain);
+
+		if (result != IDSCCDErrorCodes.IS_SUCCESS)
+			throw new IDSCCDException(String.valueOf(result));
+	}
+
+	//----------------------------------------------------------------------------
+
 	public int[] getImageByMemory(int dimx, int dimy, IDSCCDColorModes mode) throws IDSCCDException, IOException
 	{
 		int bitspixel = 0;
@@ -344,7 +357,7 @@ class IDSCCD implements IIDSCCD
 		GaussianFitResult resultX = FitUtilities.executeGaussianFit(0, dimx, FitUtilities.Optimizers.LEVENBERG_MARQUARDT, histograms[0]);
 		GaussianFitResult resultY = FitUtilities.executeGaussianFit(0, dimy, FitUtilities.Optimizers.LEVENBERG_MARQUARDT, histograms[1]);
 
-		return new Point(resultX.getPosition(), resultY.getPosition());
+		return new Point(resultX.getPosition(), resultY.getPosition(), resultX.getFwhm(), resultY.getFwhm());
 	}
 
 	//----------------------------------------------------------------------------
@@ -381,6 +394,7 @@ class IDSCCD implements IIDSCCD
 
 			ccd.init();
 			ccd.setColorMode(mode);
+			ccd.setHardwareGain(20);
 
 			if (byMemory)
 				ccd.setDisplayMode(IDSCCDDisplayModes.IS_SET_DM_DIB);

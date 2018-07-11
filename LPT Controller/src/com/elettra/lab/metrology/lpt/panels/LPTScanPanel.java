@@ -413,9 +413,9 @@ public class LPTScanPanel extends ScanPanel
 			this.imageLabel.setIcon(new ImageIcon(resizedImage));
 		}
 
-		this.centroid_x_position.setText(GuiUtilities.parseDouble(point.getAdditionalInformation1(), 1, true) + " ± "
+		this.centroid_x_position.setText(GuiUtilities.parseDouble(((Double) point.getCustomData(LPTScanProgram.X)).doubleValue(), 1, true) + " ± "
 		    + GuiUtilities.parseDouble(((Double) point.getCustomData(LPTScanProgram.X_STANDARD_DEVIATION)).doubleValue(), 1, true));
-		this.centroid_y_position.setText(GuiUtilities.parseDouble(point.getAdditionalInformation2(), 1, true) + " ± "
+		this.centroid_y_position.setText(GuiUtilities.parseDouble(((Double) point.getCustomData(LPTScanProgram.Y)).doubleValue(), 1, true) + " ± "
 		    + GuiUtilities.parseDouble(((Double) point.getCustomData(LPTScanProgram.Y_STANDARD_DEVIATION)).doubleValue(), 1, true));
 	}
 

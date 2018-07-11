@@ -20,6 +20,26 @@ public enum IDSCCDColorModes implements JNAEnum<IDSCCDColorModes>
 	IS_CM_MONO16               , // 28
 	IS_CM_JPEG                ; //  32
 	
+	public static String[] get_values()
+	{
+		return new String[] {"Raw8", "Mono8", "JPEG"};
+	}
+	
+	public static IDSCCDColorModes get_from_index(int index)
+	{
+		switch (index)
+		{
+			case 0:
+				return IS_CM_SENSOR_RAW8;
+			case 1:
+				return IS_CM_MONO8;
+			case 2:
+				return IS_CM_JPEG;
+			default:
+				return IS_CM_MONO8;
+		}
+	}
+	
 	public int getIntValue()
 	{
 		switch (this.ordinal())

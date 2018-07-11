@@ -33,6 +33,8 @@ public interface IIDSCCD
 
 	public abstract void setDisplayMode(IDSCCDDisplayModes mode) throws IDSCCDException;
 
+	public abstract void setHardwareGain(int nMaster) throws IDSCCDException;
+
 	public abstract void init() throws IDSCCDException, IllegalAccessException;
 
 }

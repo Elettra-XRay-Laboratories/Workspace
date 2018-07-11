@@ -1,24 +1,28 @@
 package com.elettra.controller.gui.panels;
 
 import java.awt.Color;
+import java.awt.Font;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.FocusAdapter;
+import java.awt.event.FocusEvent;
 
+import javax.swing.DefaultComboBoxModel;
 import javax.swing.JButton;
+import javax.swing.JCheckBox;
+import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
 import javax.swing.JTextField;
-import javax.swing.UIManager;
-import javax.swing.JComboBox;
-import javax.swing.DefaultComboBoxModel;
 import javax.swing.SwingConstants;
+import javax.swing.UIManager;
 
-import com.elettra.common.io.ICommunicationPort;
 import com.elettra.common.io.CommunicationPortException;
+import com.elettra.common.io.ICommunicationPort;
 import com.elettra.common.utilities.ObjectUtilities;
 import com.elettra.controller.driver.commands.CommandParameters;
 import com.elettra.controller.driver.commands.CommandsFacade;
@@ -32,13 +36,6 @@ import com.elettra.controller.driver.programs.ProgramsFacade;
 import com.elettra.controller.gui.common.GuiUtilities;
 import com.elettra.controller.gui.common.ListenerRegister;
 import com.elettra.controller.gui.common.MovementListener;
-
-import java.awt.Font;
-import java.awt.event.FocusAdapter;
-import java.awt.event.FocusEvent;
-import java.io.IOException;
-
-import javax.swing.JCheckBox;
 
 @SuppressWarnings({ "unchecked", "rawtypes" })
 public class MovePanel extends MovementListener implements ActionListener
