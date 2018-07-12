@@ -46,10 +46,10 @@ import com.elettra.lab.metrology.lpt.encoder.EncoderReaderFactory;
 import com.elettra.lab.metrology.lpt.programs.LPTLiveCCDProgram;
 import com.elettra.lab.metrology.lpt.programs.LPTMOVEProgram;
 import com.elettra.lab.metrology.lpt.programs.LPTScanProgram;
-import com.elettra.lab.metrology.lpt.windows.FreeMovementsAndScansWindow;
-import com.elettra.lab.metrology.lpt.windows.IndividualAlignementWindow;
+import com.elettra.lab.metrology.lpt.windows.LTPAlignementThroughScanWindow;
+import com.elettra.lab.metrology.lpt.windows.LTPAlignementThroughLiveCCDWindow;
 import com.elettra.lab.metrology.lpt.windows.LTPControllerCrashRecoveryWindow;
-import com.elettra.lab.metrology.lpt.windows.SlopeErrorMeasurementWindow;
+import com.elettra.lab.metrology.lpt.windows.LTPSlopeErrorMeasurementWindow;
 
 public class Main extends AbstractCommunicationPortFrame implements ActionListener
 {
@@ -75,8 +75,8 @@ public class Main extends AbstractCommunicationPortFrame implements ActionListen
 	static class ActionCommands
 	{
 		private static final String	EXIT		                  = "EXIT";
-		private static final String	INDIVIDUAL_ALIGNEMENT	= "INDIVIDUAL_ALIGNEMENT";
-		private static final String	FREE_MOVEMENTS_AND_SCANS	= "FREE_MOVEMENTS_AND_SCANS";
+		private static final String	LTP_ALIGNEMENT_THROUGH_LIVE_CCD	= "INDIVIDUAL_ALIGNEMENT";
+		private static final String	LTP_ALIGNEMENT_THROUGH_SCAN	= "FREE_MOVEMENTS_AND_SCANS";
 		private static final String	SLOPE_ERROR_SCAN		      = "SLOPE_ERROR_SCAN";
 		private static final String	CONTROLLER_CRASH_RECOVERY	= "CONTROLLER_CRASH_RECOVERY";
 	}
@@ -157,7 +157,7 @@ public class Main extends AbstractCommunicationPortFrame implements ActionListen
 
 			JButton alignementOperation1Button = new JButton("LTP ALIGNEMENT THROUGH SCAN");
 			alignementOperation1Button.addActionListener(this);
-			alignementOperation1Button.setActionCommand(ActionCommands.FREE_MOVEMENTS_AND_SCANS);
+			alignementOperation1Button.setActionCommand(ActionCommands.LTP_ALIGNEMENT_THROUGH_SCAN);
 			alignementOperation1Button.setFont(new Font("Tahoma", Font.PLAIN, 14));
 			GridBagConstraints gbc_alignementOperation1Button = new GridBagConstraints();
 			gbc_alignementOperation1Button.fill = GridBagConstraints.BOTH;
@@ -168,7 +168,7 @@ public class Main extends AbstractCommunicationPortFrame implements ActionListen
 
 			JButton alignementOperation2Button = new JButton("LTP ALIGNEMENT THROUGH LIVE CCD");
 			alignementOperation2Button.addActionListener(this);
-			alignementOperation2Button.setActionCommand(ActionCommands.INDIVIDUAL_ALIGNEMENT);
+			alignementOperation2Button.setActionCommand(ActionCommands.LTP_ALIGNEMENT_THROUGH_LIVE_CCD);
 			alignementOperation2Button.setFont(new Font("Tahoma", Font.PLAIN, 14));
 			GridBagConstraints gbc_sampleAlignementButton = new GridBagConstraints();
 			gbc_sampleAlignementButton.insets = new Insets(0, 5, 5, 5);
@@ -329,12 +329,12 @@ public class Main extends AbstractCommunicationPortFrame implements ActionListen
 
 			if (eventName.equals(ActionCommands.EXIT))
 				this.terminate();
-			else if (eventName.equals(ActionCommands.FREE_MOVEMENTS_AND_SCANS))
-				FreeMovementsAndScansWindow.getInstance(this.getPort()).setVisible(true);
-			else if (eventName.equals(ActionCommands.INDIVIDUAL_ALIGNEMENT))
-				IndividualAlignementWindow.getInstance(this.getPort()).setVisible(true);
+			else if (eventName.equals(ActionCommands.LTP_ALIGNEMENT_THROUGH_SCAN))
+				LTPAlignementThroughScanWindow.getInstance(this.getPort()).setVisible(true);
+			else if (eventName.equals(ActionCommands.LTP_ALIGNEMENT_THROUGH_LIVE_CCD))
+				LTPAlignementThroughLiveCCDWindow.getInstance(this.getPort()).setVisible(true);
 			else if (eventName.equals(ActionCommands.SLOPE_ERROR_SCAN))
-				SlopeErrorMeasurementWindow.getInstance(this.getPort()).setVisible(true);
+				LTPSlopeErrorMeasurementWindow.getInstance(this.getPort()).setVisible(true);
 			else if (eventName.equals(ActionCommands.CONTROLLER_CRASH_RECOVERY))
 				LTPControllerCrashRecoveryWindow.getInstance(this.getPort()).setVisible(true);
 		}

@@ -24,7 +24,7 @@ import com.elettra.lab.metrology.lpt.Axis;
 import com.elettra.lab.metrology.lpt.panels.LPTMovePanel;
 import com.elettra.lab.metrology.lpt.panels.LPTScanPanel;
 
-public class FreeMovementsAndScansWindow extends AbstractGenericFrame
+public class LTPAlignementThroughScanWindow extends AbstractGenericFrame
 {
 	static class ActionCommands
 	{
@@ -33,12 +33,12 @@ public class FreeMovementsAndScansWindow extends AbstractGenericFrame
 
 	private static final long serialVersionUID = -513690344812082943L;
 
-	public static synchronized FreeMovementsAndScansWindow getInstance(ICommunicationPort port) throws HeadlessException, IOException
+	public static synchronized LTPAlignementThroughScanWindow getInstance(ICommunicationPort port) throws HeadlessException, IOException
 	{
-		return new FreeMovementsAndScansWindow(port);
+		return new LTPAlignementThroughScanWindow(port);
 	}
 
-	private FreeMovementsAndScansWindow(ICommunicationPort port) throws HeadlessException, IOException
+	private LTPAlignementThroughScanWindow(ICommunicationPort port) throws HeadlessException, IOException
 	{
 		super("LTP Alignement Through Scan", port);
 

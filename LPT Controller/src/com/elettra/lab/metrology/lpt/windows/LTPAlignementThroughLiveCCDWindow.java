@@ -23,7 +23,7 @@ import com.elettra.controller.gui.windows.AbstractGenericFrame;
 import com.elettra.lab.metrology.lpt.Axis;
 import com.elettra.lab.metrology.lpt.panels.LiveCCDPanel;
 
-public class IndividualAlignementWindow extends AbstractGenericFrame
+public class LTPAlignementThroughLiveCCDWindow extends AbstractGenericFrame
 {
 	static class ActionCommands
 	{
@@ -33,12 +33,12 @@ public class IndividualAlignementWindow extends AbstractGenericFrame
 	private static final long serialVersionUID = -513690344812082943L;
 	private JPanel liveCCDPanel;
 
-	public static synchronized IndividualAlignementWindow getInstance(ICommunicationPort port) throws HeadlessException, IOException
+	public static synchronized LTPAlignementThroughLiveCCDWindow getInstance(ICommunicationPort port) throws HeadlessException, IOException
 	{
-		return new IndividualAlignementWindow(port);
+		return new LTPAlignementThroughLiveCCDWindow(port);
 	}
 
-	private IndividualAlignementWindow(ICommunicationPort port) throws HeadlessException, IOException
+	private LTPAlignementThroughLiveCCDWindow(ICommunicationPort port) throws HeadlessException, IOException
 	{
 		super("LTP Alignement Through Live CCD", port);
 
