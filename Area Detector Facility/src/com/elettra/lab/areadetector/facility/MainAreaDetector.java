@@ -5,14 +5,20 @@ import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.HeadlessException;
 import java.awt.Insets;
+import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.IOException;
 
+import javax.swing.BorderFactory;
+import javax.swing.DefaultComboBoxModel;
 import javax.swing.JButton;
+import javax.swing.JComboBox;
+import javax.swing.JComponent;
 import javax.swing.JLabel;
+import javax.swing.JLayeredPane;
 import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
 import javax.swing.JTextField;
@@ -31,10 +37,14 @@ import com.elettra.controller.driver.common.DriverUtilities;
 import com.elettra.controller.driver.common.IAxisConfigurationMap;
 import com.elettra.controller.driver.common.MultipleAxis;
 import com.elettra.controller.driver.programs.DefaultAxisConfigurationMap;
+import com.elettra.controller.driver.programs.ProgramsFacade;
 import com.elettra.controller.gui.common.GuiUtilities;
 import com.elettra.controller.gui.panels.MovePanel;
 import com.elettra.controller.gui.panels.TwoMotorsMovePanel;
 import com.elettra.controller.gui.windows.AbstractGenericFrame;
+
+import com.elettra.lab.areadetector.programs.XRFSCANProgram;
+import com.elettra.lab.powder.diffractometer.panels.XRFScanPanel;
 
 public class MainAreaDetector extends AbstractGenericFrame implements ActionListener
 {
@@ -54,6 +64,13 @@ public class MainAreaDetector extends AbstractGenericFrame implements ActionList
 		private static final String START_WEBCAM = "START_WEBCAM";
 	}
 
+	private JLayeredPane      rightLayeredPanel;
+	private JComboBox<String> choicheComboBox;
+	private JPanel            scan0Panel;
+	private JPanel            scan1Panel;
+	private JPanel            scan2Panel;
+	private JComponent        scan3Panel;
+	
 	/**
 	 * 
 	 */
@@ -66,12 +83,12 @@ public class MainAreaDetector extends AbstractGenericFrame implements ActionList
 		{
 			this.addWindowFocusListener(new MainWindowAdapter(this));
 
-			this.setBounds(5, 5, 1435, 900);
+			this.setBounds(5, 5, 2870, 900);
 
 			GridBagLayout gridBagLayout = new GridBagLayout();
-			gridBagLayout.columnWidths = new int[] { 1400};
+			gridBagLayout.columnWidths = new int[] { 1400, 780, 1400-780};
 			gridBagLayout.rowHeights = new int[] { 0 };
-			gridBagLayout.columnWeights = new double[] { 0.0 };
+			gridBagLayout.columnWeights = new double[] { 0.0, 0.0, 0.0 };
 			gridBagLayout.rowWeights = new double[] { 1.0 };
 			getContentPane().setLayout(gridBagLayout);
 
@@ -283,7 +300,85 @@ public class MainAreaDetector extends AbstractGenericFrame implements ActionList
 			gbc_exitButton.gridy = 2;
 			lateralPanel.add(exitButton, gbc_exitButton);
 			
-			
+			// ---------------------------------------------------------------------------
+			// ALIGNEMENT
+
+			rightLayeredPanel = new JLayeredPane();
+			GridBagConstraints gbc_rightPanel = new GridBagConstraints();
+			gbc_rightPanel.fill = GridBagConstraints.BOTH;
+			gbc_rightPanel.insets = new Insets(10, 5, 5, 5);
+			gbc_rightPanel.gridx = 1;
+			gbc_rightPanel.gridy = 0;
+			getContentPane().add(rightLayeredPanel, gbc_rightPanel);
+
+			Rectangle bounds = new Rectangle(0, 0, 750, 945);
+
+			scan0Panel = new JPanel();
+			scan0Panel.setBorder(BorderFactory.createBevelBorder(BevelBorder.LOWERED));
+			scan0Panel.setBounds(bounds);
+			rightLayeredPanel.setLayer(scan0Panel, 0);
+			rightLayeredPanel.add(scan0Panel);
+			scan0Panel.add(new XRFScanPanel(Axis.SAMPLE_X, this.getPort(), false));
+
+			scan1Panel = new JPanel();
+			scan1Panel.setBorder(BorderFactory.createBevelBorder(BevelBorder.LOWERED));
+			scan1Panel.setBounds(bounds);
+			rightLayeredPanel.setLayer(scan1Panel, 0);
+			rightLayeredPanel.add(scan1Panel);
+			scan1Panel.add(new XRFScanPanel(Axis.SAMPLE_Y, this.getPort(), false));
+
+			scan2Panel = new JPanel();
+			scan2Panel.setBorder(BorderFactory.createBevelBorder(BevelBorder.LOWERED));
+			scan2Panel.setBounds(bounds);
+			rightLayeredPanel.setLayer(scan2Panel, 0);
+			rightLayeredPanel.add(scan2Panel);
+			scan2Panel.add(new XRFScanPanel(Axis.SAMPLE_Z, this.getPort(), false));
+
+			scan3Panel = new JPanel();
+			scan3Panel.setBorder(BorderFactory.createBevelBorder(BevelBorder.LOWERED));
+			scan3Panel.setBounds(bounds);
+			rightLayeredPanel.setLayer(scan3Panel, 0);
+			rightLayeredPanel.add(scan3Panel);
+			scan3Panel.add(new XRFScanPanel(Axis.SAMPLE_W, this.getPort(), false));
+
+			rightLayeredPanel.moveToFront(scan0Panel);
+
+			JPanel choicePanel = new JPanel();
+			GridBagConstraints gbc_choicePanel = new GridBagConstraints();
+			gbc_choicePanel.insets = new Insets(0, 0, 0, 350);
+			gbc_choicePanel.fill = GridBagConstraints.BOTH;
+			gbc_choicePanel.gridx = 2;
+			gbc_choicePanel.gridy = 0;
+			getContentPane().add(choicePanel, gbc_choicePanel);
+			GridBagLayout gbl_choicePanel = new GridBagLayout();
+			gbl_choicePanel.columnWidths = new int[] { 0, 0 };
+			gbl_choicePanel.rowHeights = new int[] { 0 };
+			gbl_choicePanel.columnWeights = new double[] { 0.0, 1.0 };
+			gbl_choicePanel.rowWeights = new double[] { Double.MIN_VALUE };
+			choicePanel.setLayout(gbl_choicePanel);
+
+			JLabel label = new JLabel("Select Axis:  ");
+			GridBagConstraints gbc_label = new GridBagConstraints();
+			gbc_label.fill = GridBagConstraints.NONE;
+			gbc_label.insets = new Insets(10, 0, 5, 5);
+			gbc_label.anchor = GridBagConstraints.NORTHEAST;
+			gbc_label.gridx = 0;
+			gbc_label.gridy = 0;
+
+			choicePanel.add(label, gbc_label);
+
+			choicheComboBox = new JComboBox<String>();
+			choicheComboBox.setModel(new DefaultComboBoxModel<String>(new String[] { "Sample X", "Sample Y", "Sample Z", "Sample \u03C9" }));
+			choicheComboBox.addActionListener(this);
+			GridBagConstraints gbc_choiceComboBox = new GridBagConstraints();
+			gbc_choiceComboBox.fill = GridBagConstraints.NONE;
+			gbc_choiceComboBox.insets = new Insets(10, 0, 5, 5);
+			gbc_choiceComboBox.anchor = GridBagConstraints.NORTHWEST;
+			gbc_choiceComboBox.gridx = 1;
+			gbc_choiceComboBox.gridy = 0;
+
+			choicePanel.add(choicheComboBox, gbc_choiceComboBox);
+
 		}
 		catch (Exception e)
 		{
@@ -332,6 +427,11 @@ public class MainAreaDetector extends AbstractGenericFrame implements ActionList
 	// ------------------------------------------------------------------------------------------------------
 	// PRIVATE STATIC METHODS
 	// ------------------------------------------------------------------------------------------------------
+
+	static void customizeDriver() throws IOException
+	{
+		ProgramsFacade.addCustomCommand(new XRFSCANProgram());
+	}
 
 	static ICommunicationPort initializeCommunicationPort() throws IOException
 	{
@@ -445,6 +545,28 @@ public class MainAreaDetector extends AbstractGenericFrame implements ActionList
 			{
 				// TODO Auto-generated catch block
 				exception.printStackTrace();
+			}
+		}
+		else if (event.getSource().equals(choicheComboBox))
+		{
+			int layer = choicheComboBox.getSelectedIndex();
+
+			switch (layer)
+			{
+				case 0:
+					rightLayeredPanel.moveToFront(scan0Panel);
+					break;
+				case 1:
+					rightLayeredPanel.moveToFront(scan1Panel);
+					break;
+				case 2:
+					rightLayeredPanel.moveToFront(scan2Panel);
+					break;
+				case 3:
+					rightLayeredPanel.moveToFront(scan3Panel);
+					break;
+				default:
+					break;
 			}
 		}
 	}

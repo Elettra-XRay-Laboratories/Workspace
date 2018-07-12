@@ -21,6 +21,8 @@ public class MainFrameThread extends Thread
 
 			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
 
+			MainAreaDetector.customizeDriver();
+			
 			ICommunicationPort port = MainAreaDetector.initializeCommunicationPort();
 			
 			CommandsFacade.executeCommand(CommandsFacade.Commands.REMOTE, null, port);

@@ -4,7 +4,7 @@ public class MainTest
 {
 	public static void main(String[] args) throws MCAException
 	{
-		IMCA mca = MCAFactory.getMCA(3, 115200, 4096);
+		IMCA mca = MCAFactory.getMCA(4, 115200, 4096);
 
 		try
 		{
