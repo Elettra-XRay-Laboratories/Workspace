@@ -29,14 +29,14 @@ import com.elettra.controller.driver.common.AxisConfiguration;
 import com.elettra.controller.driver.common.ControllerPosition;
 import com.elettra.controller.driver.common.DriverUtilities;
 import com.elettra.controller.driver.listeners.IDriverListener;
-import com.elettra.controller.driver.programs.DoubleMoveParameters;
 import com.elettra.controller.driver.programs.ProgramsFacade;
+import com.elettra.controller.driver.programs.TwoMotorsMoveParameters;
 import com.elettra.controller.gui.common.GuiUtilities;
 import com.elettra.controller.gui.common.ListenerRegister;
 import com.elettra.controller.gui.common.MovementListener;
 
 @SuppressWarnings({ "unchecked", "rawtypes" })
-public final class DoubleMovePanel extends MovementListener implements ActionListener
+public final class TwoMotorsMovePanel extends MovementListener implements ActionListener
 {
 	static class ActionCommands
 	{
@@ -65,17 +65,14 @@ public final class DoubleMovePanel extends MovementListener implements ActionLis
 	private JTextField         axis2Position;
 
 	private JButton            moveButton;
-
 	private JButton            stopButton;
-
-	private JComboBox          referenceAxisComboBox;
 
 	/**
 	 * Create the panel.
 	 * 
 	 * @throws CommunicationPortException
 	 */
-	public DoubleMovePanel(int axis, ICommunicationPort port) throws CommunicationPortException
+	public TwoMotorsMovePanel(int axis, ICommunicationPort port) throws CommunicationPortException
 	{
 		this.isScanActive = false;
 		this.port = port;
@@ -305,9 +302,9 @@ public final class DoubleMovePanel extends MovementListener implements ActionLis
 		tabbedPaneDown.setForegroundAt(0, new Color(51, 102, 0));
 		GridBagLayout gbl_panelDown = new GridBagLayout();
 		gbl_panelDown.columnWidths = new int[] { 50, 30, 50, 50, 40, 0 };
-		gbl_panelDown.rowHeights = new int[] { 40, 30, 0, 30, 0 };
+		gbl_panelDown.rowHeights = new int[] { 40, 30, 30, 0 };
 		gbl_panelDown.columnWeights = new double[] { 0.0, 1.0, 0.0, 0.0, 0.0, Double.MIN_VALUE };
-		gbl_panelDown.rowWeights = new double[] { 0.0, 0.0, 0.0, 0.0, Double.MIN_VALUE };
+		gbl_panelDown.rowWeights = new double[] { 0.0, 0.0, 0.0, Double.MIN_VALUE };
 		panelDown.setLayout(gbl_panelDown);
 
 		JLabel lblAssrel = new JLabel("Ass/Rel");
@@ -402,31 +399,13 @@ public final class DoubleMovePanel extends MovementListener implements ActionLis
 		moveButton = new JButton(ActionCommands.MOVE);
 		moveButton.setActionCommand(ActionCommands.MOVE);
 		moveButton.addActionListener(this);
-
-		JLabel lblAxis_1 = new JLabel("Axis");
-		GridBagConstraints gbc_lblAxis_1 = new GridBagConstraints();
-		gbc_lblAxis_1.insets = new Insets(0, 0, 5, 5);
-		gbc_lblAxis_1.gridx = 0;
-		gbc_lblAxis_1.gridy = 2;
-		panelDown.add(lblAxis_1, gbc_lblAxis_1);
-
-		referenceAxisComboBox = new JComboBox();
-		referenceAxisComboBox.setMaximumRowCount(2);
-		referenceAxisComboBox.setModel(new DefaultComboBoxModel(new String[] { axis1Configuration.getName(), axis2Configuration.getName() }));
-		referenceAxisComboBox.setSelectedIndex(axisConfiguration.getMultipleAxis().getDefaultReferenceAxis() - 1);
-		GridBagConstraints gbc_referenceAxisComboBox = new GridBagConstraints();
-		gbc_referenceAxisComboBox.gridwidth = 2;
-		gbc_referenceAxisComboBox.insets = new Insets(0, 0, 5, 5);
-		gbc_referenceAxisComboBox.fill = GridBagConstraints.HORIZONTAL;
-		gbc_referenceAxisComboBox.gridx = 1;
-		gbc_referenceAxisComboBox.gridy = 2;
-		panelDown.add(referenceAxisComboBox, gbc_referenceAxisComboBox);
+		
 		GridBagConstraints gbc_moveButton = new GridBagConstraints();
 		gbc_moveButton.anchor = GridBagConstraints.EAST;
 		gbc_moveButton.gridwidth = 2;
 		gbc_moveButton.insets = new Insets(0, 0, 0, 5);
 		gbc_moveButton.gridx = 1;
-		gbc_moveButton.gridy = 3;
+		gbc_moveButton.gridy = 2;
 		panelDown.add(moveButton, gbc_moveButton);
 
 		JButton setButton = new JButton("SET");
@@ -434,7 +413,7 @@ public final class DoubleMovePanel extends MovementListener implements ActionLis
 		GridBagConstraints gbc_setButton = new GridBagConstraints();
 		gbc_setButton.insets = new Insets(0, 0, 0, 5);
 		gbc_setButton.gridx = 3;
-		gbc_setButton.gridy = 3;
+		gbc_setButton.gridy = 2;
 		panelDown.add(setButton, gbc_setButton);
 	}
 
@@ -485,7 +464,7 @@ public final class DoubleMovePanel extends MovementListener implements ActionLis
 
 	public synchronized void signalAxisMovement(int axis, ICommunicationPort port) throws CommunicationPortException
 	{
-		new DoubleMoveListener(this).start();
+		new TwoMotorsMoveListener(this).start();
 	}
 
 	public synchronized void signalScanStart()
@@ -514,14 +493,13 @@ public final class DoubleMovePanel extends MovementListener implements ActionLis
 	{
 		try
 		{
-			DoubleMoveParameters moveParameters = new DoubleMoveParameters(this.axis, ListenerRegister.getInstance());
+			TwoMotorsMoveParameters moveParameters = new TwoMotorsMoveParameters(this.axis1, this.axis2, ListenerRegister.getInstance());
 
 			moveParameters.setKindOfMovement(DriverUtilities.parseKindOfMovement((String) this.kindOfMovementComboBox.getSelectedItem()));
 			moveParameters.setSign(DriverUtilities.parseSign((String) this.signComboBox.getSelectedItem()));
 			moveParameters.setPosition(Double.parseDouble(this.position.getText()));
-			moveParameters.setReferenceAxis(this.referenceAxisComboBox.getSelectedIndex() + 1);
 
-			new StartDoubleMoveProgram(moveParameters, this.port).start();
+			new StartTwoMotorsMoveProgram(moveParameters, this.port).start();
 		}
 		catch (NumberFormatException exception)
 		{
@@ -573,12 +551,12 @@ public final class DoubleMovePanel extends MovementListener implements ActionLis
 	 * ----------------------------------------------------------
 	 */
 
-	class StartDoubleMoveProgram extends Thread
+	class StartTwoMotorsMoveProgram extends Thread
 	{
-		private DoubleMoveParameters moveParameters;
+		private TwoMotorsMoveParameters moveParameters;
 		private ICommunicationPort   port;
 
-		public StartDoubleMoveProgram(DoubleMoveParameters moveParameters, ICommunicationPort port)
+		public StartTwoMotorsMoveProgram(TwoMotorsMoveParameters moveParameters, ICommunicationPort port)
 		{
 			super();
 
@@ -590,7 +568,7 @@ public final class DoubleMovePanel extends MovementListener implements ActionLis
 		{
 			try
 			{
-				ProgramsFacade.executeProgram(ProgramsFacade.Programs.DOUBLEMOVE, this.moveParameters, this.port);
+				ProgramsFacade.executeProgram(ProgramsFacade.Programs.TMMOVE, this.moveParameters, this.port);
 			}
 			catch (CommunicationPortException exception)
 			{
@@ -602,14 +580,14 @@ public final class DoubleMovePanel extends MovementListener implements ActionLis
 		}
 	}
 
-	class DoubleMoveListener extends Thread
+	class TwoMotorsMoveListener extends Thread
 	{
 		/**
 		 * 
 		 */
-		private DoubleMovePanel panel;
+		private TwoMotorsMovePanel panel;
 
-		public DoubleMoveListener(DoubleMovePanel panel)
+		public TwoMotorsMoveListener(TwoMotorsMovePanel panel)
 		{
 			this.panel = panel;
 		}
@@ -670,10 +648,10 @@ public final class DoubleMovePanel extends MovementListener implements ActionLis
 
 	class EnableThread extends Thread
 	{
-		private DoubleMovePanel panel;
+		private TwoMotorsMovePanel panel;
 		private boolean         enabled;
 
-		public EnableThread(DoubleMovePanel panel, boolean enabled)
+		public EnableThread(TwoMotorsMovePanel panel, boolean enabled)
 		{
 			this.panel = panel;
 			this.enabled = enabled;

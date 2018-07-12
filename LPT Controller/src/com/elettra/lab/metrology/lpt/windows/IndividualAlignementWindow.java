@@ -44,10 +44,10 @@ public class IndividualAlignementWindow extends AbstractGenericFrame
 
 		this.setIconImage(ImageIO.read(new File("ltpcontroller.jpg")));
 
-		this.setBounds(530, 20, 2350, 900);
+		this.setBounds(0, 0, 1920, 900);
 
 		GridBagLayout gridBagLayout = new GridBagLayout();
-		gridBagLayout.columnWidths = new int[] { 1140, 1180};
+		gridBagLayout.columnWidths = new int[] { 860, 1045};
 		gridBagLayout.rowHeights = new int[] { 0 };
 		gridBagLayout.columnWeights = new double[] { 0.0, 0.0};
 		gridBagLayout.rowWeights = new double[] { 1.0 };
@@ -63,9 +63,9 @@ public class IndividualAlignementWindow extends AbstractGenericFrame
 		gbc_leftPanel.gridy = 0;
 		getContentPane().add(leftPanel, gbc_leftPanel);
 		GridBagLayout gbl_leftPanel = new GridBagLayout();
-		gbl_leftPanel.columnWidths = new int[] { 280, 280, 280, 280};
+		gbl_leftPanel.columnWidths = new int[] { 280, 280, 280};
 		gbl_leftPanel.rowHeights = new int[] { 450, 450 };
-		gbl_leftPanel.columnWeights = new double[] { 0.0, 0.0, 0.0, 0};
+		gbl_leftPanel.columnWeights = new double[] { 0.0, 0.0, 0.0};
 		gbl_leftPanel.rowWeights = new double[] { 1.0, 1.0 };
 		leftPanel.setLayout(gbl_leftPanel);
 
@@ -104,10 +104,20 @@ public class IndividualAlignementWindow extends AbstractGenericFrame
 		GridBagConstraints gbc_movePanel5 = new GridBagConstraints();
 		gbc_movePanel5.insets = new Insets(10, 0, 5, 5);
 		gbc_movePanel5.fill = GridBagConstraints.BOTH;
-		gbc_movePanel5.gridx = 3;
-		gbc_movePanel5.gridy = 0;
+		gbc_movePanel5.gridx = 0;
+		gbc_movePanel5.gridy = 1;
 		leftPanel.add(movePanel5, gbc_movePanel5);
 		movePanel5.add(new MovePanel(Axis.MOTOR4, this.getPort()));
+
+		JPanel movePanel6 = new JPanel();
+		movePanel6.setBorder(new BevelBorder(BevelBorder.LOWERED, null, null, null, null));
+		GridBagConstraints gbc_movePanel6 = new GridBagConstraints();
+		gbc_movePanel6.insets = new Insets(10, 0, 5, 5);
+		gbc_movePanel6.fill = GridBagConstraints.BOTH;
+		gbc_movePanel6.gridx = 1;
+		gbc_movePanel6.gridy = 1;
+		leftPanel.add(movePanel6, gbc_movePanel6);
+		movePanel6.add(new MovePanel(Axis.MOTOR5, this.getPort()));
 
 		// --------------
 
@@ -115,7 +125,7 @@ public class IndividualAlignementWindow extends AbstractGenericFrame
 		GridBagConstraints gbc_buttonPanel = new GridBagConstraints();
 		gbc_buttonPanel.insets = new Insets(0, 0, 0, 0);
 		gbc_buttonPanel.fill = GridBagConstraints.BOTH;
-		gbc_buttonPanel.gridx = 3;
+		gbc_buttonPanel.gridx = 2;
 		gbc_buttonPanel.gridy = 1;
 		leftPanel.add(buttonPanel, gbc_buttonPanel);
 

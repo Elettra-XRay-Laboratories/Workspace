@@ -3,7 +3,6 @@ package com.elettra.lab.metrology.lpt.programs;
 import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Graphics2D;
-import java.awt.Point;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 
@@ -22,36 +21,42 @@ import com.elettra.idsccd.driver.IDSCCDDisplayModes;
 import com.elettra.idsccd.driver.IDSCCDException;
 import com.elettra.idsccd.driver.IDSCCDFactory;
 import com.elettra.idsccd.driver.IIDSCCD;
+import com.elettra.idsccd.driver.Point;
 import com.elettra.lab.metrology.lpt.Axis;
 import com.elettra.lab.metrology.lpt.encoder.EncoderReaderFactory;
 import com.elettra.lab.metrology.lpt.panels.References;
 
 public class LPTScanProgram extends SCANProgram
 {
-	public static final String	ENCODER_POSITION	   = "ENCODER_POSITION";
-	public static final String	LAST_IMAGE	         = "LAST_IMAGE";
+	public static final String	ENCODER_POSITION	    = "ENCODER_POSITION";
+	public static final String	LAST_IMAGE	          = "LAST_IMAGE";
+	public static final String	Y	                    = "Y";
+	public static final String	X                    	= "X";
 	public static final String	Y_STANDARD_DEVIATION	= "Y_STANDARD_DEVIATION";
 	public static final String	X_STANDARD_DEVIATION	= "X_STANDARD_DEVIATION";
-	public static final String	PROGRAM_NAME	       = "LPT_SCAN";
+	public static final String	PROGRAM_NAME	        = "LPT_SCAN";
 
 	public static final String	COLOR_MODE	         = "COLOR_MODE";
 	public static final String	DIM_X	               = "DIM_X";
 	public static final String	DIM_Y	               = "DIM_Y";
 	public static final String	NUMBER_OF_CAPTURES	 = "NUMBER_OF_CAPTURES";
 	public static final String	PREVIOUS_X0	         = "PREVIOUS_X0";
-
+  public static final String  DRAW_IMAGE           = "DRAW_IMAGE";
+  
 	private IIDSCCD	           ccd;
 	private int	               numberOfCaptures;
 	private int	               dimx;
 	private int	               dimy;
 	private IDSCCDColorModes	 mode;
-	private double	           lastXn;
 	private double	           X0;
 	private double	           focalDistance;
+	private boolean            renderImage;
 
 	public LPTScanProgram() throws IDSCCDException
 	{
 		super(PROGRAM_NAME);
+		
+		this.dump_measure = DumpMeasure.DUMP_AT_END;
 
 		this.ccd = IDSCCDFactory.getIDSCCD();
 	}
@@ -70,14 +75,13 @@ public class LPTScanProgram extends SCANProgram
 				throw new IllegalArgumentException("Reference values X0 or Focal Distance not defined! Please configure them");
 			}
 
-			this.lastXn = this.X0;
-
 			this.mode = (IDSCCDColorModes) parameters.getCustomParameter(COLOR_MODE);
 
 			this.dimx = ((Integer) parameters.getCustomParameter(DIM_X)).intValue();
 			this.dimy = ((Integer) parameters.getCustomParameter(DIM_Y)).intValue();
 			this.numberOfCaptures = ((Integer) parameters.getCustomParameter(NUMBER_OF_CAPTURES)).intValue();
-
+			this.renderImage = ((Boolean) parameters.getCustomParameter(DRAW_IMAGE)).booleanValue();
+			
 			this.ccd.setColorMode(mode);
 			this.ccd.setDisplayMode(IDSCCDDisplayModes.IS_SET_DM_DIB);
 
@@ -127,7 +131,7 @@ public class LPTScanProgram extends SCANProgram
 			for (int index = 0; index < this.numberOfCaptures; index++)
 			{
 				buffer = this.ccd.getImageByMemory(this.dimx, this.dimy, mode);
-				
+
 				try
 				{
 					centroid = this.ccd.getCentroid(buffer, this.dimx, this.dimy, false);
@@ -143,7 +147,7 @@ public class LPTScanProgram extends SCANProgram
 				y_positions[index] = centroid.y;
 				average_y_position += centroid.y;
 			}
-
+					
 			average_x_position = average_x_position / this.numberOfCaptures;
 			average_y_position = average_y_position / this.numberOfCaptures;
 
@@ -158,29 +162,34 @@ public class LPTScanProgram extends SCANProgram
 
 			// save last image
 
-			capture = ccd.buildImage(buffer, this.dimx, this.dimy);
+			if (this.renderImage)
+			{
+				capture = ccd.buildImage(buffer, this.dimx, this.dimy);
+				
+				Graphics2D g = capture.createGraphics();
+				g.setColor(Color.YELLOW);
+				g.fillOval((int) average_x_position - 10, (int) average_y_position - 10, 20, 20);
+	
+				g.setColor(Color.WHITE);
+				g.setStroke(new BasicStroke(7, BasicStroke.CAP_BUTT, BasicStroke.JOIN_BEVEL, 0, new float[] { 9 }, 0));
+				g.drawLine(0, this.dimy / 2, this.dimx, this.dimy / 2);
+				g.drawLine(this.dimx / 2, 0, this.dimx / 2, this.dimy);
+			}
 
-			Graphics2D g = capture.createGraphics();
-			g.setColor(Color.YELLOW);
-			g.fillOval((int) average_x_position - 10, (int) average_y_position - 10, 20, 20);
-
-			g.setColor(Color.WHITE);
-			g.setStroke(new BasicStroke(7, BasicStroke.CAP_BUTT, BasicStroke.JOIN_BEVEL, 0, new float[] { 9 }, 0));
-			g.drawLine(0, this.dimy / 2, this.dimx, this.dimy / 2);
-			g.drawLine(this.dimx / 2, 0, this.dimx / 2, this.dimy);
+			buffer = null;
 
 			// Refer to the center of the image
 
 			average_x_position = (average_x_position - this.dimx / 2);
 			average_y_position = -(average_y_position - this.dimy / 2);
+			average_x_position *= IIDSCCD.PIXEL_SIZE;
+			average_y_position *= IIDSCCD.PIXEL_SIZE;
+						
+			MeasureResult result = new MeasureResult(this.calculateSlopeError(average_x_position));
 
-			MeasureResult result = new MeasureResult(this.calculateSlopeError(average_x_position, average_y_position));
-
-			this.lastXn = average_x_position;
-
-			result.setAdditionalInformation1(average_x_position * IIDSCCD.PIXEL_SIZE);
-			result.setAdditionalInformation2(average_y_position * IIDSCCD.PIXEL_SIZE);
-
+			result.addCustomData(X, Double.valueOf(average_x_position));
+			result.addCustomData(Y, Double.valueOf(average_x_position));
+			
 			if (measureParameters.getAxis() == Axis.MOTOR5)
 				result.addCustomData(ENCODER_POSITION, Double.valueOf(EncoderReaderFactory.getEncoderReader().readPosition()));
 
@@ -198,13 +207,15 @@ public class LPTScanProgram extends SCANProgram
 		{
 			throw new CommunicationPortException(t);
 		}
+		finally
+		{
+			System.gc();
+		}
 	}
 
-	private double calculateSlopeError(double average_x_position, double average_y_position)
+	private double calculateSlopeError(double average_x_position)
 	{
-		double delta = Math.atan((((average_x_position - this.lastXn) / 2) - this.X0) / this.focalDistance);
-
-		return (((average_x_position - this.lastXn) * Math.cos(delta)) / this.focalDistance) / 2;
+		return 0.5 * Math.atan((average_x_position-this.X0) / (this.focalDistance*1000));
 	}
 
 	protected void openShutter() throws IOException, InterruptedException
@@ -221,5 +232,11 @@ public class LPTScanProgram extends SCANProgram
 		axisMoveParameters.addCustomParameter("PRECISION", 0.005);
 
 		ProgramsFacade.executeProgram(LPTMOVEProgram.PROGRAM_NAME, axisMoveParameters, port);
+	}
+	
+	
+	public static void main(String args[])
+	{
+		System.out.println(0.5 * Math.atan((-650+449)/(249.5*1000)));
 	}
 }

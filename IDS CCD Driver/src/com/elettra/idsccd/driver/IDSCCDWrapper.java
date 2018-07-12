@@ -60,4 +60,6 @@ interface IDSCCDWrapper extends Library
 	public IDSCCDErrorCodes is_GetImageMemPitch(int cameraHandle, IntByReference pitch);
 
 	public IDSCCDErrorCodes is_FreeImageMem(int cameraHandle, Pointer imageBuffer, int id);
+	
+	public IDSCCDErrorCodes is_SetHardwareGain(int cameraHandle, int nMaster, int nRed, int nGreen, int nBlue);
 }

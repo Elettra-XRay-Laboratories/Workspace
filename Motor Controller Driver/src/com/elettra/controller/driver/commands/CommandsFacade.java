@@ -139,8 +139,6 @@ public final class CommandsFacade
 
 		try
 		{
-			//Thread.sleep(200);
-
 			while (!isMotorStopped)
 			{
 				actionParameters.getListener().signalAxisMovement(actionParameters.getAxis(), port);
@@ -151,7 +149,6 @@ public final class CommandsFacade
 
 				isMotorStopped = CommandUtilities.isMotorStopped(actionResponse);
 			}
-
 		}
 		catch (InterruptedException exception)
 		{

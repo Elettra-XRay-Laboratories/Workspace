@@ -16,11 +16,14 @@ import java.io.IOException;
 
 import javax.imageio.ImageIO;
 import javax.swing.BorderFactory;
+import javax.swing.DefaultComboBoxModel;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
+import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JSlider;
 import javax.swing.JTabbedPane;
 import javax.swing.JTextField;
 import javax.swing.border.BevelBorder;
@@ -40,6 +43,7 @@ import com.elettra.lab.metrology.lpt.Axis;
 import com.elettra.lab.metrology.lpt.programs.LPTLiveCCDProgram;
 import com.elettra.lab.metrology.lpt.programs.LPTScanProgram;
 
+@SuppressWarnings({ "unchecked", "rawtypes" })
 public class LiveCCDPanel extends MeasureListener
 {
 	private static final double	HEIGHT_TO_WIDTH_RATIO	= ((double) IIDSCCD.DIM_Y / (double) IIDSCCD.DIM_X);
@@ -56,7 +60,11 @@ public class LiveCCDPanel extends MeasureListener
 	private JCheckBox	          drawSecondaryCheckBox;
 	private JTextField	        centroid_x_position;
 	private JTextField	        centroid_y_position;
-
+	private JTextField	        centroid_x_fwhm;
+	private JTextField	        centroid_y_fwhm;
+	private JSlider             gainSlider;
+	private JComboBox           colorModeCombo;
+	
 	private boolean	            acquire;
 
 	private JButton	            buttonSave;
@@ -69,7 +77,7 @@ public class LiveCCDPanel extends MeasureListener
 
 		try
 		{
-			imageDisabled = ImageIO.read(new File("Files/disabled.png")).getScaledInstance(845, (int) (845 * HEIGHT_TO_WIDTH_RATIO), Image.SCALE_FAST);
+			imageDisabled = ImageIO.read(new File("Files/disabled.png")).getScaledInstance(645, (int) (645 * HEIGHT_TO_WIDTH_RATIO), Image.SCALE_FAST);
 		}
 		catch (IOException e)
 		{
@@ -78,7 +86,7 @@ public class LiveCCDPanel extends MeasureListener
 
 		GridBagLayout gridBagLayout = new GridBagLayout();
 
-		gridBagLayout.columnWidths = new int[] { 845, 305 };
+		gridBagLayout.columnWidths = new int[] { 645, 205 };
 		gridBagLayout.rowHeights = new int[] { 300, 545 };
 		gridBagLayout.columnWeights = new double[] { 1.0, 1.0 };
 		gridBagLayout.rowWeights = new double[] { 1.0, 1.0 };
@@ -112,13 +120,13 @@ public class LiveCCDPanel extends MeasureListener
 		add(scanManagementTabbedPane, gbc_scanManagementTabbedPane);
 
 		JPanel scanManagementPanel = new JPanel();
-		scanManagementTabbedPane.addTab("Live Management", null, scanManagementPanel, null);
+		scanManagementTabbedPane.addTab("Live CCD Management", null, scanManagementPanel, null);
 		scanManagementTabbedPane.setForegroundAt(0, new Color(0, 102, 51));
 		GridBagLayout gbl_scanManagementPanel = new GridBagLayout();
 		gbl_scanManagementPanel.columnWidths = new int[] { 0, 0, 0 };
-		gbl_scanManagementPanel.rowHeights = new int[] { 0, 0 };
+		gbl_scanManagementPanel.rowHeights = new int[] { 0, 0, 0, 0 };
 		gbl_scanManagementPanel.columnWeights = new double[] { 0, 0, 0 };
-		gbl_scanManagementPanel.rowWeights = new double[] { 0.0, 0.0 };
+		gbl_scanManagementPanel.rowWeights = new double[] { 0.0, 0.0, 0.0, 0.0 };
 		scanManagementPanel.setLayout(gbl_scanManagementPanel);
 
 		GridBagConstraints gbc_label_0 = new GridBagConstraints();
@@ -203,10 +211,52 @@ public class LiveCCDPanel extends MeasureListener
 		gbc_drawSecondaryCheckBoxLabel.gridwidth = 2;
 		scanManagementPanel.add(new JLabel("Draw Secondary Grid"), gbc_drawSecondaryCheckBoxLabel);
 
-		JPanel ccdManagementPanel = new JPanel();
-		scanManagementTabbedPane.addTab("CCD Management", null, ccdManagementPanel, null);
-		scanManagementTabbedPane.setForegroundAt(0, new Color(0, 102, 51));
+		GridBagConstraints gbc_colorModeLabel = new GridBagConstraints();
+		gbc_colorModeLabel.insets = new Insets(20, 5, 0, 5);
+		gbc_colorModeLabel.anchor = GridBagConstraints.EAST;
+		gbc_colorModeLabel.fill = GridBagConstraints.HORIZONTAL;
+		gbc_colorModeLabel.gridx = 0;
+		gbc_colorModeLabel.gridy = 3;
+		scanManagementPanel.add(new JLabel("Color Mode"), gbc_colorModeLabel);
 
+		this.colorModeCombo = new JComboBox();
+		this.colorModeCombo.setModel(new DefaultComboBoxModel(IDSCCDColorModes.get_values()));
+		this.colorModeCombo.setSelectedIndex(1);
+		this.colorModeCombo.setMaximumRowCount(3);
+
+		GridBagConstraints gbc_colorModeCombo = new GridBagConstraints();
+		gbc_colorModeCombo.insets = new Insets(20, 5, 0, 5);
+		gbc_colorModeCombo.anchor = GridBagConstraints.WEST;
+		gbc_colorModeCombo.fill = GridBagConstraints.HORIZONTAL;
+		gbc_colorModeCombo.gridx = 1;
+		gbc_colorModeCombo.gridy = 3;
+		scanManagementPanel.add(this.colorModeCombo, gbc_colorModeCombo);
+		
+
+		GridBagConstraints gbc_gainLabel = new GridBagConstraints();
+		gbc_gainLabel.insets = new Insets(0, 5, 0, 5);
+		gbc_gainLabel.anchor = GridBagConstraints.EAST;
+		gbc_gainLabel.fill = GridBagConstraints.HORIZONTAL;
+		gbc_gainLabel.gridx = 0;
+		gbc_gainLabel.gridy = 4;
+		scanManagementPanel.add(new JLabel("Gain"), gbc_gainLabel);
+
+		this.gainSlider = new JSlider(0, 100);
+		this.gainSlider.setMajorTickSpacing(10);
+		this.gainSlider.setPaintTicks(true);
+		this.gainSlider.setPaintLabels(true);
+
+		GridBagConstraints gbc_gainSlider = new GridBagConstraints();
+		gbc_gainSlider.insets = new Insets(0, 5, 0, 5);
+		gbc_gainSlider.anchor = GridBagConstraints.NORTHEAST;
+		gbc_gainSlider.fill = GridBagConstraints.HORIZONTAL;
+		gbc_gainSlider.gridwidth = 2;
+		gbc_gainSlider.gridx = 1;
+		gbc_gainSlider.gridy = 4;
+		scanManagementPanel.add(this.gainSlider, gbc_gainSlider);
+
+	
+		
 		JTabbedPane positioningTabbedPane = new JTabbedPane(JTabbedPane.TOP);
 		GridBagConstraints gbc_positioningTabbedPane = new GridBagConstraints();
 		gbc_positioningTabbedPane.insets = new Insets(0, 5, 0, 5);
@@ -221,9 +271,9 @@ public class LiveCCDPanel extends MeasureListener
 		positioningTabbedPane.setForegroundAt(0, new Color(0, 102, 51));
 		GridBagLayout gbl_positioningPanel = new GridBagLayout();
 		gbl_positioningPanel.columnWidths = new int[] { 0, 0 };
-		gbl_positioningPanel.rowHeights = new int[] { 0, 0, 0 };
+		gbl_positioningPanel.rowHeights = new int[] { 0, 0, 0, 0, 0};
 		gbl_positioningPanel.columnWeights = new double[] { 0, 0 };
-		gbl_positioningPanel.rowWeights = new double[] { 0.0, 0.0, 0.0 };
+		gbl_positioningPanel.rowWeights = new double[] { 0.0, 0.0, 0.0, 0.0, 0.0 };
 		positioningPanel.setLayout(gbl_positioningPanel);
 
 		GridBagConstraints gbc_imagePanel_2 = new GridBagConstraints();
@@ -244,31 +294,75 @@ public class LiveCCDPanel extends MeasureListener
 
 		positioningPanel.add(new JLabel("Centroid Y Position (um)"), gbc_imagePanel_3);
 
+		GridBagConstraints gbc_imagePanel_4 = new GridBagConstraints();
+		gbc_imagePanel_4.anchor = GridBagConstraints.EAST;
+		gbc_imagePanel_4.fill = GridBagConstraints.VERTICAL;
+		gbc_imagePanel_4.insets = new Insets(0, 5, 5, 0);
+		gbc_imagePanel_4.gridx = 0;
+		gbc_imagePanel_4.gridy = 2;
+
+		positioningPanel.add(new JLabel("Centroid X FWHM (um)"), gbc_imagePanel_4);
+
+		GridBagConstraints gbc_imagePanel_5 = new GridBagConstraints();
+		gbc_imagePanel_5.anchor = GridBagConstraints.EAST;
+		gbc_imagePanel_5.fill = GridBagConstraints.VERTICAL;
+		gbc_imagePanel_5.insets = new Insets(0, 5, 5, 0);
+		gbc_imagePanel_5.gridx = 0;
+		gbc_imagePanel_5.gridy = 3;
+
+		positioningPanel.add(new JLabel("Centroid Y FWHM (um)"), gbc_imagePanel_5);
+
 		this.centroid_x_position = new JTextField(GuiUtilities.parseDouble(0.0, 1, true));
 		this.centroid_x_position.setEditable(false);
 		this.centroid_x_position.setColumns(8);
 
-		GridBagConstraints gbc_imagePanel_4 = new GridBagConstraints();
-		gbc_imagePanel_4.anchor = GridBagConstraints.WEST;
-		gbc_imagePanel_4.fill = GridBagConstraints.VERTICAL;
-		gbc_imagePanel_4.insets = new Insets(10, 5, 5, 5);
-		gbc_imagePanel_4.gridx = 1;
-		gbc_imagePanel_4.gridy = 0;
+		GridBagConstraints gbc_imagePanel_6 = new GridBagConstraints();
+		gbc_imagePanel_6.anchor = GridBagConstraints.WEST;
+		gbc_imagePanel_6.fill = GridBagConstraints.VERTICAL;
+		gbc_imagePanel_6.insets = new Insets(10, 5, 5, 5);
+		gbc_imagePanel_6.gridx = 1;
+		gbc_imagePanel_6.gridy = 0;
 
-		positioningPanel.add(this.centroid_x_position, gbc_imagePanel_4);
+		positioningPanel.add(this.centroid_x_position, gbc_imagePanel_6);
 
 		this.centroid_y_position = new JTextField(GuiUtilities.parseDouble(0.0, 1, true));
 		this.centroid_y_position.setEditable(false);
 		this.centroid_y_position.setColumns(8);
 
-		GridBagConstraints gbc_imagePanel_5 = new GridBagConstraints();
-		gbc_imagePanel_5.anchor = GridBagConstraints.WEST;
-		gbc_imagePanel_5.fill = GridBagConstraints.VERTICAL;
-		gbc_imagePanel_5.insets = new Insets(0, 5, 5, 5);
-		gbc_imagePanel_5.gridx = 1;
-		gbc_imagePanel_5.gridy = 1;
+		GridBagConstraints gbc_imagePanel_7 = new GridBagConstraints();
+		gbc_imagePanel_7.anchor = GridBagConstraints.WEST;
+		gbc_imagePanel_7.fill = GridBagConstraints.VERTICAL;
+		gbc_imagePanel_7.insets = new Insets(0, 5, 5, 5);
+		gbc_imagePanel_7.gridx = 1;
+		gbc_imagePanel_7.gridy = 1;
 
-		positioningPanel.add(this.centroid_y_position, gbc_imagePanel_5);
+		positioningPanel.add(this.centroid_y_position, gbc_imagePanel_7);
+
+		this.centroid_x_fwhm = new JTextField(GuiUtilities.parseDouble(0.0, 1, true));
+		this.centroid_x_fwhm.setEditable(false);
+		this.centroid_x_fwhm.setColumns(8);
+
+		GridBagConstraints gbc_imagePanel_8 = new GridBagConstraints();
+		gbc_imagePanel_8.anchor = GridBagConstraints.WEST;
+		gbc_imagePanel_8.fill = GridBagConstraints.VERTICAL;
+		gbc_imagePanel_8.insets = new Insets(0, 5, 5, 5);
+		gbc_imagePanel_8.gridx = 1;
+		gbc_imagePanel_8.gridy = 2;
+
+		positioningPanel.add(this.centroid_x_fwhm, gbc_imagePanel_8);
+
+		this.centroid_y_fwhm = new JTextField(GuiUtilities.parseDouble(0.0, 1, true));
+		this.centroid_y_fwhm.setEditable(false);
+		this.centroid_y_fwhm.setColumns(8);
+
+		GridBagConstraints gbc_imagePanel_9 = new GridBagConstraints();
+		gbc_imagePanel_9.anchor = GridBagConstraints.WEST;
+		gbc_imagePanel_9.fill = GridBagConstraints.VERTICAL;
+		gbc_imagePanel_9.insets = new Insets(0, 5, 5, 5);
+		gbc_imagePanel_9.gridx = 1;
+		gbc_imagePanel_9.gridy = 3;
+
+		positioningPanel.add(this.centroid_y_fwhm, gbc_imagePanel_9);
 
 		buttonSave = new JButton("Save X0/Y0 Position as Reference");
 		buttonSave.addActionListener(new ActionListener()
@@ -292,7 +386,7 @@ public class LiveCCDPanel extends MeasureListener
 		gbc_button_save.anchor = GridBagConstraints.WEST;
 		gbc_button_save.insets = new Insets(5, 5, 5, 0);
 		gbc_button_save.gridx = 0;
-		gbc_button_save.gridy = 2;
+		gbc_button_save.gridy = 4;
 		gbc_button_save.gridwidth = 2;
 
 		positioningPanel.add(buttonSave, gbc_button_save);
@@ -339,7 +433,7 @@ public class LiveCCDPanel extends MeasureListener
 	{
 		BufferedImage capture = (BufferedImage) point.getCustomData(LPTScanProgram.LAST_IMAGE);
 
-		int imageHSize = 845;
+		int imageHSize = 645;
 
 		BufferedImage resizedImage = new BufferedImage(imageHSize, (int) (imageHSize * HEIGHT_TO_WIDTH_RATIO), BufferedImage.TYPE_INT_RGB);
 		Graphics2D g = resizedImage.createGraphics();
@@ -352,8 +446,10 @@ public class LiveCCDPanel extends MeasureListener
 
 		this.imageLabel.setIcon(new ImageIcon(resizedImage));
 
-		this.centroid_x_position.setText(GuiUtilities.parseDouble(point.getAdditionalInformation1(), 1, true));
-		this.centroid_y_position.setText(GuiUtilities.parseDouble(point.getAdditionalInformation2(), 1, true));
+		this.centroid_x_position.setText(GuiUtilities.parseDouble((double) point.getCustomData(LPTLiveCCDProgram.X), 1, true));
+		this.centroid_y_position.setText(GuiUtilities.parseDouble((double) point.getCustomData(LPTLiveCCDProgram.Y), 1, true));
+		this.centroid_x_fwhm.setText(GuiUtilities.parseDouble((double) point.getCustomData(LPTLiveCCDProgram.X_FWHM), 1, true));
+		this.centroid_y_fwhm.setText(GuiUtilities.parseDouble((double) point.getCustomData(LPTLiveCCDProgram.Y_FWHM), 1, true));
 	}
 
 	class LPTLiveCCDThread extends Thread
@@ -375,13 +471,14 @@ public class LiveCCDPanel extends MeasureListener
 				{
 					ScanParameters scanParameters = new ScanParameters(Axis.CCD, ListenerRegister.getInstance());
 					scanParameters.setPanel(this.panel);
-
-					scanParameters.addCustomParameter(LPTLiveCCDProgram.COLOR_MODE, IDSCCDColorModes.IS_CM_MONO8);
+					
 					scanParameters.addCustomParameter(LPTLiveCCDProgram.DIM_X, IIDSCCD.DIM_X);
 					scanParameters.addCustomParameter(LPTLiveCCDProgram.DIM_Y, IIDSCCD.DIM_Y);
 
 					while (panel.acquire)
 					{
+						scanParameters.addCustomParameter(LPTLiveCCDProgram.COLOR_MODE, IDSCCDColorModes.get_from_index(this.panel.colorModeCombo.getSelectedIndex()));
+						scanParameters.addCustomParameter(LPTLiveCCDProgram.GAIN, this.panel.gainSlider.getValue());					
 						scanParameters.addCustomParameter(LPTLiveCCDProgram.DRAW_MAIN_GRID, new Boolean(this.panel.drawMainCheckBox.isSelected()));
 						scanParameters.addCustomParameter(LPTLiveCCDProgram.DRAW_SECONDARY_GRID, new Boolean(this.panel.drawSecondaryCheckBox.isSelected()));
 
@@ -398,6 +495,8 @@ public class LiveCCDPanel extends MeasureListener
 			}
 			catch (Exception exception)
 			{
+				exception.printStackTrace();
+				
 				GuiUtilities.showErrorPopup(exception.getMessage(), this.panel);
 			}
 		}

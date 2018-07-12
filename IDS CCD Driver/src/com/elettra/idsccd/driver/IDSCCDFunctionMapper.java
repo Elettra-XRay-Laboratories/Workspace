@@ -33,6 +33,8 @@ class IDSCCDFunctionMapper implements FunctionMapper {
 			return "is_FreeImageMem";
 		else if (method.getName().equals("is_ExitCamera"))
 			return "is_ExitCamera";
+		else if (method.getName().equals("is_SetHardwareGain"))
+			return "is_SetHardwareGain";
 		else
 			return null;
 	}

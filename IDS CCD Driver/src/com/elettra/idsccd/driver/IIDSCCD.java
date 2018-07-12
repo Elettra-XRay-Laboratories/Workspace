@@ -1,6 +1,5 @@
 package com.elettra.idsccd.driver;
 
-import java.awt.Point;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 
@@ -33,6 +32,8 @@ public interface IIDSCCD
 	public abstract boolean isDirect3DSupported();
 
 	public abstract void setDisplayMode(IDSCCDDisplayModes mode) throws IDSCCDException;
+
+	public abstract void setHardwareGain(int nMaster) throws IDSCCDException;
 
 	public abstract void init() throws IDSCCDException, IllegalAccessException;
 

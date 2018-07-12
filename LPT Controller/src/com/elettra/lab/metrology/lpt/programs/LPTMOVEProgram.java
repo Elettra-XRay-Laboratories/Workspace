@@ -96,13 +96,13 @@ public class LPTMOVEProgram extends AbstractProgram
 
 			new WritePort(commandString, port).start();
 
-			moveParameters.getListener().signalAxisMovement(moveParameters.getAxis(), port);
-
 			CommandsFacade.waitForTheEndOfMovement(new CommandParameters(moveParameters.getAxis(), moveParameters.getListener()), port);
 
 			currentPosition = EncoderReaderFactory.getEncoderReader().readPosition();
 			trial++;
 		}
+
+		moveParameters.getListener().signalAxisMovement(moveParameters.getAxis(), port);	
 	}
 
 	class WritePort extends Thread

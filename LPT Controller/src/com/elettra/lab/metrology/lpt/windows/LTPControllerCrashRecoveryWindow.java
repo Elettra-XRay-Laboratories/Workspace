@@ -1,7 +1,6 @@
 package com.elettra.lab.metrology.lpt.windows;
 
 import java.awt.HeadlessException;
-import java.awt.Rectangle;
 import java.io.File;
 import java.io.IOException;
 
@@ -28,11 +27,7 @@ public class LTPControllerCrashRecoveryWindow extends ControllerCrashRecoveryWin
 		super(port);
 		
 		
-		Rectangle bounds = this.getBounds();
-		
 		this.setIconImage(ImageIO.read(new File("ltpcontroller.jpg")));
-
-		this.setBounds((int) bounds.getX() + 1800, (int) bounds.getY(),(int)  bounds.getWidth(),(int)  bounds.getHeight());
 	}
 
 }

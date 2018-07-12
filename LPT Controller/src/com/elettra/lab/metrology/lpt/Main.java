@@ -96,13 +96,13 @@ public class Main extends AbstractCommunicationPortFrame implements ActionListen
 			this.setIconImage(ImageIO.read(new File("ltpcontroller.jpg")));
 			this.addWindowFocusListener(new MainWindowAdapter(this));
 			this.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
-			this.setBounds(3270, 20, 330, 760);
+			this.setBounds(5, 5, 330, 760);
 
 			GridBagLayout gridBagLayout = new GridBagLayout();
 			gridBagLayout.columnWidths = new int[] { 0, 0 };
 			gridBagLayout.rowHeights = new int[] { 0, 0, 0, 0, 0, 0 };
 			gridBagLayout.columnWeights = new double[] { 1.0, Double.MIN_VALUE };
-			gridBagLayout.rowWeights = new double[] { 0.0, 0.4, 0.3, 0.6, 1.0, Double.MIN_VALUE };
+			gridBagLayout.rowWeights = new double[] { 0.0, 0.4, 0.2, 0.2, 1.0, Double.MIN_VALUE };
 			getContentPane().setLayout(gridBagLayout);
 
 			JPanel headPanel = new JPanel();
@@ -190,9 +190,9 @@ public class Main extends AbstractCommunicationPortFrame implements ActionListen
 			measureOperationsTabbedPane.addTab("Measure Operations", null, measureOperationPanel, null);
 			GridBagLayout gbl_measureOperationPanel = new GridBagLayout();
 			gbl_measureOperationPanel.columnWidths = new int[] { 0, 0 };
-			gbl_measureOperationPanel.rowHeights = new int[] { 0, 0, 0 };
+			gbl_measureOperationPanel.rowHeights = new int[] { 0, 0};
 			gbl_measureOperationPanel.columnWeights = new double[] { 1.0, Double.MIN_VALUE };
-			gbl_measureOperationPanel.rowWeights = new double[] { 1.0, 1.0, Double.MIN_VALUE };
+			gbl_measureOperationPanel.rowWeights = new double[] { 1.0, Double.MIN_VALUE };
 			measureOperationPanel.setLayout(gbl_measureOperationPanel);
 
 			JButton slopeErrorMeasureButton = new JButton("SLOPE ERROR MEASUREMENT");
@@ -206,18 +206,6 @@ public class Main extends AbstractCommunicationPortFrame implements ActionListen
 			gbc_ResidualStressMeasureButton.gridy = 0;
 			measureOperationPanel.add(slopeErrorMeasureButton, gbc_ResidualStressMeasureButton);
 
-			JButton sloperErrorCalculation = new JButton("SLOPE ERROR CALCULATION (POST)");
-			sloperErrorCalculation.addActionListener(this);
-			// omega2ThetaScanButton.setActionCommand(ActionCommands.RESIDUAL_STRESS_MEASURE);
-			sloperErrorCalculation.setFont(new Font("Tahoma", Font.PLAIN, 14));
-			GridBagConstraints gbc_omega2ThetaScanButton = new GridBagConstraints();
-			gbc_omega2ThetaScanButton.fill = GridBagConstraints.BOTH;
-			gbc_omega2ThetaScanButton.insets = new Insets(0, 5, 5, 5);
-			gbc_omega2ThetaScanButton.gridx = 0;
-			gbc_omega2ThetaScanButton.gridy = 1;
-			measureOperationPanel.add(sloperErrorCalculation, gbc_omega2ThetaScanButton);
-			measureOperationsTabbedPane.setForegroundAt(0, new Color(0, 102, 51));
-
 			JTabbedPane supportOperationsTabbedPane = new JTabbedPane(JTabbedPane.TOP);
 			GridBagConstraints gbc_supportOperationsTabbedPane = new GridBagConstraints();
 			gbc_supportOperationsTabbedPane.insets = new Insets(0, 5, 5, 0);
@@ -230,31 +218,20 @@ public class Main extends AbstractCommunicationPortFrame implements ActionListen
 			supportOperationsTabbedPane.addTab("Support Operations", null, supportOperationsPanel, null);
 			GridBagLayout gbl_supportOperationsPanel = new GridBagLayout();
 			gbl_supportOperationsPanel.columnWidths = new int[] { 0, 0 };
-			gbl_supportOperationsPanel.rowHeights = new int[] { 0, 0, 0, 0 };
+			gbl_supportOperationsPanel.rowHeights = new int[] { 0, 0 };
 			gbl_supportOperationsPanel.columnWeights = new double[] { 1.0, Double.MIN_VALUE };
-			gbl_supportOperationsPanel.rowWeights = new double[] { 1.0, 1.0, 1.0, Double.MIN_VALUE };
+			gbl_supportOperationsPanel.rowWeights = new double[] { 1.0,  Double.MIN_VALUE };
 			supportOperationsPanel.setLayout(gbl_supportOperationsPanel);
-
-			JButton supportOperation1Button = new JButton("...");
-			supportOperation1Button.addActionListener(this);
-			// supportOperation1Button.setActionCommand(ActionCommands.FREE_MOVEMENTS_AND_SCANS);
-			supportOperation1Button.setFont(new Font("Tahoma", Font.PLAIN, 14));
-			GridBagConstraints gbc_supportOperation1Button = new GridBagConstraints();
-			gbc_supportOperation1Button.fill = GridBagConstraints.BOTH;
-			gbc_supportOperation1Button.insets = new Insets(10, 5, 5, 5);
-			gbc_supportOperation1Button.gridx = 0;
-			gbc_supportOperation1Button.gridy = 0;
-			supportOperationsPanel.add(supportOperation1Button, gbc_supportOperation1Button);
 
 			JButton recoveryCrashButton = new JButton("RECOVERY CRASH OF THE CONTROLLER");
 			recoveryCrashButton.addActionListener(this);
 			recoveryCrashButton.setActionCommand(ActionCommands.CONTROLLER_CRASH_RECOVERY);
 			recoveryCrashButton.setFont(new Font("Tahoma", Font.PLAIN, 14));
 			GridBagConstraints gbc_recoveryCrashButton = new GridBagConstraints();
-			gbc_recoveryCrashButton.insets = new Insets(0, 5, 5, 5);
+			gbc_recoveryCrashButton.insets = new Insets(10, 5, 5, 5);
 			gbc_recoveryCrashButton.fill = GridBagConstraints.BOTH;
 			gbc_recoveryCrashButton.gridx = 0;
-			gbc_recoveryCrashButton.gridy = 1;
+			gbc_recoveryCrashButton.gridy = 0;
 			supportOperationsPanel.add(recoveryCrashButton, gbc_recoveryCrashButton);
 			supportOperationsTabbedPane.setForegroundAt(0, new Color(0, 102, 51));
 

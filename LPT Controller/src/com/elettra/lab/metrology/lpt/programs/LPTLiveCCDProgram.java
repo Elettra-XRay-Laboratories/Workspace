@@ -4,7 +4,6 @@ import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Font;
 import java.awt.Graphics2D;
-import java.awt.Point;
 import java.awt.image.BufferedImage;
 
 import com.elettra.common.io.CommunicationPortException;
@@ -20,13 +19,19 @@ import com.elettra.idsccd.driver.IDSCCDDisplayModes;
 import com.elettra.idsccd.driver.IDSCCDException;
 import com.elettra.idsccd.driver.IDSCCDFactory;
 import com.elettra.idsccd.driver.IIDSCCD;
+import com.elettra.idsccd.driver.Point;
 
 public class LPTLiveCCDProgram extends AbstractProgram
 {
+	public static final String	Y	                  = "Y";
+	public static final String	X                  	= "X";
+	public static final String	Y_FWHM	            = "Y_FWHM";
+	public static final String	X_FWHM	            = "X_FWHM";
 	public static final String	LAST_IMAGE	        = "LAST_IMAGE";
 	public static final String	PROGRAM_NAME	      = "LPT_CCD_LIVE";
 
 	public static final String	COLOR_MODE	        = "COLOR_MODE";
+	public static final String	GAIN      	        = "GAIN";	
 	public static final String	DIM_X	              = "DIM_X";
 	public static final String	DIM_Y	              = "DIM_Y";
 	public static final String	DRAW_MAIN_GRID	    = "DRAW_MAIN_GRID";
@@ -36,6 +41,7 @@ public class LPTLiveCCDProgram extends AbstractProgram
 	private int	               dimx;
 	private int	               dimy;
 	private IDSCCDColorModes	 mode;
+	private int                gain;
 	private boolean	           drawMainGrid;
 	private boolean	           drawSecondaryGrid;
 
@@ -51,6 +57,7 @@ public class LPTLiveCCDProgram extends AbstractProgram
 		try
 		{
 			this.mode = (IDSCCDColorModes) parameters.getCustomParameter(COLOR_MODE);
+			this.gain = ((Integer) parameters.getCustomParameter(GAIN)).intValue();
 			this.dimx = ((Integer) parameters.getCustomParameter(DIM_X)).intValue();
 			this.dimy = ((Integer) parameters.getCustomParameter(DIM_Y)).intValue();
 
@@ -58,12 +65,12 @@ public class LPTLiveCCDProgram extends AbstractProgram
 			this.drawSecondaryGrid = ((Boolean) parameters.getCustomParameter(DRAW_SECONDARY_GRID)).booleanValue();
 
 			this.ccd.setColorMode(mode);
+			this.ccd.setHardwareGain(gain);
 			this.ccd.setDisplayMode(IDSCCDDisplayModes.IS_SET_DM_DIB);
 
 			MeasureResult measureResult = this.getMeasureFromDetector();
 
-			MeasurePoint measurePoint = new MeasurePoint(0.0, measureResult.getMeasure(), measureResult.getAdditionalInformation1(),
-			    measureResult.getAdditionalInformation2());
+			MeasurePoint measurePoint = new MeasurePoint(0.0, measureResult.getMeasure(), measureResult.getAdditionalInformation1(), measureResult.getAdditionalInformation2());
 			measurePoint.setCustomData(measureResult.getCustomData());
 
 			parameters.getListener().signalMeasure(parameters.getAxis(), measurePoint, null, port);
@@ -110,14 +117,19 @@ public class LPTLiveCCDProgram extends AbstractProgram
 			{
 				Point centroid = this.ccd.getCentroid(buffer, this.dimx, this.dimy, false);
 
-				g.fillOval((int) centroid.x - 10, (int) centroid.y - 10, 20, 20);
-
+				g.drawLine((int) centroid.x - 10, (int) centroid.y, (int) centroid.x + 10, (int) centroid.y);
+				g.drawLine((int) centroid.x , (int) centroid.y - 10, (int) centroid.x, (int) centroid.y + 10);
+				
 				double centroid_x = (centroid.x - this.dimx / 2) * IIDSCCD.PIXEL_SIZE;
 				double centroid_y = -(centroid.y - this.dimy / 2) * IIDSCCD.PIXEL_SIZE;
-
-				result.setAdditionalInformation1(centroid_x);
-				result.setAdditionalInformation2(centroid_y);
-
+				double centroid_fwhm_x = centroid.fwhm_x * IIDSCCD.PIXEL_SIZE;
+				double centroid_fwhm_y = centroid.fwhm_y * IIDSCCD.PIXEL_SIZE;
+				
+				result.addCustomData(X, centroid_x);
+				result.addCustomData(Y, centroid_y);
+				result.addCustomData(X_FWHM, centroid_fwhm_x);
+				result.addCustomData(Y_FWHM, centroid_fwhm_y);
+			
 				g.setFont(new Font("Verdana", Font.BOLD, 40));
 				g.drawString("(" + GuiUtilities.parseDouble(centroid_x, 1, true) + "," + GuiUtilities.parseDouble(centroid_y, 1, true) + ")", (int) centroid.x + 50,
 				    (int) centroid.y - 50);
@@ -126,6 +138,11 @@ public class LPTLiveCCDProgram extends AbstractProgram
 			{
 				g.setFont(new Font("Verdana", Font.BOLD, 40));
 				g.drawString("Centroid not calculated", 50, 50);
+
+				result.addCustomData(X, 0.0);
+				result.addCustomData(Y, 0.0);
+				result.addCustomData(X_FWHM, 0.0);
+				result.addCustomData(Y_FWHM, 0.0);
 			}
 
 			if (this.drawMainGrid)

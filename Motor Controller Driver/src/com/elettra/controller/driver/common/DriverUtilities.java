@@ -121,7 +121,7 @@ public final class DriverUtilities
 
 	public static String buildHuberCommand(String commandString)
 	{
-		return commandString + ";\r\n";
+		return commandString + ";" +  (char)0xD +  (char)0xA;
 	}
 
 	public static String buildGalilCommand(String commandString)

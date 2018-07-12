@@ -2,7 +2,6 @@ package com.elettra.idsccd.driver;
 
 import java.awt.Color;
 import java.awt.Graphics2D;
-import java.awt.Point;
 import java.awt.image.BufferedImage;
 import java.awt.image.WritableRaster;
 import java.io.BufferedWriter;
@@ -85,6 +84,19 @@ class IDSCCD implements IIDSCCD
 	public void setColorMode(IDSCCDColorModes mode) throws IDSCCDException
 	{
 		IDSCCDErrorCodes result = IDSCCDWrapper.INSTANCE.is_SetColorMode(this.cameraHandle.getValue(), mode);
+
+		if (result != IDSCCDErrorCodes.IS_SUCCESS)
+			throw new IDSCCDException(String.valueOf(result));
+	}
+
+	//----------------------------------------------------------------------------
+
+	public void setHardwareGain(int gain) throws IDSCCDException
+	{
+		if (gain < 0) gain = 0;
+		else if (gain > 100) gain = 100;
+		
+		IDSCCDErrorCodes result = IDSCCDWrapper.INSTANCE.is_SetHardwareGain(this.cameraHandle.getValue(), gain, gain, gain, gain);
 
 		if (result != IDSCCDErrorCodes.IS_SUCCESS)
 			throw new IDSCCDException(String.valueOf(result));
@@ -345,7 +357,7 @@ class IDSCCD implements IIDSCCD
 		GaussianFitResult resultX = FitUtilities.executeGaussianFit(0, dimx, FitUtilities.Optimizers.LEVENBERG_MARQUARDT, histograms[0]);
 		GaussianFitResult resultY = FitUtilities.executeGaussianFit(0, dimy, FitUtilities.Optimizers.LEVENBERG_MARQUARDT, histograms[1]);
 
-		return new Point((int) resultX.getPosition(), (int) resultY.getPosition());
+		return new Point(resultX.getPosition(), resultY.getPosition(), resultX.getFwhm(), resultY.getFwhm());
 	}
 
 	//----------------------------------------------------------------------------
@@ -382,6 +394,7 @@ class IDSCCD implements IIDSCCD
 
 			ccd.init();
 			ccd.setColorMode(mode);
+			ccd.setHardwareGain(20);
 
 			if (byMemory)
 				ccd.setDisplayMode(IDSCCDDisplayModes.IS_SET_DM_DIB);
@@ -415,11 +428,11 @@ class IDSCCD implements IIDSCCD
 
 			Graphics2D g = capture.createGraphics();
 			g.setColor(Color.WHITE);
-			g.fillOval(centroid.x - 3, centroid.y - 3, 6, 6);
+			g.fillOval((int)centroid.x - 3, (int)centroid.y - 3, 6, 6);
 
 			Graphics2D g2 = capture.createGraphics();
 			g2.setColor(Color.WHITE);
-			g2.drawOval(centroid.x - 15, centroid.y - 15, 30, 30);
+			g2.drawOval((int)centroid.x - 15, (int)centroid.y - 15, 30, 30);
 
 			ImageIO.write(capture, "jpg", new File("out.jpg"));
 
