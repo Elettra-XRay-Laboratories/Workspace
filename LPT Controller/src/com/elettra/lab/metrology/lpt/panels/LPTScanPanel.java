@@ -2,9 +2,11 @@ package com.elettra.lab.metrology.lpt.panels;
 
 import java.awt.AlphaComposite;
 import java.awt.Color;
+import java.awt.Dimension;
 import java.awt.Graphics2D;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
+import java.awt.GridLayout;
 import java.awt.Insets;
 import java.awt.Rectangle;
 import java.awt.RenderingHints;
@@ -15,6 +17,7 @@ import java.awt.event.FocusEvent;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import java.util.HashMap;
 
 import javax.imageio.ImageIO;
 import javax.swing.BorderFactory;
@@ -28,6 +31,8 @@ import javax.swing.JTextField;
 import javax.swing.SwingConstants;
 import javax.swing.border.BevelBorder;
 
+import org.jfree.data.xy.XYSeries;
+
 import com.elettra.common.io.CommunicationPortException;
 import com.elettra.common.io.ICommunicationPort;
 import com.elettra.controller.driver.listeners.MeasurePoint;
@@ -40,6 +45,7 @@ import com.elettra.idsccd.driver.IDSCCDColorModes;
 import com.elettra.idsccd.driver.IIDSCCD;
 import com.elettra.lab.metrology.lpt.Axis;
 import com.elettra.lab.metrology.lpt.programs.LPTScanProgram;
+import com.elettra.lab.metrology.lpt.windows.LTPResidualsCalculationWindows;
 
 public class LPTScanPanel extends ScanPanel
 {
@@ -276,22 +282,31 @@ public class LPTScanPanel extends ScanPanel
 		calculationManagementPanel.setLayout(gbl_calculationManagementPanel);
 
 		
+		int width = 280;
+		JPanel buttonPanel = new JPanel();
+		buttonPanel.setLayout(new GridLayout(4, 1));
+		buttonPanel.setMaximumSize(new Dimension(width, 0));
+		GridBagConstraints gbc_buttonPanel = new GridBagConstraints();
+		gbc_buttonPanel.insets = new Insets(5, 10, 0, 0);
+		gbc_buttonPanel.anchor = GridBagConstraints.NORTHEAST;
+		gbc_buttonPanel.fill = GridBagConstraints.HORIZONTAL;
+		gbc_buttonPanel.gridx = 1;
+		gbc_buttonPanel.gridy = 3;
+		gbc_buttonPanel.gridheight = 1;
+		add(buttonPanel, gbc_buttonPanel);
+
+		
 		JButton buttonTemp = new JButton("Launch Python Script");
-		GridBagConstraints gbc_buttonTemp = new GridBagConstraints();
-		gbc_buttonTemp.insets = new Insets(5, 10, 0, 0);
-		gbc_buttonTemp.anchor = GridBagConstraints.NORTHEAST;
-		gbc_buttonTemp.fill = GridBagConstraints.HORIZONTAL;
-		gbc_buttonTemp.gridx = 1;
-		gbc_buttonTemp.gridy = 3;
-		gbc_buttonTemp.gridheight = 1;
-		add(buttonTemp, gbc_buttonTemp);
-				
+		buttonTemp.setPreferredSize(new Dimension(width, 30));
+		buttonPanel.add(buttonTemp);
+		
 		buttonTemp.addActionListener(new ActionListener()
 		{
 			
 			@Override
 			public void actionPerformed(ActionEvent e)
 			{	
+				
 				try
         {
 					String fileName = GuiUtilities.showDatFileChooser("./data", null, "myscan.dat");
@@ -309,6 +324,74 @@ public class LPTScanPanel extends ScanPanel
 			}
 		});
 
+		JButton buttonSphere = new JButton("Launch Residual Calculations (Sphere)");
+		buttonSphere.setPreferredSize(new Dimension(width, 30));
+		buttonPanel.add(buttonSphere);
+		
+		buttonSphere.addActionListener(new ActionListener()
+		{
+			
+			@Override
+			public void actionPerformed(ActionEvent e)
+			{	
+				try
+        {
+					if (scanIndex >= 0)
+						LTPResidualsCalculationWindows.getInstance(null, LTPResidualsCalculationWindows.KindOfCurve.SPHERE, getCurrentSlopes()).setVisible(true);
+					else
+						GuiUtilities.showErrorPopup("No Scan to analyze", null);
+        }
+        catch (IOException e1)
+        {
+	        // TODO Auto-generated catch block
+	        e1.printStackTrace();
+        }
+			}
+		});
+
+		JButton buttonEllipse = new JButton("Launch Residual Calculations (Ellipse)");
+		buttonEllipse.setPreferredSize(new Dimension(width, 30));
+		buttonPanel.add(buttonEllipse);
+				
+		buttonEllipse.addActionListener(new ActionListener()
+		{
+			
+			@Override
+			public void actionPerformed(ActionEvent e)
+			{	
+				try
+        {
+					LTPResidualsCalculationWindows.getInstance(null, LTPResidualsCalculationWindows.KindOfCurve.ELLIPSE, null).setVisible(true);
+        }
+        catch (IOException e1)
+        {
+	        // TODO Auto-generated catch block
+	        e1.printStackTrace();
+        }
+			}
+		});
+
+		JButton buttonEllipseFixed = new JButton("Launch Residual Calculations (Fixed Ellipse)");
+		buttonEllipseFixed.setPreferredSize(new Dimension(width, 30));
+		buttonPanel.add(buttonEllipseFixed);
+				
+		buttonEllipseFixed.addActionListener(new ActionListener()
+		{
+			
+			@Override
+			public void actionPerformed(ActionEvent e)
+			{	
+				try
+        {
+					LTPResidualsCalculationWindows.getInstance(null, LTPResidualsCalculationWindows.KindOfCurve.ELLIPSE_FIXED, null).setVisible(true);
+        }
+        catch (IOException e1)
+        {
+	        // TODO Auto-generated catch block
+	        e1.printStackTrace();
+        }
+			}
+		});
 	}
 
 	public synchronized void signalMeasure(int axis, MeasurePoint point, Progress progress, ICommunicationPort port) throws CommunicationPortException
@@ -333,7 +416,7 @@ public class LPTScanPanel extends ScanPanel
 
 	protected String getOrdinateLabel()
 	{
-		return "Slope Error (mrad)";
+		return "Slope Error (rad)";
 	}
 
 	protected boolean isOrdinateInteger()
@@ -419,6 +502,37 @@ public class LPTScanPanel extends ScanPanel
 		    + GuiUtilities.parseDouble(((Double) point.getCustomData(LPTScanProgram.Y_STANDARD_DEVIATION)).doubleValue(), 1, true));
 	}
 
+	private HashMap<String, double[]> getCurrentSlopes()
+	{
+		XYSeries series = this.xyDataset.getSeries(this.scanIndex);
+		XYSeries seriesAddInfo1 = this.xyDatasetAddInfo1.getSeries(this.scanIndex);
+		XYSeries seriesAddInfo2 = this.xyDatasetAddInfo2.getSeries(this.scanIndex);
+
+		int nItem = series.getItemCount();
+				
+		double[] x = new double[nItem];
+		double[] y = new double[nItem];
+		double[] xc = new double[nItem];
+		double[] yc = new double[nItem];
+		
+		for (int index = 0; index < nItem; index++)
+		{
+			x[index] = series.getX(index).doubleValue();
+			y[index] = series.getY(index).doubleValue();
+			xc[index] = seriesAddInfo1.getY(index).doubleValue();
+			yc[index] = seriesAddInfo2.getY(index).doubleValue();
+		}
+	
+		HashMap<String, double[]> currentSlopes = new HashMap<>();
+		currentSlopes.put("x", x);
+		currentSlopes.put("y", y);
+		currentSlopes.put("xc", xc);
+		currentSlopes.put("yc", yc);
+		
+		return currentSlopes;
+	}
+	
+	
 	class LPTScanThread extends ScanPanel.ScanThread
 	{
 		public LPTScanThread(LPTScanPanel panel)

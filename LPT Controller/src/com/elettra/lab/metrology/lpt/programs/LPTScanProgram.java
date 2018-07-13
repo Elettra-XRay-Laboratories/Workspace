@@ -186,9 +186,11 @@ public class LPTScanProgram extends SCANProgram
 			average_y_position *= IIDSCCD.PIXEL_SIZE;
 						
 			MeasureResult result = new MeasureResult(this.calculateSlopeError(average_x_position));
-
+			
+			result.setAdditionalInformation1(Double.valueOf(average_x_position));
+			result.setAdditionalInformation2(Double.valueOf(average_y_position));
 			result.addCustomData(X, Double.valueOf(average_x_position));
-			result.addCustomData(Y, Double.valueOf(average_x_position));
+			result.addCustomData(Y, Double.valueOf(average_y_position));
 			
 			if (measureParameters.getAxis() == Axis.MOTOR5)
 				result.addCustomData(ENCODER_POSITION, Double.valueOf(EncoderReaderFactory.getEncoderReader().readPosition()));

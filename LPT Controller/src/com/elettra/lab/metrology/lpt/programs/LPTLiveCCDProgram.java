@@ -125,6 +125,8 @@ public class LPTLiveCCDProgram extends AbstractProgram
 				double centroid_fwhm_x = centroid.fwhm_x * IIDSCCD.PIXEL_SIZE;
 				double centroid_fwhm_y = centroid.fwhm_y * IIDSCCD.PIXEL_SIZE;
 				
+				result.setAdditionalInformation1(Double.valueOf(centroid_x));
+				result.setAdditionalInformation2(Double.valueOf(centroid_y));
 				result.addCustomData(X, centroid_x);
 				result.addCustomData(Y, centroid_y);
 				result.addCustomData(X_FWHM, centroid_fwhm_x);
@@ -139,6 +141,8 @@ public class LPTLiveCCDProgram extends AbstractProgram
 				g.setFont(new Font("Verdana", Font.BOLD, 40));
 				g.drawString("Centroid not calculated", 50, 50);
 
+				result.setAdditionalInformation1(Double.valueOf(0.0));
+				result.setAdditionalInformation2(Double.valueOf(0.0));
 				result.addCustomData(X, 0.0);
 				result.addCustomData(Y, 0.0);
 				result.addCustomData(X_FWHM, 0.0);

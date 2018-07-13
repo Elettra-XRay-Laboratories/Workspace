@@ -108,11 +108,11 @@ public class ScanPanel extends MeasureListener implements ActionListener
 	private JTextField	       gaussianFitPeakPositionTextField;
 	private JTextField	       gaussianFitFromTextField;
 	private JTextField	       gaussianFitToTextField;
-	private XYSeriesCollection	xyDataset;
-	private XYSeriesCollection	xyDatasetAddInfo1;
+	protected XYSeriesCollection	xyDataset;
+	protected XYSeriesCollection	xyDatasetAddInfo1;
 	private boolean	           isStopScanActivated;
 
-	private short	             scanIndex	      = -1;
+	protected short	             scanIndex	      = -1;
 	private JProgressBar	     progressBar;
 	private boolean	           isScanActive	    = false;
 	private JComboBox<String>	 kindOfMovementComboBox;
@@ -180,7 +180,7 @@ public class ScanPanel extends MeasureListener implements ActionListener
 	private int	               sendDataAxis2;
 	private boolean	           sendDataEnabled;
 	private JButton	           loadButton;
-	private XYSeriesCollection	xyDatasetAddInfo2;
+	protected XYSeriesCollection	xyDatasetAddInfo2;
 
 	/**
 	 * Create the panel.

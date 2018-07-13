@@ -23,7 +23,7 @@ import com.elettra.lab.metrology.lpt.Axis;
 import com.elettra.lab.metrology.lpt.panels.LPTMovePanel;
 import com.elettra.lab.metrology.lpt.panels.LPTScanPanel;
 
-public class SlopeErrorMeasurementWindow extends AbstractGenericFrame
+public class LTPSlopeErrorMeasurementWindow extends AbstractGenericFrame
 {
 	static class ActionCommands
 	{
@@ -32,12 +32,12 @@ public class SlopeErrorMeasurementWindow extends AbstractGenericFrame
 
 	private static final long	serialVersionUID	= -513690344812082943L;
 
-	public static synchronized SlopeErrorMeasurementWindow getInstance(ICommunicationPort port) throws HeadlessException, IOException
+	public static synchronized LTPSlopeErrorMeasurementWindow getInstance(ICommunicationPort port) throws HeadlessException, IOException
 	{
-		return new SlopeErrorMeasurementWindow(port);
+		return new LTPSlopeErrorMeasurementWindow(port);
 	}
 
-	private SlopeErrorMeasurementWindow(ICommunicationPort port) throws HeadlessException, IOException
+	private LTPSlopeErrorMeasurementWindow(ICommunicationPort port) throws HeadlessException, IOException
 	{
 		super("Slope Error Measurement", port);
 
