@@ -305,7 +305,7 @@ public final class XRayBeamCenteringPanel extends MovementListener implements Ac
 		double twoThetaFirst = DriverUtilities.parseHuberAxisPosition(twoThetaFirstPositionTextField.getText()).getSignedPosition();
 
 		thetaFirst = thetaFirst + correctingAngle;
-		twoThetaFirst = twoThetaFirst - correctingAngle;
+		twoThetaFirst = twoThetaFirst + correctingAngle;
 
 		ControllerPosition thetaFirstPosition = DriverUtilities.numberToController(thetaFirst);
 		ControllerPosition twoThetaFirstPosition = DriverUtilities.numberToController(twoThetaFirst);
