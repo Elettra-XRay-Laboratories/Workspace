@@ -4,7 +4,6 @@ import com.elettra.common.io.CommunicationPortException;
 import com.elettra.common.io.ICommunicationPort;
 import com.elettra.controller.driver.commands.CommandParameters;
 import com.elettra.controller.driver.commands.CommandsFacade;
-import com.elettra.controller.driver.commands.CommandsFacade.Actions;
 import com.elettra.controller.driver.common.AxisConfiguration;
 import com.elettra.controller.driver.common.ControllerPosition;
 import com.elettra.controller.driver.common.DriverUtilities;
@@ -30,9 +29,8 @@ public class MOVEProgram extends AbstractProgram
 
 		AxisConfiguration axisConfiguration = DriverUtilities.getAxisConfigurationMap().getAxisConfiguration(moveParameters.getAxis());
 
-		if (axisConfiguration.isBlocked())
-			throw new CommunicationPortException("Motor " + axisConfiguration.getName() + " is Blocked");
-			
+		this.checkLimitations(port, moveParameters, axisConfiguration);
+					
 		String commandString = DriverUtilities.buildGalilCommand("SH" + DriverUtilities.getGalilAxis(moveParameters.getAxis()));
 		commandString += DriverUtilities.buildGalilCommand("AC" + DriverUtilities.getGalilAxis(moveParameters.getAxis()) + "=" + Integer.toString(axisConfiguration.getRamp()));
 		commandString += DriverUtilities.buildGalilCommand("DC" + DriverUtilities.getGalilAxis(moveParameters.getAxis()) + "=" + Integer.toString(axisConfiguration.getRamp()));
@@ -65,9 +63,7 @@ public class MOVEProgram extends AbstractProgram
 		}
 		else if (moveParameters.getKindOfMovement().equals(DriverUtilities.getAbsolute()))
 		{
-			String position = CommandsFacade.executeAction(Actions.REQUEST_AXIS_POSITION, new CommandParameters(moveParameters.getAxis(), moveParameters.getListener()), port);
-
-			double currentPosition = DriverUtilities.parseAxisPositionResponse(moveParameters.getAxis(), position).getSignedPosition();
+			double currentPosition = DriverUtilities.parseAxisPositionResponse(moveParameters.getAxis(), CommandsFacade.executeAction(CommandsFacade.Actions.REQUEST_AXIS_POSITION, new CommandParameters(moveParameters.getAxis(), moveParameters.getListener()), port)).getSignedPosition();
 			double finalPosition = DriverUtilities.controllerToNumber(new ControllerPosition(moveParameters.getSign(), moveParameters.getPosition()));
 
 			boolean conditionToBacklash = axisConfiguration.getSignToPositive().equals(DriverUtilities.getPlus()) ? finalPosition < currentPosition : finalPosition > currentPosition;
@@ -100,6 +96,27 @@ public class MOVEProgram extends AbstractProgram
 		return new MoveResult();
 	}
 
+	private void checkLimitations(ICommunicationPort port, MoveParameters moveParameters, AxisConfiguration axisConfiguration) throws CommunicationPortException
+	{
+		if (axisConfiguration.isBlocked())
+			throw new IllegalStateException("Move not Possible: Axis " + axisConfiguration.getName() + " is Blocked");
+
+		if (axisConfiguration.isLimited())
+		{
+			double finalPosition = DriverUtilities.controllerToNumber(new ControllerPosition(moveParameters.getSign(), moveParameters.getPosition()));
+			
+			if (moveParameters.getKindOfMovement().equals(DriverUtilities.getRelative()))
+			{
+				double currentPosition = DriverUtilities.parseAxisPositionResponse(moveParameters.getAxis(), CommandsFacade.executeAction(CommandsFacade.Actions.REQUEST_AXIS_POSITION, new CommandParameters(moveParameters.getAxis(), moveParameters.getListener()), port)).getSignedPosition();
+
+				finalPosition += currentPosition;
+			}
+
+			if (finalPosition < axisConfiguration.getLimitDown() || finalPosition > axisConfiguration.getLimitUp())
+				throw new IllegalArgumentException("Move not Possible: Move Final Position (" + String.valueOf(finalPosition) +  ") lies outside limits for axis " + axisConfiguration.getName());
+
+		}
+	}
 	class WritePort extends Thread
 	{
 		private String             commandString;

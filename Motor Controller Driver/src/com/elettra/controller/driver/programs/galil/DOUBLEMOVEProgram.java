@@ -6,8 +6,8 @@ import com.elettra.controller.driver.commands.CommandParameters;
 import com.elettra.controller.driver.commands.CommandsFacade;
 import com.elettra.controller.driver.commands.CommandsFacade.Actions;
 import com.elettra.controller.driver.common.AxisConfiguration;
-import com.elettra.controller.driver.common.DriverUtilities;
 import com.elettra.controller.driver.common.ControllerPosition;
+import com.elettra.controller.driver.common.DriverUtilities;
 import com.elettra.controller.driver.common.MultipleAxis;
 import com.elettra.controller.driver.common.Sign;
 import com.elettra.controller.driver.programs.AbstractProgram;
@@ -35,6 +35,8 @@ public class DOUBLEMOVEProgram extends AbstractProgram
 
 		if (axisConfiguration.isMultiple())
 		{
+			this.checkLimitations(port, moveParameters, axisConfiguration);
+
 			MultipleAxis multipleAxis = axisConfiguration.getMultipleAxis();
 
 			MoveParameters axis1MoveParameters = new MoveParameters(multipleAxis.getAxis1(), moveParameters.getListener());
@@ -133,5 +135,51 @@ public class DOUBLEMOVEProgram extends AbstractProgram
 			throw new IllegalArgumentException("Asked double move for a non multiple axis");
 
 		return new MoveResult();
+	}
+
+	private void checkLimitations(ICommunicationPort port, DoubleMoveParameters moveParameters, AxisConfiguration axisConfiguration) throws CommunicationPortException
+	{
+		double signedFinalPosition =  DriverUtilities.controllerToNumber(new ControllerPosition(moveParameters.getSign(), moveParameters.getPosition()));
+		
+		MultipleAxis axisNumbers = axisConfiguration.getMultipleAxis();
+
+		AxisConfiguration axisConfiguration1 = DriverUtilities.getAxisConfigurationMap().getAxisConfiguration(axisNumbers.getAxis1());
+		AxisConfiguration axisConfiguration2 = DriverUtilities.getAxisConfigurationMap().getAxisConfiguration(axisNumbers.getAxis2());
+
+		double signedFinalPosition1 = 0.0;
+		double signedFinalPosition2 = 0.0;
+
+		if (axisNumbers.getDefaultReferenceAxis() == 2)
+		{
+			signedFinalPosition1 = axisNumbers.getRelativeSign().sign() * signedFinalPosition / 2.0;
+			signedFinalPosition2 = signedFinalPosition;
+		}
+		else if (axisNumbers.getDefaultReferenceAxis() == 1)
+		{
+			signedFinalPosition1 = signedFinalPosition;
+			signedFinalPosition2 = axisNumbers.getRelativeSign().sign() * signedFinalPosition * 2.0;
+		}
+
+		this.checkSingleAxisLimitations(port, axisNumbers.getAxis1(), moveParameters, axisConfiguration1, signedFinalPosition1);
+		this.checkSingleAxisLimitations(port, axisNumbers.getAxis2(), moveParameters, axisConfiguration2, signedFinalPosition2);
+	}
+
+	private void checkSingleAxisLimitations(ICommunicationPort port, int axis, DoubleMoveParameters moveParameters, AxisConfiguration axisConfiguration, double signedFinalPosition) throws CommunicationPortException
+	{
+		if (axisConfiguration.isBlocked())
+			throw new IllegalStateException("Scan not Possible: Axis " + axisConfiguration.getName() + " is Blocked");
+
+		if (axisConfiguration.isLimited())
+		{
+			if (moveParameters.getKindOfMovement().equals(DriverUtilities.getRelative()))
+			{
+				double actualPosition = DriverUtilities.parseAxisPositionResponse(axis, CommandsFacade.executeAction(CommandsFacade.Actions.REQUEST_AXIS_POSITION, new CommandParameters(axis, moveParameters.getListener()), port)).getSignedPosition();
+
+				signedFinalPosition += actualPosition;
+			}
+
+			if (signedFinalPosition < axisConfiguration.getLimitDown() || signedFinalPosition > axisConfiguration.getLimitUp())
+				throw new IllegalArgumentException("Move not Possible: Move Final Position (" + String.valueOf(signedFinalPosition) +  ") lies outside limits for axis " + axisConfiguration.getName());
+		}
 	}
 }

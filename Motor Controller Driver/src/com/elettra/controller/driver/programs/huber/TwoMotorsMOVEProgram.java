@@ -30,6 +30,9 @@ public class TwoMotorsMOVEProgram extends AbstractProgram
 		AxisConfiguration axisConfiguration1 = DriverUtilities.getAxisConfigurationMap().getAxisConfiguration(moveParameters.getAxis1());
 		AxisConfiguration axisConfiguration2 = DriverUtilities.getAxisConfigurationMap().getAxisConfiguration(moveParameters.getAxis2());
 
+		this.checkLimitations(port, moveParameters.getAxis1(), moveParameters, axisConfiguration1);
+		this.checkLimitations(port, moveParameters.getAxis2(), moveParameters, axisConfiguration2);
+		
 		if (axisConfiguration1.isBrokenAxis() || axisConfiguration2.isBrokenAxis())
 			throw new CommunicationPortException("Broken axis cannot be used in two motors movements");
 		
@@ -103,5 +106,27 @@ public class TwoMotorsMOVEProgram extends AbstractProgram
 		commandString = commandString.replace("-0.0000", "+0.0000");
 
 		return commandString;
+	}
+
+	private void checkLimitations(ICommunicationPort port, int axis, TwoMotorsMoveParameters moveParameters, AxisConfiguration axisConfiguration) throws CommunicationPortException
+	{
+		if (axisConfiguration.isBlocked())
+			throw new IllegalStateException("Move not Possible: Axis " + axisConfiguration.getName() + " is Blocked");
+
+		if (axisConfiguration.isLimited())
+		{
+			double finalPosition = DriverUtilities.controllerToNumber(new ControllerPosition(moveParameters.getSign(), moveParameters.getPosition()));
+			
+			if (moveParameters.getKindOfMovement().equals(DriverUtilities.getRelative()))
+			{
+				double currentPosition = DriverUtilities.parseAxisPositionResponse(axis, CommandsFacade.executeAction(CommandsFacade.Actions.REQUEST_AXIS_POSITION, new CommandParameters(axis, moveParameters.getListener()), port)).getSignedPosition();
+
+				finalPosition += currentPosition;
+			}
+
+			if (finalPosition < axisConfiguration.getLimitDown() || finalPosition > axisConfiguration.getLimitUp())
+				throw new IllegalArgumentException("Move not Possible: Move Final Position (" + String.valueOf(finalPosition) +  ") lies outside limits for axis " + axisConfiguration.getName());
+
+		}
 	}
 }

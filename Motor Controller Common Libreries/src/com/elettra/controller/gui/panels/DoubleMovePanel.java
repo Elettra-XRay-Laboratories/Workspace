@@ -521,7 +521,7 @@ public final class DoubleMovePanel extends MovementListener implements ActionLis
 			moveParameters.setPosition(Double.parseDouble(this.position.getText()));
 			moveParameters.setReferenceAxis(this.referenceAxisComboBox.getSelectedIndex() + 1);
 
-			new StartDoubleMoveProgram(moveParameters, this.port).start();
+			new StartDoubleMoveProgram(moveParameters, this.port, this).start();
 		}
 		catch (NumberFormatException exception)
 		{
@@ -577,13 +577,15 @@ public final class DoubleMovePanel extends MovementListener implements ActionLis
 	{
 		private DoubleMoveParameters moveParameters;
 		private ICommunicationPort   port;
+		private DoubleMovePanel      panel;
 
-		public StartDoubleMoveProgram(DoubleMoveParameters moveParameters, ICommunicationPort port)
+		public StartDoubleMoveProgram(DoubleMoveParameters moveParameters, ICommunicationPort port, DoubleMovePanel panel)
 		{
 			super();
 
 			this.moveParameters = moveParameters;
 			this.port = port;
+			this.panel = panel;
 		}
 
 		public void run()
@@ -592,9 +594,9 @@ public final class DoubleMovePanel extends MovementListener implements ActionLis
 			{
 				ProgramsFacade.executeProgram(ProgramsFacade.Programs.DOUBLEMOVE, this.moveParameters, this.port);
 			}
-			catch (CommunicationPortException exception)
+			catch (Exception exception)
 			{
-				exception.printStackTrace();
+				GuiUtilities.showErrorPopup(exception.getMessage(), this.panel);
 			}
 			finally
 			{

@@ -762,7 +762,7 @@ public final class PsiMovementPanel extends MovementListener implements ActionLi
 			}
 			catch (Exception exception)
 			{
-				exception.printStackTrace();
+				GuiUtilities.showErrorPopup(exception.getMessage(), this.panel);
 			}
 			finally
 			{

@@ -499,7 +499,7 @@ public final class TwoMotorsMovePanel extends MovementListener implements Action
 			moveParameters.setSign(DriverUtilities.parseSign((String) this.signComboBox.getSelectedItem()));
 			moveParameters.setPosition(Double.parseDouble(this.position.getText()));
 
-			new StartTwoMotorsMoveProgram(moveParameters, this.port).start();
+			new StartTwoMotorsMoveProgram(moveParameters, this.port, this).start();
 		}
 		catch (NumberFormatException exception)
 		{
@@ -555,13 +555,15 @@ public final class TwoMotorsMovePanel extends MovementListener implements Action
 	{
 		private TwoMotorsMoveParameters moveParameters;
 		private ICommunicationPort   port;
-
-		public StartTwoMotorsMoveProgram(TwoMotorsMoveParameters moveParameters, ICommunicationPort port)
+		private TwoMotorsMovePanel panel;
+		
+		public StartTwoMotorsMoveProgram(TwoMotorsMoveParameters moveParameters, ICommunicationPort port, TwoMotorsMovePanel panel)
 		{
 			super();
 
 			this.moveParameters = moveParameters;
 			this.port = port;
+			this.panel = panel;
 		}
 
 		public void run()
@@ -570,9 +572,9 @@ public final class TwoMotorsMovePanel extends MovementListener implements Action
 			{
 				ProgramsFacade.executeProgram(ProgramsFacade.Programs.TMMOVE, this.moveParameters, this.port);
 			}
-			catch (CommunicationPortException exception)
+			catch (Exception exception)
 			{
-				exception.printStackTrace();
+				GuiUtilities.showErrorPopup(exception.getMessage(), this.panel);
 			}
 			finally
 			{

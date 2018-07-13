@@ -29,6 +29,8 @@ public class MOVEProgram extends AbstractProgram
 
 		AxisConfiguration axisConfiguration = DriverUtilities.getAxisConfigurationMap().getAxisConfiguration(moveParameters.getAxis());
 
+		this.checkLimitations(port, moveParameters, axisConfiguration);
+
 		if (axisConfiguration.isBrokenAxis() && moveParameters.getKindOfMovement().equals(DriverUtilities.getRelative()))
 		{
 			String position = CommandsFacade.executeAction(Actions.REQUEST_AXIS_POSITION, new CommandParameters(moveParameters.getAxis(), moveParameters.getListener()), port);
@@ -114,5 +116,27 @@ public class MOVEProgram extends AbstractProgram
 		commandString = commandString.replace("-0.0000", "+0.0000");
 
 		return commandString;
+	}
+
+	private void checkLimitations(ICommunicationPort port, MoveParameters moveParameters, AxisConfiguration axisConfiguration) throws CommunicationPortException
+	{
+		if (axisConfiguration.isBlocked())
+			throw new IllegalStateException("Move not Possible: Axis " + axisConfiguration.getName() + " is Blocked");
+
+		if (axisConfiguration.isLimited())
+		{
+			double finalPosition = DriverUtilities.controllerToNumber(new ControllerPosition(moveParameters.getSign(), moveParameters.getPosition()));
+			
+			if (moveParameters.getKindOfMovement().equals(DriverUtilities.getRelative()))
+			{
+				double currentPosition = DriverUtilities.parseAxisPositionResponse(moveParameters.getAxis(), CommandsFacade.executeAction(CommandsFacade.Actions.REQUEST_AXIS_POSITION, new CommandParameters(moveParameters.getAxis(), moveParameters.getListener()), port)).getSignedPosition();
+
+				finalPosition += currentPosition;
+			}
+
+			if (finalPosition < axisConfiguration.getLimitDown() || finalPosition > axisConfiguration.getLimitUp())
+				throw new IllegalArgumentException("Move not Possible: Move Final Position (" + String.valueOf(finalPosition) +  ") lies outside limits for axis " + axisConfiguration.getName());
+
+		}
 	}
 }

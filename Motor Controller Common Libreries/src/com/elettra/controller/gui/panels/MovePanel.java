@@ -487,11 +487,18 @@ public class MovePanel extends MovementListener implements ActionListener
 		panelLimits.add(lblBlocked, gbc_lblBlocked);
 
 		blockedCheckBox = new JCheckBox("");
+		limitedCheckBox = new JCheckBox("");
+
 		blockedCheckBox.addActionListener(new ActionListener()
 		{
 			public void actionPerformed(ActionEvent e)
 			{
-				axisConfiguration.setBlocked(blockedCheckBox.isSelected());
+				boolean blockedEnabled = blockedCheckBox.isSelected();
+				boolean limitedEnabled = limitedCheckBox.isSelected();
+
+				setHuberButtonsEnabled(!blockedEnabled && !limitedEnabled);
+				
+				axisConfiguration.setBlocked(blockedEnabled);
 			}
 		});
 
@@ -515,14 +522,16 @@ public class MovePanel extends MovementListener implements ActionListener
 		{
 			public void actionPerformed(ActionEvent e)
 			{
-				boolean enabled = limitedCheckBox.isSelected();
+				boolean blockedEnabled = blockedCheckBox.isSelected();
+				boolean limitedEnabled = limitedCheckBox.isSelected();
 
-				ldSignComboBox.setEnabled(enabled);
-				limitDown.setEnabled(enabled);
-				luSignComboBox.setEnabled(enabled);
-				limitUp.setEnabled(enabled);
+				ldSignComboBox.setEnabled(limitedEnabled);
+				limitDown.setEnabled(limitedEnabled);
+				luSignComboBox.setEnabled(limitedEnabled);
+				limitUp.setEnabled(limitedEnabled);
+				setHuberButtonsEnabled(!blockedEnabled && !limitedEnabled);
 
-				axisConfiguration.setLimited(enabled);
+				axisConfiguration.setLimited(limitedEnabled);
 			}
 		});
 		GridBagConstraints gbc_limitedCheckBox = new GridBagConstraints();
@@ -683,6 +692,17 @@ public class MovePanel extends MovementListener implements ActionListener
 		limitUp.setEnabled(axisConfiguration.isLimited());
 	}
 
+	private void setHuberButtonsEnabled(boolean enabled)
+	{
+		this.runMinusButton.setEnabled(enabled);
+		this.runPlusButton.setEnabled(enabled);
+		this.fastMinusButton.setEnabled(enabled);
+		this.fastPlusButton.setEnabled(enabled);
+		this.stepMinusButton.setEnabled(enabled);
+		this.stepPlusButton.setEnabled(enabled);
+	}
+	
+	
 	public void actionPerformed(ActionEvent e)
 	{
 		if (!this.isScanActive)
@@ -797,7 +817,7 @@ public class MovePanel extends MovementListener implements ActionListener
 			moveParameters.setSign(DriverUtilities.parseSign((String) this.signComboBox.getSelectedItem()));
 			moveParameters.setPosition(Double.parseDouble(this.position.getText()));
 
-			new StartMoveProgram(moveParameters, port).start();
+			new StartMoveProgram(moveParameters, port, this).start();
 		}
 		catch (NumberFormatException exception)
 		{
@@ -896,12 +916,14 @@ public class MovePanel extends MovementListener implements ActionListener
 	{
 		private ProgramParameters  moveParameters;
 		private ICommunicationPort port;
+		private MovePanel panel;
 
-		public StartMoveProgram(ProgramParameters moveParameters, ICommunicationPort port)
+		public StartMoveProgram(ProgramParameters moveParameters, ICommunicationPort port, MovePanel panel)
 		{
 			super();
 			this.moveParameters = moveParameters;
 			this.port = port;
+			this.panel = panel;
 		}
 
 		public void run()
@@ -910,9 +932,9 @@ public class MovePanel extends MovementListener implements ActionListener
 			{
 				ProgramsFacade.executeProgram(ProgramsFacade.Programs.MOVE, this.moveParameters, this.port);
 			}
-			catch (CommunicationPortException exception)
+			catch (Exception exception)
 			{
-				exception.printStackTrace();
+				GuiUtilities.showErrorPopup(exception.getMessage(), this.panel);
 			}
 			finally
 			{

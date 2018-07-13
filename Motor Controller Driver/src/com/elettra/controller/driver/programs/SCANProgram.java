@@ -22,18 +22,18 @@ public class SCANProgram extends ShutterActivatorProgram
 {
 	public class DumpMeasure
 	{
-		public static final int NO_DUMP = 0;
-		public static final int DUMP_EVERY_POINT = 1;
-		public static final int DUMP_AT_END = 2;
+		public static final int	NO_DUMP					 = 0;
+		public static final int	DUMP_EVERY_POINT = 1;
+		public static final int	DUMP_AT_END			 = 2;
 	}
-	
+
 	protected JPanel panel;
-	protected int dump_measure;
+	protected int		 dump_measure;
 
 	public SCANProgram(String programName)
 	{
 		super(programName);
-		
+
 		this.dump_measure = DumpMeasure.DUMP_EVERY_POINT;
 	}
 
@@ -58,6 +58,8 @@ public class SCANProgram extends ShutterActivatorProgram
 			double signedStartPosition = DriverUtilities.controllerToNumber(new ControllerPosition(scanParameters.getStartSign(), scanParameters.getStartPosition()));
 			double signedStopPosition = DriverUtilities.controllerToNumber(new ControllerPosition(scanParameters.getStopSign(), scanParameters.getStopPosition()));
 
+			this.checkLimitations(port, scanParameters, axisConfiguration, signedStartPosition, signedStopPosition);
+
 			// --------------------------------------------------------------------
 			// initialization
 			// --------------------------------------------------------------------
@@ -77,10 +79,11 @@ public class SCANProgram extends ShutterActivatorProgram
 			countParameters.setScanTime(scanParameters.getScanTime());
 
 			Progress progress = new Progress();
-			
+
 			BufferedWriter dumper = null;
-			
-			if (this.dump_measure != DumpMeasure.NO_DUMP) dumper = new BufferedWriter(new FileWriter("./data/lastscan.dump"));
+
+			if (this.dump_measure != DumpMeasure.NO_DUMP)
+				dumper = new BufferedWriter(new FileWriter("./data/lastscan.dump"));
 
 			try
 			{
@@ -98,7 +101,8 @@ public class SCANProgram extends ShutterActivatorProgram
 			}
 			finally
 			{
-				if (dumper != null) dumper.close();
+				if (dumper != null)
+					dumper.close();
 			}
 		}
 		catch (InterruptedException e)
@@ -134,6 +138,69 @@ public class SCANProgram extends ShutterActivatorProgram
 	//
 	// --------------------------------------------------------------------
 
+	private void checkLimitations(ICommunicationPort port, ScanParameters scanParameters, AxisConfiguration axisConfiguration, double signedStartPosition, double signedStopPosition) throws CommunicationPortException
+	{
+		if (axisConfiguration.isMultiple())
+		{
+			MultipleAxis axisNumbers = axisConfiguration.getMultipleAxis();
+
+			AxisConfiguration axisConfiguration1 = DriverUtilities.getAxisConfigurationMap().getAxisConfiguration(axisNumbers.getAxis1());
+			AxisConfiguration axisConfiguration2 = DriverUtilities.getAxisConfigurationMap().getAxisConfiguration(axisNumbers.getAxis2());
+
+			double signedStartPosition1 = 0.0;
+			double signedStopPosition1 = 0.0;
+			double signedStartPosition2 = 0.0;
+			double signedStopPosition2 = 0.0;
+
+			if (axisNumbers.getDefaultReferenceAxis() == 2)
+			{
+				signedStartPosition1 = axisNumbers.getRelativeSign().sign() * signedStartPosition / 2.0;
+				signedStopPosition1 = axisNumbers.getRelativeSign().sign() * signedStopPosition / 2.0;
+				signedStartPosition2 = signedStartPosition;
+				signedStopPosition2 = signedStopPosition;
+			}
+			else if (axisNumbers.getDefaultReferenceAxis() == 1)
+			{
+				signedStartPosition1 = signedStartPosition;
+				signedStopPosition1 = signedStopPosition;
+				signedStartPosition2 = axisNumbers.getRelativeSign().sign() * signedStartPosition * 2.0;
+				signedStopPosition2 = axisNumbers.getRelativeSign().sign() * signedStopPosition * 2.0;
+			}
+			
+			this.checkSingleAxisLimitations(port, axisNumbers.getAxis1(), scanParameters, axisConfiguration1, signedStartPosition1, signedStopPosition1);
+			this.checkSingleAxisLimitations(port, axisNumbers.getAxis2(), scanParameters, axisConfiguration2, signedStartPosition2, signedStopPosition2);
+		}
+		else
+		{
+			this.checkSingleAxisLimitations(port, scanParameters.getAxis(), scanParameters, axisConfiguration, signedStartPosition, signedStopPosition);
+		}
+
+	}
+
+	private void checkSingleAxisLimitations(ICommunicationPort port, int axis, ScanParameters scanParameters, AxisConfiguration axisConfiguration, double signedStartPosition, double signedStopPosition) throws CommunicationPortException
+	{
+		if (axisConfiguration.isBlocked())
+			throw new IllegalStateException("Scan not Possible: Axis " + axisConfiguration.getName() + " is Blocked");
+
+		if (axisConfiguration.isLimited())
+		{
+			if (scanParameters.getKindOfMovement().equals(DriverUtilities.getRelative()))
+			{
+				double currentPosition = DriverUtilities.parseAxisPositionResponse(axis, CommandsFacade.executeAction(CommandsFacade.Actions.REQUEST_AXIS_POSITION, new CommandParameters(axis, scanParameters.getListener()), port)).getSignedPosition();
+
+				signedStartPosition += currentPosition;
+				signedStopPosition += currentPosition;
+			}
+
+			if (signedStartPosition < axisConfiguration.getLimitDown() || signedStartPosition > axisConfiguration.getLimitUp())
+				throw new IllegalArgumentException("Scan not Possible: Scan Initial Position (" + String.valueOf(signedStartPosition) +  ") lies outside limits for axis " + axisConfiguration.getName());
+
+			if (signedStopPosition < axisConfiguration.getLimitDown() || signedStopPosition > axisConfiguration.getLimitUp())
+				throw new IllegalArgumentException("Scan not Possible: Scan Final Position (" + String.valueOf(signedStopPosition) +  ") lies outside limits for axis " + axisConfiguration.getName());
+
+		}
+	}
+
 	private void doMeasure(ICommunicationPort port, ScanParameters scanParameters, ScanResult result, double scanInitialPosition, double scanActualPosition, MeasureParameters countParameters, Progress progress, BufferedWriter dumper) throws IOException
 	{
 		MeasureResult measureResult = this.getMeasureFromDetector(port, countParameters);
@@ -152,12 +219,13 @@ public class SCANProgram extends ShutterActivatorProgram
 		{
 			dumper.write(String.format("%7.4f", measurePoint.getX()).trim() + " " + measurePoint.getMeasure() + " " + String.format("%17.14f", measurePoint.getAdditionalInformation1()) + " " + String.format("%17.14f", measurePoint.getAdditionalInformation2()));
 			dumper.newLine();
-			
-			if (this.dump_measure == DumpMeasure.DUMP_EVERY_POINT) dumper.flush();
+
+			if (this.dump_measure == DumpMeasure.DUMP_EVERY_POINT)
+				dumper.flush();
 		}
-		
+
 		scanParameters.getListener().signalMeasure(scanParameters.getAxis(), measurePoint, progress, port);
-}
+	}
 
 	protected MeasureResult getMeasureFromDetector(ICommunicationPort port, MeasureParameters measureParameters) throws CommunicationPortException
 	{
@@ -318,7 +386,7 @@ public class SCANProgram extends ShutterActivatorProgram
 	}
 
 	protected void executeMoveProgram(ICommunicationPort port, MoveParameters axisMoveParameters) throws CommunicationPortException
-  {
-	  ProgramsFacade.executeProgram(ProgramsFacade.Programs.MOVE, axisMoveParameters, port);
-  }
+	{
+		ProgramsFacade.executeProgram(ProgramsFacade.Programs.MOVE, axisMoveParameters, port);
+	}
 }
