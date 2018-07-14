@@ -37,22 +37,28 @@ import com.elettra.controller.driver.commands.CommandsFacade;
 import com.elettra.controller.driver.common.AxisConfiguration;
 import com.elettra.controller.driver.common.DriverUtilities;
 import com.elettra.controller.driver.common.IAxisConfigurationMap;
+import com.elettra.controller.driver.common.RelativeMovement;
 import com.elettra.controller.driver.programs.DefaultAxisConfigurationMap;
 import com.elettra.controller.driver.programs.ProgramsFacade;
 import com.elettra.controller.gui.common.GuiUtilities;
+import com.elettra.controller.gui.common.ListenerRegister;
 import com.elettra.controller.gui.windows.AbstractCommunicationPortFrame;
 import com.elettra.idsccd.driver.IDSCCDException;
+import com.elettra.lab.metrology.lpt.commands.ThreeMotorsSTOPCommand;
 import com.elettra.lab.metrology.lpt.encoder.EncoderReaderFactory;
 import com.elettra.lab.metrology.lpt.programs.LPTLiveCCDProgram;
 import com.elettra.lab.metrology.lpt.programs.LPTMOVEProgram;
 import com.elettra.lab.metrology.lpt.programs.LPTScanProgram;
-import com.elettra.lab.metrology.lpt.windows.LTPAlignementThroughScanWindow;
+import com.elettra.lab.metrology.lpt.programs.LPTThreeMotorsMOVEProgram;
+import com.elettra.lab.metrology.lpt.programs.ThreeMotorsMoveParameters;
 import com.elettra.lab.metrology.lpt.windows.LTPAlignementThroughLiveCCDWindow;
+import com.elettra.lab.metrology.lpt.windows.LTPAlignementThroughScanWindow;
 import com.elettra.lab.metrology.lpt.windows.LTPControllerCrashRecoveryWindow;
 import com.elettra.lab.metrology.lpt.windows.LTPSlopeErrorMeasurementWindow;
 
 public class Main extends AbstractCommunicationPortFrame implements ActionListener
 {
+	boolean doTest = false;
 	/**
 	 * 
 	 */
@@ -74,11 +80,11 @@ public class Main extends AbstractCommunicationPortFrame implements ActionListen
 
 	static class ActionCommands
 	{
-		private static final String	EXIT		                  = "EXIT";
+		private static final String	EXIT		                        = "EXIT";
 		private static final String	LTP_ALIGNEMENT_THROUGH_LIVE_CCD	= "INDIVIDUAL_ALIGNEMENT";
-		private static final String	LTP_ALIGNEMENT_THROUGH_SCAN	= "FREE_MOVEMENTS_AND_SCANS";
-		private static final String	SLOPE_ERROR_SCAN		      = "SLOPE_ERROR_SCAN";
-		private static final String	CONTROLLER_CRASH_RECOVERY	= "CONTROLLER_CRASH_RECOVERY";
+		private static final String	LTP_ALIGNEMENT_THROUGH_SCAN		  = "FREE_MOVEMENTS_AND_SCANS";
+		private static final String	SLOPE_ERROR_SCAN		            = "SLOPE_ERROR_SCAN";
+		private static final String	CONTROLLER_CRASH_RECOVERY		    = "CONTROLLER_CRASH_RECOVERY";
 	}
 
 	/**
@@ -190,7 +196,7 @@ public class Main extends AbstractCommunicationPortFrame implements ActionListen
 			measureOperationsTabbedPane.addTab("Measure Operations", null, measureOperationPanel, null);
 			GridBagLayout gbl_measureOperationPanel = new GridBagLayout();
 			gbl_measureOperationPanel.columnWidths = new int[] { 0, 0 };
-			gbl_measureOperationPanel.rowHeights = new int[] { 0, 0};
+			gbl_measureOperationPanel.rowHeights = new int[] { 0, 0 };
 			gbl_measureOperationPanel.columnWeights = new double[] { 1.0, Double.MIN_VALUE };
 			gbl_measureOperationPanel.rowWeights = new double[] { 1.0, Double.MIN_VALUE };
 			measureOperationPanel.setLayout(gbl_measureOperationPanel);
@@ -199,12 +205,26 @@ public class Main extends AbstractCommunicationPortFrame implements ActionListen
 			slopeErrorMeasureButton.addActionListener(this);
 			slopeErrorMeasureButton.setActionCommand(ActionCommands.SLOPE_ERROR_SCAN);
 			slopeErrorMeasureButton.setFont(new Font("Tahoma", Font.PLAIN, 14));
-			GridBagConstraints gbc_ResidualStressMeasureButton = new GridBagConstraints();
-			gbc_ResidualStressMeasureButton.fill = GridBagConstraints.BOTH;
-			gbc_ResidualStressMeasureButton.insets = new Insets(10, 5, 5, 5);
-			gbc_ResidualStressMeasureButton.gridx = 0;
-			gbc_ResidualStressMeasureButton.gridy = 0;
-			measureOperationPanel.add(slopeErrorMeasureButton, gbc_ResidualStressMeasureButton);
+			GridBagConstraints gbc_slopeErrorMeasureButton = new GridBagConstraints();
+			gbc_slopeErrorMeasureButton.fill = GridBagConstraints.BOTH;
+			gbc_slopeErrorMeasureButton.insets = new Insets(10, 5, 5, 5);
+			gbc_slopeErrorMeasureButton.gridx = 0;
+			gbc_slopeErrorMeasureButton.gridy = 0;
+			measureOperationPanel.add(slopeErrorMeasureButton, gbc_slopeErrorMeasureButton);
+			
+			if (doTest)
+			{
+				JButton testButton = new JButton("TEST");
+				testButton.addActionListener(this);
+				testButton.setActionCommand("TEST");
+				testButton.setFont(new Font("Tahoma", Font.PLAIN, 14));
+				GridBagConstraints gbc_testMeasureButton = new GridBagConstraints();
+				gbc_testMeasureButton.fill = GridBagConstraints.BOTH;
+				gbc_testMeasureButton.insets = new Insets(10, 5, 5, 5);
+				gbc_testMeasureButton.gridx = 0;
+				gbc_testMeasureButton.gridy = 1;
+				measureOperationPanel.add(testButton, gbc_testMeasureButton);
+			}
 
 			JTabbedPane supportOperationsTabbedPane = new JTabbedPane(JTabbedPane.TOP);
 			GridBagConstraints gbc_supportOperationsTabbedPane = new GridBagConstraints();
@@ -220,7 +240,7 @@ public class Main extends AbstractCommunicationPortFrame implements ActionListen
 			gbl_supportOperationsPanel.columnWidths = new int[] { 0, 0 };
 			gbl_supportOperationsPanel.rowHeights = new int[] { 0, 0 };
 			gbl_supportOperationsPanel.columnWeights = new double[] { 1.0, Double.MIN_VALUE };
-			gbl_supportOperationsPanel.rowWeights = new double[] { 1.0,  Double.MIN_VALUE };
+			gbl_supportOperationsPanel.rowWeights = new double[] { 1.0, Double.MIN_VALUE };
 			supportOperationsPanel.setLayout(gbl_supportOperationsPanel);
 
 			JButton recoveryCrashButton = new JButton("RECOVERY CRASH OF THE CONTROLLER");
@@ -337,12 +357,31 @@ public class Main extends AbstractCommunicationPortFrame implements ActionListen
 				LTPSlopeErrorMeasurementWindow.getInstance(this.getPort()).setVisible(true);
 			else if (eventName.equals(ActionCommands.CONTROLLER_CRASH_RECOVERY))
 				LTPControllerCrashRecoveryWindow.getInstance(this.getPort()).setVisible(true);
+			else if (eventName.equals("TEST"))
+				this.test();
 		}
 		catch (Exception e)
 		{
+			e.printStackTrace();
+
 			GuiUtilities.showErrorPopup("Exception captured: " + e.getClass().getName() + " - " + e.getMessage(), (JPanel) this.getContentPane().getComponent(0));
 		}
 
+	}
+
+	private void test() throws CommunicationPortException
+	{
+		ListenerRegister.getInstance().addListener(1, GuiUtilities.getNullListener());
+		ListenerRegister.getInstance().addListener(2, GuiUtilities.getNullListener());
+		ListenerRegister.getInstance().addListener(4, GuiUtilities.getNullListener());
+
+		ThreeMotorsMoveParameters moveParameters = new ThreeMotorsMoveParameters(1, 2, 4, ListenerRegister.getInstance());
+
+		moveParameters.setKindOfMovement(new RelativeMovement());
+		moveParameters.setPosition(2.0);
+		moveParameters.setSign(DriverUtilities.parseSign("+"));
+
+		ProgramsFacade.executeProgram(LPTThreeMotorsMOVEProgram.THREEMMOVE, moveParameters, this.getPort());
 	}
 
 	private class MainWindowAdapter extends WindowAdapter
@@ -398,6 +437,9 @@ public class Main extends AbstractCommunicationPortFrame implements ActionListen
 			ProgramsFacade.addCustomCommand(new LPTScanProgram());
 			ProgramsFacade.addCustomCommand(new LPTMOVEProgram());
 			ProgramsFacade.addCustomCommand(new LPTLiveCCDProgram());
+			ProgramsFacade.addCustomCommand(new LPTThreeMotorsMOVEProgram());
+			
+			CommandsFacade.addCustomCommand(new ThreeMotorsSTOPCommand());
 		}
 		catch (IDSCCDException exception)
 		{

@@ -178,7 +178,7 @@ public final class LPTMovePanel extends MovePanel implements ActionListener
 			if (precisionCheckBox.isSelected())
 				moveParameters.addCustomParameter("PRECISION", Double.parseDouble(this.precision.getText()));
 
-			new LPTStartMoveProgram(moveParameters, this.port).start();
+			new LPTStartMoveProgram(moveParameters, this.port, this).start();
 		}
 		catch (NumberFormatException exception)
 		{
@@ -211,12 +211,14 @@ public final class LPTMovePanel extends MovePanel implements ActionListener
 	{
 		private ProgramParameters		moveParameters;
 		private ICommunicationPort	port;
+		private LPTMovePanel        panel;
 
-		public LPTStartMoveProgram(ProgramParameters moveParameters, ICommunicationPort port)
+		public LPTStartMoveProgram(ProgramParameters moveParameters, ICommunicationPort port, LPTMovePanel panel)
 		{
 			super();
 			this.moveParameters = moveParameters;
 			this.port = port;
+			this.panel = panel;
 
 			this.setPriority(MAX_PRIORITY);
 		}
@@ -227,9 +229,9 @@ public final class LPTMovePanel extends MovePanel implements ActionListener
 			{
 				ProgramsFacade.executeProgram(LPTMOVEProgram.PROGRAM_NAME, this.moveParameters, this.port);
 			}
-			catch (CommunicationPortException exception)
+			catch (Exception exception)
 			{
-				exception.printStackTrace();
+				GuiUtilities.showErrorPopup(exception.getMessage(), this.panel);
 			}
 			finally
 			{

@@ -273,6 +273,13 @@ public class MovePanel extends MovementListener implements ActionListener
 		stopButton = new JButton(ActionCommands.STOP);
 		stopButton.setActionCommand(ActionCommands.STOP);
 		stopButton.addActionListener(this);
+		stopButton.setForeground(new Color(204, 0, 0));
+		GridBagConstraints gbc_stopButton = new GridBagConstraints();
+		gbc_stopButton.gridwidth = 2;
+		gbc_stopButton.anchor = GridBagConstraints.NORTHWEST;
+		gbc_stopButton.gridx = 2;
+		gbc_stopButton.gridy = 3;
+		panelUp.add(stopButton, gbc_stopButton);
 
 		stepMinusButton = new JButton("S-");
 		stepMinusButton.setActionCommand(ActionCommands.STEPMINUS);
@@ -296,13 +303,6 @@ public class MovePanel extends MovementListener implements ActionListener
 		gbc_refButton.gridy = 3;
 		panelUp.add(refButton, gbc_refButton);
 		refButton.setEnabled(axisConfiguration.isRefEnabled());
-		stopButton.setForeground(new Color(204, 0, 0));
-		GridBagConstraints gbc_stopButton = new GridBagConstraints();
-		gbc_stopButton.gridwidth = 2;
-		gbc_stopButton.anchor = GridBagConstraints.NORTHWEST;
-		gbc_stopButton.gridx = 2;
-		gbc_stopButton.gridy = 3;
-		panelUp.add(stopButton, gbc_stopButton);
 
 		tabbedPaneDown = new JTabbedPane(JTabbedPane.TOP);
 		GridBagConstraints gbc_tabbedPaneDown = new GridBagConstraints();

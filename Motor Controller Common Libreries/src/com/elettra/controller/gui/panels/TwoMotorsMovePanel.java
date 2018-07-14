@@ -570,7 +570,7 @@ public final class TwoMotorsMovePanel extends MovementListener implements Action
 		{
 			try
 			{
-				ProgramsFacade.executeProgram(ProgramsFacade.Programs.TMMOVE, this.moveParameters, this.port);
+				ProgramsFacade.executeProgram(ProgramsFacade.Programs.TWOMMOVE, this.moveParameters, this.port);
 			}
 			catch (Exception exception)
 			{

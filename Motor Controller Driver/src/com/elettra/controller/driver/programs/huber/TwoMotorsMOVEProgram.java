@@ -20,7 +20,7 @@ public class TwoMotorsMOVEProgram extends AbstractProgram
 
 	public TwoMotorsMOVEProgram()
 	{
-		super(Programs.TMMOVE);
+		super(Programs.TWOMMOVE);
 	}
 
 	public ProgramResult execute(ProgramParameters parameters, ICommunicationPort port) throws CommunicationPortException

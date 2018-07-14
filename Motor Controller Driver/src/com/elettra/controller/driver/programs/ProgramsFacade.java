@@ -4,34 +4,38 @@ import com.elettra.common.io.CommunicationPortException;
 import com.elettra.common.io.ICommunicationPort;
 import com.elettra.controller.driver.common.DriverUtilities;
 import com.elettra.controller.driver.common.KindOfController;
+import com.elettra.controller.driver.programs.huber.TwoMotorsMOVEProgram;
 
 public final class ProgramsFacade
 {
-	private static AbstractProgram  huberProgramChainOfReponsibility;
-	private static AbstractProgram  galilProgramChainOfReponsibility;
+	private static AbstractProgram	huberProgramChainOfReponsibility;
+	private static AbstractProgram	galilProgramChainOfReponsibility;
 
-	private static AbstractProgram  lastOfHuberProgramChainOfReponsibility;
-	private static AbstractProgram  lastOfGalilProgramChainOfReponsibility;
+	private static AbstractProgram	lastOfHuberProgramChainOfReponsibility;
+	private static AbstractProgram	lastOfGalilProgramChainOfReponsibility;
 
-	private static KindOfController kindOfController = DriverUtilities.getKindOfController();
+	private static KindOfController	kindOfController	= DriverUtilities.getKindOfController();
 
 	public final class Programs
 	{
-		public static final String COUNT      = "COUNT";
-		public static final String MOVE       = "MOVE";
-		public static final String DOUBLEMOVE = "DOUBLEMOVE";
-		public static final String SCAN       = "SCAN";
-		public static final String STABILITY  = "STABILITY";
-		public static final String TMMOVE       = "TMMOVE";
+		public static final String	COUNT		   = "COUNT";
+		public static final String	MOVE		   = "MOVE";
+		public static final String	DOUBLEMOVE	= "DOUBLEMOVE";
+		public static final String	SCAN		   = "SCAN";
+		public static final String	STABILITY		= "STABILITY";
+		public static final String	TWOMMOVE		= "TWOMMOVE";
 	}
 
 	static
 	{
 		huberProgramChainOfReponsibility = new com.elettra.controller.driver.programs.huber.MOVEProgram();
-		lastOfHuberProgramChainOfReponsibility = huberProgramChainOfReponsibility.setNext(new com.elettra.controller.driver.programs.huber.COUNTProgram()).setNext(new SCANProgram()).setNext(new com.elettra.controller.driver.programs.huber.DOUBLEMOVEProgram()).setNext(new STABILITYProgram()).setNext(new com.elettra.controller.driver.programs.huber.TwoMotorsMOVEProgram());
+		lastOfHuberProgramChainOfReponsibility = huberProgramChainOfReponsibility.setNext(new com.elettra.controller.driver.programs.huber.COUNTProgram())
+		    .setNext(new SCANProgram()).setNext(new com.elettra.controller.driver.programs.huber.DOUBLEMOVEProgram()).setNext(new STABILITYProgram())
+		    .setNext(new TwoMotorsMOVEProgram());
 
 		galilProgramChainOfReponsibility = new com.elettra.controller.driver.programs.galil.MOVEProgram();
-		lastOfGalilProgramChainOfReponsibility = galilProgramChainOfReponsibility.setNext(new com.elettra.controller.driver.programs.galil.COUNTProgram()).setNext(new SCANProgram()).setNext(new com.elettra.controller.driver.programs.galil.DOUBLEMOVEProgram()).setNext(new STABILITYProgram());
+		lastOfGalilProgramChainOfReponsibility = galilProgramChainOfReponsibility.setNext(new com.elettra.controller.driver.programs.galil.COUNTProgram())
+		    .setNext(new SCANProgram()).setNext(new com.elettra.controller.driver.programs.galil.DOUBLEMOVEProgram()).setNext(new STABILITYProgram());
 	}
 
 	public static synchronized void addCustomCommand(AbstractProgram program)
@@ -58,7 +62,8 @@ public final class ProgramsFacade
 		return program;
 	}
 
-	public static final synchronized ProgramResult executeProgram(String programName, ProgramParameters programParameters, ICommunicationPort port) throws CommunicationPortException
+	public static final synchronized ProgramResult executeProgram(String programName, ProgramParameters programParameters, ICommunicationPort port)
+	    throws CommunicationPortException
 	{
 		return ProgramsFacade.getProgram(programName).execute(programParameters, port);
 	}

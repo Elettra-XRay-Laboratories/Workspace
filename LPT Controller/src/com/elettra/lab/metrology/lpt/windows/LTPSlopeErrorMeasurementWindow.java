@@ -22,6 +22,7 @@ import com.elettra.controller.gui.windows.AbstractGenericFrame;
 import com.elettra.lab.metrology.lpt.Axis;
 import com.elettra.lab.metrology.lpt.panels.LPTMovePanel;
 import com.elettra.lab.metrology.lpt.panels.LPTScanPanel;
+import com.elettra.lab.metrology.lpt.panels.LPTThreeMotorsMovePanel;
 
 public class LTPSlopeErrorMeasurementWindow extends AbstractGenericFrame
 {
@@ -43,10 +44,10 @@ public class LTPSlopeErrorMeasurementWindow extends AbstractGenericFrame
 
 		this.setIconImage(ImageIO.read(new File("ltpcontroller.jpg")));
 
-		this.setBounds(5, 5, 1390, 900);
+		this.setBounds(5, 5, 1690, 900);
 
 		GridBagLayout gridBagLayout = new GridBagLayout();
-		gridBagLayout.columnWidths = new int[] { 300, 1050 };
+		gridBagLayout.columnWidths = new int[] { 600, 1050 };
 		gridBagLayout.rowHeights = new int[] { 0 };
 		gridBagLayout.columnWeights = new double[] { 0.0, 0.0 };
 		gridBagLayout.rowWeights = new double[] { 1.0 };
@@ -62,9 +63,9 @@ public class LTPSlopeErrorMeasurementWindow extends AbstractGenericFrame
 		gbc_leftPanel.gridy = 0;
 		getContentPane().add(leftPanel, gbc_leftPanel);
 		GridBagLayout gbl_leftPanel = new GridBagLayout();
-		gbl_leftPanel.columnWidths = new int[] { 280 };
+		gbl_leftPanel.columnWidths = new int[] { 280, 280 };
 		gbl_leftPanel.rowHeights = new int[] { 450, 450 };
-		gbl_leftPanel.columnWeights = new double[] { 0.0 };
+		gbl_leftPanel.columnWeights = new double[] { 0.0, 0.0 };
 		gbl_leftPanel.rowWeights = new double[] { 1.0, 1.0 };
 		leftPanel.setLayout(gbl_leftPanel);
 
@@ -76,7 +77,17 @@ public class LTPSlopeErrorMeasurementWindow extends AbstractGenericFrame
 		gbc_movePanel6.gridx = 0;
 		gbc_movePanel6.gridy = 0;
 		leftPanel.add(movePanel6, gbc_movePanel6);
-		movePanel6.add(new LPTMovePanel(Axis.MOTOR5, this.getPort()));
+		movePanel6.add(new LPTThreeMotorsMovePanel(Axis.MOTOR1, Axis.MOTOR2, Axis.MOTOR4, this.getPort()));
+
+		JPanel movePanel7 = new JPanel();
+		movePanel7.setBorder(new BevelBorder(BevelBorder.LOWERED, null, null, null, null));
+		GridBagConstraints gbc_movePanel7 = new GridBagConstraints();
+		gbc_movePanel7.insets = new Insets(10, 0, 5, 5);
+		gbc_movePanel7.fill = GridBagConstraints.BOTH;
+		gbc_movePanel7.gridx = 1;
+		gbc_movePanel7.gridy = 0;
+		leftPanel.add(movePanel7, gbc_movePanel7);
+		movePanel7.add(new LPTMovePanel(Axis.MOTOR5, this.getPort()));
 
 		// --------------
 
@@ -84,7 +95,7 @@ public class LTPSlopeErrorMeasurementWindow extends AbstractGenericFrame
 		GridBagConstraints gbc_buttonPanel = new GridBagConstraints();
 		gbc_buttonPanel.insets = new Insets(0, 0, 0, 0);
 		gbc_buttonPanel.fill = GridBagConstraints.BOTH;
-		gbc_buttonPanel.gridx = 0;
+		gbc_buttonPanel.gridx = 1;
 		gbc_buttonPanel.gridy = 1;
 		leftPanel.add(buttonPanel, gbc_buttonPanel);
 
