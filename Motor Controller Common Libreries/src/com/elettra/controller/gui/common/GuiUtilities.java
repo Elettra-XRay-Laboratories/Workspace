@@ -83,6 +83,22 @@ public final class GuiUtilities
 		}
 	}
 
+	class PythonFileFilter extends FileFilter
+	{
+		public boolean accept(File file)
+		{
+			if (file.isDirectory())
+				return true;
+			String fname = file.getName().toLowerCase();
+			return fname.endsWith("py");
+		}
+
+		public String getDescription()
+		{
+			return "Python Files";
+		}
+	}
+
 	public static IDriverListener getNullListener()
 	{
 		return new NullListener();
@@ -123,7 +139,17 @@ public final class GuiUtilities
 		return showFileChooser(workingDirectory, panel, new GuiUtilities().new TxtFileFilter(), proposedFileName);
 	}
 
-	private static String showFileChooser(String workingDirectory, JPanel panel, FileFilter filter, String proposedFileName)
+	public static String showPythonFileChooser(JPanel panel, String proposedFileName)
+	{
+		return showTxtFileChooser(System.getProperty("user.dir"), panel, proposedFileName);
+	}
+
+	public static String showPythonFileChooser(String workingDirectory, JPanel panel, String proposedFileName)
+	{
+		return showFileChooser(workingDirectory, panel, new GuiUtilities().new PythonFileFilter(), proposedFileName);
+	}
+
+	public static String showFileChooser(String workingDirectory, JPanel panel, FileFilter filter, String proposedFileName)
 	{
 		JFileChooser fileChooser = new JFileChooser(workingDirectory);
 		fileChooser.setFileFilter(filter);

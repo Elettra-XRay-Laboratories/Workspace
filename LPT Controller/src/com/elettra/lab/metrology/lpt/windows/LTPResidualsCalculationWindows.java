@@ -1,14 +1,18 @@
 package com.elettra.lab.metrology.lpt.windows;
 
+import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.FlowLayout;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.HeadlessException;
 import java.awt.Insets;
+import java.awt.Paint;
 import java.awt.RenderingHints;
 import java.awt.event.ActionEvent;
+import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.util.HashMap;
 
@@ -40,6 +44,7 @@ public class LTPResidualsCalculationWindows extends AbstractGenericFrame
 {
 	public static class KindOfCurve
 	{
+		public static final int	CALIBRATION		= -1;
 		public static final int	SPHERE		    = 0;
 		public static final int	ELLIPSE		    = 1;
 		public static final int	ELLIPSE_FIXED	= 2;
@@ -48,7 +53,7 @@ public class LTPResidualsCalculationWindows extends AbstractGenericFrame
 	static class ActionCommands
 	{
 		private static final String	EXIT		  = "EXIT";
-		private static final String	CALCULATE	= "CALCULATE";
+		private static final String	SAVE_DATA	= "SAVE_DATA";
 	}
 
 	private static final long	 serialVersionUID	= -513690344812082943L;
@@ -57,6 +62,10 @@ public class LTPResidualsCalculationWindows extends AbstractGenericFrame
 	private JTextField	       figureErrorRms;
 	private JTextField	       radiusOfCurvature;
 	private JTextField	       tiltValue;
+	private JTextField	       a;
+	private JTextField	       b;
+	private JTextField	       slopeErrorRms_b;
+	private JTextField	       figureErrorRms_b;
 
 	private int	               kindOfCurve;
 	private Object	           parameters;
@@ -134,10 +143,10 @@ public class LTPResidualsCalculationWindows extends AbstractGenericFrame
 		gbc_slopeInnerPanel.gridy = 0;
 		slopeGraphPanel.add(slopeInnerPanel, gbc_slopeInnerPanel);
 
-		XYSeries series_slope = new XYSeries("Slope Error RMS");
-
 		xyDataset_slope = new XYSeriesCollection();
-		xyDataset_slope.addSeries(series_slope);
+		xyDataset_slope.addSeries(new XYSeries("Slope Error RMS"));
+		if (this.kindOfCurve == KindOfCurve.CALIBRATION)
+			xyDataset_slope.addSeries(new XYSeries("Slope Error RMS Bessy"));
 
 		JFreeChart slopeGraphs = ChartFactory.createXYLineChart(null, "Position (mm)", "Slope Error RMS  (\u03bcrad)", xyDataset_slope, PlotOrientation.VERTICAL,
 		    false, true, false);
@@ -155,6 +164,12 @@ public class LTPResidualsCalculationWindows extends AbstractGenericFrame
 		XYLineAndShapeRenderer xylineandshaperenderer_slope = (XYLineAndShapeRenderer) plot_slope.getRenderer();
 		xylineandshaperenderer_slope.setBaseShapesVisible(false);
 		xylineandshaperenderer_slope.setSeriesPaint(0, Color.RED);
+		xylineandshaperenderer_slope.setSeriesStroke(0, new BasicStroke(1.5f));
+		if (this.kindOfCurve == KindOfCurve.CALIBRATION)
+		{
+			xylineandshaperenderer_slope.setSeriesPaint(1, Color.WHITE);
+			xylineandshaperenderer_slope.setSeriesStroke(1, new BasicStroke(3.0f));
+		}
 
 		slopeGraphs.getRenderingHints().put(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 
@@ -211,6 +226,8 @@ public class LTPResidualsCalculationWindows extends AbstractGenericFrame
 
 		xyDataset_figure = new XYSeriesCollection();
 		xyDataset_figure.addSeries(series_figure);
+		if (this.kindOfCurve == KindOfCurve.CALIBRATION)
+			xyDataset_figure.addSeries(new XYSeries("Figure Error RMS Bessy"));
 
 		JFreeChart figureGraphs = ChartFactory.createXYLineChart(null, "Mirror Scan (mm)", "Figure Error RMS  (nm)", xyDataset_figure, PlotOrientation.VERTICAL,
 		    false, true, false);
@@ -228,6 +245,12 @@ public class LTPResidualsCalculationWindows extends AbstractGenericFrame
 		XYLineAndShapeRenderer xylineandshaperenderer_figure = (XYLineAndShapeRenderer) plot_figure.getRenderer();
 		xylineandshaperenderer_figure.setBaseShapesVisible(false);
 		xylineandshaperenderer_figure.setSeriesPaint(0, Color.CYAN);
+		xylineandshaperenderer_figure.setSeriesStroke(0, new BasicStroke(1.5f));
+		if (this.kindOfCurve == KindOfCurve.CALIBRATION)
+		{
+			xylineandshaperenderer_figure.setSeriesStroke(1, new BasicStroke(3.0f));
+			xylineandshaperenderer_figure.setSeriesPaint(1, Color.WHITE);
+		}
 
 		figureGraphs.getRenderingHints().put(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 
@@ -246,11 +269,18 @@ public class LTPResidualsCalculationWindows extends AbstractGenericFrame
 		gbc_bottomPanel.gridwidth = 2;
 		getContentPane().add(bottomPanel, gbc_bottomPanel);
 
+		GridBagLayout gbl_bottomPanel = new GridBagLayout();
+		gbl_bottomPanel.columnWidths = new int[] { 1200, 300 };
+		gbl_bottomPanel.rowHeights = new int[] { 50, 50 };
+		gbl_bottomPanel.columnWeights = new double[] { 0.0 };
+		gbl_bottomPanel.rowWeights = new double[] { 0.0, 0.0 };
+		bottomPanel.setLayout(gbl_bottomPanel);
+
 		JPanel panelOut = new JPanel();
 		GridBagLayout gbl_panelOut = new GridBagLayout();
-		gbl_panelOut.columnWidths = new int[] { 140, 150, 140, 150, 620 };
+		gbl_panelOut.columnWidths = new int[] { 140, 150, 140, 150, 140, 150, 330 };
 		gbl_panelOut.rowHeights = new int[] { 0, 0 };
-		gbl_panelOut.columnWeights = new double[] { 0.0, 0.0, 0.0, 0.0, 0.0 };
+		gbl_panelOut.columnWeights = new double[] { 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 };
 		gbl_panelOut.rowWeights = new double[] { 0.0, 0.0 };
 		panelOut.setLayout(gbl_panelOut);
 		GridBagConstraints gbc_panelOut = new GridBagConstraints();
@@ -299,27 +329,24 @@ public class LTPResidualsCalculationWindows extends AbstractGenericFrame
 		gbc_figureErrorRms.gridy = 1;
 		panelOut.add(figureErrorRms, gbc_figureErrorRms);
 
-		if (this.kindOfCurve == KindOfCurve.SPHERE)
-		{
-			JLabel label3 = new JLabel("Radius of Curvature (mm)");
-			GridBagConstraints gbc_label3 = new GridBagConstraints();
-			gbc_label3.fill = GridBagConstraints.BOTH;
-			gbc_label3.anchor = GridBagConstraints.EAST;
-			gbc_label3.insets = new Insets(10, 5, 0, 5);
-			gbc_label3.gridx = 2;
-			gbc_label3.gridy = 0;
-			panelOut.add(label3, gbc_label3);
+		JLabel label3 = new JLabel("Radius of Curvature (mm)");
+		GridBagConstraints gbc_label3 = new GridBagConstraints();
+		gbc_label3.fill = GridBagConstraints.BOTH;
+		gbc_label3.anchor = GridBagConstraints.EAST;
+		gbc_label3.insets = new Insets(10, 5, 0, 5);
+		gbc_label3.gridx = 2;
+		gbc_label3.gridy = 0;
+		panelOut.add(label3, gbc_label3);
 
-			radiusOfCurvature = new JTextField(10);
-			radiusOfCurvature.setEditable(false);
-			GridBagConstraints gbc_radiusOfCurvature = new GridBagConstraints();
-			gbc_radiusOfCurvature.fill = GridBagConstraints.BOTH;
-			gbc_radiusOfCurvature.anchor = GridBagConstraints.WEST;
-			gbc_radiusOfCurvature.insets = new Insets(5, 5, 5, 5);
-			gbc_radiusOfCurvature.gridx = 3;
-			gbc_radiusOfCurvature.gridy = 0;
-			panelOut.add(radiusOfCurvature, gbc_radiusOfCurvature);
-		}
+		radiusOfCurvature = new JTextField(10);
+		radiusOfCurvature.setEditable(false);
+		GridBagConstraints gbc_radiusOfCurvature = new GridBagConstraints();
+		gbc_radiusOfCurvature.fill = GridBagConstraints.BOTH;
+		gbc_radiusOfCurvature.anchor = GridBagConstraints.WEST;
+		gbc_radiusOfCurvature.insets = new Insets(5, 5, 5, 5);
+		gbc_radiusOfCurvature.gridx = 3;
+		gbc_radiusOfCurvature.gridy = 0;
+		panelOut.add(radiusOfCurvature, gbc_radiusOfCurvature);
 
 		JLabel label4 = new JLabel("Tilt (\u03bcrad)");
 		GridBagConstraints gbc_label4 = new GridBagConstraints();
@@ -340,15 +367,91 @@ public class LTPResidualsCalculationWindows extends AbstractGenericFrame
 		gbc_tiltValue.gridy = 1;
 		panelOut.add(tiltValue, gbc_tiltValue);
 
-		GridBagLayout gbl_bottomPanel = new GridBagLayout();
-		gbl_bottomPanel.columnWidths = new int[] { 1200, 300 };
-		gbl_bottomPanel.rowHeights = new int[] { 50, 50 };
-		gbl_bottomPanel.columnWeights = new double[] { 0.0 };
-		gbl_bottomPanel.rowWeights = new double[] { 0.0, 0.0 };
-		bottomPanel.setLayout(gbl_bottomPanel);
+		if (this.kindOfCurve == KindOfCurve.ELLIPSE)
+		{
+			JLabel label5 = new JLabel("a (mm)");
+			GridBagConstraints gbc_label5 = new GridBagConstraints();
+			gbc_label5.fill = GridBagConstraints.BOTH;
+			gbc_label5.anchor = GridBagConstraints.EAST;
+			gbc_label5.insets = new Insets(10, 5, 0, 5);
+			gbc_label5.gridx = 4;
+			gbc_label5.gridy = 0;
+			panelOut.add(label5, gbc_label5);
 
-		JButton calculateButton = new JButton("Calculate");
-		calculateButton.setActionCommand(ActionCommands.CALCULATE);
+			a = new JTextField(10);
+			a.setEditable(false);
+			GridBagConstraints gbc_a = new GridBagConstraints();
+			gbc_a.fill = GridBagConstraints.BOTH;
+			gbc_a.anchor = GridBagConstraints.WEST;
+			gbc_a.insets = new Insets(5, 5, 5, 5);
+			gbc_a.gridx = 5;
+			gbc_a.gridy = 0;
+			panelOut.add(a, gbc_a);
+
+			JLabel label6 = new JLabel("b (mm)");
+			GridBagConstraints gbc_label6 = new GridBagConstraints();
+			gbc_label6.fill = GridBagConstraints.BOTH;
+			gbc_label6.anchor = GridBagConstraints.EAST;
+			gbc_label6.insets = new Insets(10, 5, 0, 5);
+			gbc_label6.gridx = 4;
+			gbc_label6.gridy = 1;
+			panelOut.add(label6, gbc_label6);
+
+			b = new JTextField(10);
+			b.setEditable(false);
+			GridBagConstraints gbc_b = new GridBagConstraints();
+			gbc_b.fill = GridBagConstraints.BOTH;
+			gbc_b.anchor = GridBagConstraints.WEST;
+			gbc_b.insets = new Insets(5, 5, 5, 5);
+			gbc_b.gridx = 5;
+			gbc_b.gridy = 1;
+			panelOut.add(b, gbc_b);
+		}
+		else if (this.kindOfCurve == KindOfCurve.CALIBRATION)
+		{
+			JLabel label5 = new JLabel("Slope Error Rms B (\u03bcrad)");
+			GridBagConstraints gbc_label5 = new GridBagConstraints();
+			gbc_label5.fill = GridBagConstraints.BOTH;
+			gbc_label5.anchor = GridBagConstraints.EAST;
+			gbc_label5.insets = new Insets(10, 5, 0, 5);
+			gbc_label5.gridx = 4;
+			gbc_label5.gridy = 0;
+			panelOut.add(label5, gbc_label5);
+
+			slopeErrorRms_b = new JTextField(10);
+			slopeErrorRms_b.setEditable(false);
+			GridBagConstraints gbc_slopeErrorRms_b = new GridBagConstraints();
+			gbc_slopeErrorRms_b.fill = GridBagConstraints.BOTH;
+			gbc_slopeErrorRms_b.anchor = GridBagConstraints.WEST;
+			gbc_slopeErrorRms_b.insets = new Insets(5, 5, 5, 5);
+			gbc_slopeErrorRms_b.gridx = 5;
+			gbc_slopeErrorRms_b.gridy = 0;
+			panelOut.add(slopeErrorRms_b, gbc_slopeErrorRms_b);
+
+			JLabel label6 = new JLabel("Figure Error Rms B (nm)");
+			GridBagConstraints gbc_label6 = new GridBagConstraints();
+			gbc_label6.fill = GridBagConstraints.BOTH;
+			gbc_label6.anchor = GridBagConstraints.EAST;
+			gbc_label6.insets = new Insets(10, 5, 0, 5);
+			gbc_label6.gridx = 4;
+			gbc_label6.gridy = 1;
+			panelOut.add(label6, gbc_label6);
+
+			figureErrorRms_b = new JTextField(10);
+			figureErrorRms_b.setEditable(false);
+			GridBagConstraints gbc_figureErrorRms_b = new GridBagConstraints();
+			gbc_figureErrorRms_b.fill = GridBagConstraints.BOTH;
+			gbc_figureErrorRms_b.anchor = GridBagConstraints.WEST;
+			gbc_figureErrorRms_b.insets = new Insets(5, 5, 5, 5);
+			gbc_figureErrorRms_b.gridx = 5;
+			gbc_figureErrorRms_b.gridy = 1;
+			panelOut.add(figureErrorRms_b, gbc_figureErrorRms_b);
+		}
+
+		// --------------------
+
+		JButton calculateButton = new JButton("Save Data");
+		calculateButton.setActionCommand(ActionCommands.SAVE_DATA);
 		calculateButton.addActionListener(this);
 		GridBagConstraints gbc_calculateButton = new GridBagConstraints();
 		gbc_calculateButton.fill = GridBagConstraints.BOTH;
@@ -357,7 +460,7 @@ public class LTPResidualsCalculationWindows extends AbstractGenericFrame
 		gbc_calculateButton.gridy = 0;
 		bottomPanel.add(calculateButton, gbc_calculateButton);
 
-		JButton exitButton = new JButton("EXIT");
+		JButton exitButton = new JButton("Close");
 		exitButton.setActionCommand(ActionCommands.EXIT);
 		exitButton.addActionListener(this);
 		GridBagConstraints gbc_exitButton = new GridBagConstraints();
@@ -370,9 +473,11 @@ public class LTPResidualsCalculationWindows extends AbstractGenericFrame
 		// --------------------------------------------------------------------
 
 		if (this.kindOfCurve == KindOfCurve.SPHERE)
-		{
 			this.calculateSphere();
-		}
+		else if (this.kindOfCurve == KindOfCurve.ELLIPSE)
+			this.populateEllipse();
+		else if (this.kindOfCurve == KindOfCurve.CALIBRATION)
+			this.populateCalibration();
 
 		// --------------------------------------------------------------------
 	}
@@ -381,12 +486,9 @@ public class LTPResidualsCalculationWindows extends AbstractGenericFrame
 	{
 		try
 		{
-			if (event.getActionCommand().equals(ActionCommands.CALCULATE))
+			if (event.getActionCommand().equals(ActionCommands.SAVE_DATA))
 			{
-				if (this.kindOfCurve == KindOfCurve.SPHERE)
-				{
-					this.calculateSphere();
-				}
+				this.saveData();
 			}
 		}
 		catch (Exception e)
@@ -400,6 +502,8 @@ public class LTPResidualsCalculationWindows extends AbstractGenericFrame
 	{
 		this.xyDataset_figure.getSeries(0).clear();
 		this.xyDataset_slope.getSeries(0).clear();
+		if (this.kindOfCurve == KindOfCurve.CALIBRATION)
+			this.xyDataset_slope.getSeries(1).clear();
 
 		this.plot_figure.getRangeAxis(0).setLowerBound(0);
 		this.plot_figure.getRangeAxis(0).setUpperBound(10);
@@ -412,30 +516,157 @@ public class LTPResidualsCalculationWindows extends AbstractGenericFrame
 		this.plot_slope.getDomainAxis(0).setUpperBound(10);
 	}
 
-	private static void plotData(double[] x, double[] y, XYSeries series, XYPlot plot)
+	private static void plotData(double[] x, double[] y, XYSeries series, XYPlot plot, double minX, double maxX, double minY, double maxY)
 	{
-		double maxValue = y[0];
-		double minValue = y[0];
-		
 		for (int index = 0; index < x.length; index++)
 		{
-			maxValue = (y[index] > maxValue) ? y[index] : maxValue;
-			minValue = (y[index] < minValue) ? y[index] : minValue;
+			maxY = (y[index] > maxY) ? y[index] : maxY;
+			minY = (y[index] < minY) ? y[index] : minY;
 
 			series.add(x[index], y[index]);
 		}
 
-		plot.getRangeAxis(0).setLowerBound(minValue * 1.1);
-		plot.getRangeAxis(0).setUpperBound(maxValue * 1.1);
-		plot.getDomainAxis(0).setLowerBound(x[0]);
-		plot.getDomainAxis(0).setUpperBound(x[x.length-1]);
+		minX = x[0] < minX ? x[0] : minX;
+		maxX = x[x.length - 1] > maxX ? x[x.length - 1] : maxX;
+		double delta = x[0] - x[1];
+
+		plot.getRangeAxis(0).setLowerBound(minY * 1.1);
+		plot.getRangeAxis(0).setUpperBound(maxY * 1.1);
+		plot.getDomainAxis(0).setLowerBound(minX - delta);
+		plot.getDomainAxis(0).setUpperBound(maxX - delta);
 	}
-	
+
+	private void saveData() throws IOException
+	{
+		String fileOut = GuiUtilities.showDatFileChooser(null, "RMS_Calculation_output.dat");
+
+		if (!fileOut.isEmpty())
+		{
+			boolean proceed = true;
+
+			File file = new File(fileOut);
+			if (file.exists())
+				proceed = GuiUtilities.showConfirmPopup("Confirm Overwriting File?", null);
+
+			if (proceed)
+			{
+				BufferedWriter writer = new BufferedWriter(new FileWriter(fileOut));
+
+				try
+				{
+					XYSeries series_slope = this.xyDataset_slope.getSeries(0);
+					XYSeries series_figure = this.xyDataset_figure.getSeries(0);
+
+					writer.write("Slope  Error RMS   (urad): " + this.slopeErrorRms.getText());
+					writer.newLine();
+					writer.write("Figure Error RMS     (nm): " + this.figureErrorRms.getText());
+					writer.newLine();
+					writer.write("Radius of Curvature  (mm): " + this.radiusOfCurvature.getText());
+					writer.newLine();
+					writer.write("Tilt               (urad): " + this.tiltValue.getText());
+					writer.newLine();
+
+					if (this.kindOfCurve == KindOfCurve.ELLIPSE)
+					{
+						writer.write("a                    (mm): " + this.a.getText());
+						writer.newLine();
+						writer.write("b                    (mm): " + this.b.getText());
+						writer.newLine();
+					}
+					else if (this.kindOfCurve == KindOfCurve.CALIBRATION)
+					{
+						writer.write("Slope  Error RMS B (urad): " + this.slopeErrorRms_b.getText());
+						writer.newLine();
+						writer.write("Figure Error RMS B   (nm): " + this.figureErrorRms_b.getText());
+						writer.newLine();
+					}
+
+					writer.newLine();
+					writer.write("Position  Slope Error  Figure Error");
+					writer.newLine();
+					writer.write("------------------------------------------------");
+					writer.newLine();
+
+					int nItems = series_slope.getItemCount();
+
+					for (int index = 0; index < nItems; index++)
+					{
+						writer.write(GuiUtilities.parseDouble(series_slope.getX(index).doubleValue()).trim() + " "
+						    + String.format("%9.4f", series_slope.getY(index).doubleValue()) + " " + String.format("%9.4f", series_figure.getY(index).doubleValue()));
+						writer.newLine();
+					}
+
+					writer.flush();
+				}
+				catch (IllegalArgumentException e)
+				{
+					throw new RuntimeException(e);
+				}
+				finally
+				{
+					writer.close();
+				}
+			}
+		}
+	}
+
+	@SuppressWarnings("unchecked")
+	private void populateCalibration()
+	{
+		HashMap<String, double[]> calibrationParameters = (HashMap<String, double[]>) this.parameters;
+
+		double[] headers = calibrationParameters.get("headers");
+		double[] headers_b = calibrationParameters.get("headers_b");
+
+		this.slopeErrorRms.setText(GuiUtilities.parseDouble(headers[0]));
+		this.figureErrorRms.setText(GuiUtilities.parseDouble(headers[1]));
+		this.tiltValue.setText(GuiUtilities.parseDouble(headers[2]));
+		this.radiusOfCurvature.setText(GuiUtilities.parseDouble(headers[3]));
+		this.slopeErrorRms_b.setText(GuiUtilities.parseDouble(headers_b[0]));
+		this.figureErrorRms_b.setText(GuiUtilities.parseDouble(headers_b[1]));
+
+		double[] x = calibrationParameters.get("x");
+		double[] slopeError = calibrationParameters.get("rms_s");
+		double[] h = calibrationParameters.get("rms_h");
+		double[] x_b = calibrationParameters.get("x_b");
+		double[] slopeError_b = calibrationParameters.get("rms_s_b");
+		double[] h_b = calibrationParameters.get("rms_h_b");
+
+		plotData(x, slopeError, this.xyDataset_slope.getSeries(0), this.plot_slope, x[0], x[x.length - 1], slopeError[0], slopeError[0]);
+		plotData(x, h, this.xyDataset_figure.getSeries(0), this.plot_figure, x[0], x[x.length - 1], h[0], h[0]);
+		plotData(x_b, slopeError_b, this.xyDataset_slope.getSeries(1), this.plot_slope, this.xyDataset_slope.getSeries(0).getMinX(), this.xyDataset_slope
+		    .getSeries(0).getMaxX(), this.xyDataset_slope.getSeries(0).getMinY(), this.xyDataset_slope.getSeries(0).getMaxY());
+		plotData(x_b, h_b, this.xyDataset_figure.getSeries(1), this.plot_figure, this.xyDataset_figure.getSeries(0).getMinX(), this.xyDataset_figure.getSeries(0)
+		    .getMaxX(), this.xyDataset_figure.getSeries(0).getMinY(), this.xyDataset_figure.getSeries(0).getMaxY());
+	}
+
+	@SuppressWarnings("unchecked")
+	private void populateEllipse()
+	{
+		HashMap<String, double[]> calibrationParameters = (HashMap<String, double[]>) this.parameters;
+
+		double[] headers = calibrationParameters.get("headers");
+
+		this.slopeErrorRms.setText(GuiUtilities.parseDouble(headers[0]));
+		this.figureErrorRms.setText(GuiUtilities.parseDouble(headers[1]));
+		this.tiltValue.setText(GuiUtilities.parseDouble(headers[2]));
+		this.radiusOfCurvature.setText(GuiUtilities.parseDouble(headers[3]));
+		this.a.setText(GuiUtilities.parseDouble(headers[4]));
+		this.b.setText(GuiUtilities.parseDouble(headers[5]));
+
+		double[] x = calibrationParameters.get("x");
+		double[] slopeError = calibrationParameters.get("rms_s");
+		double[] h = calibrationParameters.get("rms_h");
+
+		plotData(x, slopeError, this.xyDataset_slope.getSeries(0), this.plot_slope, x[0], x[x.length - 1], slopeError[0], slopeError[0]);
+		plotData(x, h, this.xyDataset_figure.getSeries(0), this.plot_figure, x[0], x[x.length - 1], h[0], h[0]);
+	}
+
 	@SuppressWarnings("unchecked")
 	private void calculateSphere() throws NumberFormatException, IOException
 	{
 		this.resetPanel();
-		
+
 		HashMap<String, double[]> sphereParameters = (HashMap<String, double[]>) this.parameters;
 
 		double[] x = sphereParameters.get("x");
@@ -456,9 +687,9 @@ public class LTPResidualsCalculationWindows extends AbstractGenericFrame
 			b = (xc[index] - x0) / 1000;
 			z[index] = 0.5 * Math.atan(b / focalDistance) - correction[index];
 		}
-		
+
 		SimpleRegression regression = new SimpleRegression();
-		
+
 		for (int index = 0; index < x.length; index++)
 			regression.addData(x[index], z[index]);
 
@@ -467,47 +698,47 @@ public class LTPResidualsCalculationWindows extends AbstractGenericFrame
 
 		double yfit = 0.0;
 		double[] slopeError = new double[x.length];
-		
+
 		for (int index = 0; index < x.length; index++)
 		{
-			yfit = fitIntercept + fitSlope*x[index];	
-			
-			slopeError[index] = (z[index] - yfit)*1000000; // to urad
-		}	
-		
-		this.slopeErrorRms.setText(GuiUtilities.parseDouble(Math.sqrt(squareSum(slopeError)/slopeError.length)));
-		this.radiusOfCurvature.setText(GuiUtilities.parseDouble(1/fitSlope));
-		this.tiltValue.setText(GuiUtilities.parseDouble((sum(z, z.length)/z.length)*1000000));
-		
-		double dx = (x[1] - x[0])*1e6; // to nm
+			yfit = fitIntercept + fitSlope * x[index];
+
+			slopeError[index] = (z[index] - yfit) * 1000000; // to urad
+		}
+
+		this.slopeErrorRms.setText(GuiUtilities.parseDouble(Math.sqrt(squareSum(slopeError) / slopeError.length)));
+		this.radiusOfCurvature.setText(GuiUtilities.parseDouble(1 / fitSlope));
+		this.tiltValue.setText(GuiUtilities.parseDouble((sum(z, z.length) / z.length) * 1000000));
+
+		double dx = (x[1] - x[0]) * 1e6; // to nm
 
 		for (int index = 0; index < x.length; index++)
-			h[index] = dx*(sum(slopeError, index)/1000000);
+			h[index] = dx * (sum(slopeError, index) / 1000000);
 
-		this.figureErrorRms.setText(GuiUtilities.parseDouble(Math.sqrt(squareSum(h)/h.length)));
-		
-		plotData(x, slopeError, this.xyDataset_slope.getSeries(0), plot_slope);
-		plotData(x, h, this.xyDataset_figure.getSeries(0), plot_figure);
+		this.figureErrorRms.setText(GuiUtilities.parseDouble(Math.sqrt(squareSum(h) / h.length)));
+
+		plotData(x, slopeError, this.xyDataset_slope.getSeries(0), plot_slope, x[0], x[x.length - 1], slopeError[0], slopeError[0]);
+		plotData(x, h, this.xyDataset_figure.getSeries(0), plot_figure, x[0], x[x.length - 1], h[0], h[0]);
 
 	}
-	
+
 	private double sum(double[] array, int max_index)
 	{
 		double sum = 0.0;
-				
-    for(int i = 0; i < max_index; i++)
-    	sum += array[i];
-			
+
+		for (int i = 0; i < max_index; i++)
+			sum += array[i];
+
 		return sum;
 	}
-	
+
 	private double squareSum(double[] array)
 	{
 		double sum = 0.0;
-				
-    for(int i = 0; i < array.length; i++)
-    	sum += Math.pow(array[i], 2);
-			
+
+		for (int i = 0; i < array.length; i++)
+			sum += Math.pow(array[i], 2);
+
 		return sum;
 	}
 }

@@ -2834,49 +2834,13 @@ public class ScanPanel extends MeasureListener implements ActionListener
 			
 			File file = new File(fileName);
 			if (file.exists())
-			{
 				proceed = GuiUtilities.showConfirmPopup("Confirm Overwriting File?", this);
-			}
 			
 			if (proceed)
-			{
-				BufferedWriter writer = new BufferedWriter(new FileWriter(fileName));
-	
-				try
-				{
-					XYSeries series = this.xyDataset.getSeries(this.scanIndex);
-					XYSeries seriesAddInfo1 = this.xyDatasetAddInfo1.getSeries(this.scanIndex);
-					XYSeries seriesAddInfo2 = this.xyDatasetAddInfo2.getSeries(this.scanIndex);
-	
-					this.writeDataFileHeading(series, writer);
-					writer.newLine();
-	
-					int nItems = series.getItemCount();
-	
-					for (int index = 0; index < nItems; index++)
-					{
-						writer.write(GuiUtilities.parseDouble(series.getX(index).doubleValue()).trim() + " "
-						    + (this.isOrdinateInteger() ? series.getY(index).intValue() : series.getY(index).doubleValue()) + " "
-						    + String.format(getAdditionalInfo1Format(), seriesAddInfo1.getY(index).doubleValue()) + " "
-						    + String.format(getAdditionalInfo2Format(), seriesAddInfo2.getY(index).doubleValue()));
-						writer.newLine();
-					}
-	
-					writer.flush();
-				}
-				catch (IllegalArgumentException e)
-				{
-					throw new RuntimeException(e);
-				}
-				finally
-				{
-					writer.close();
-				}
-			}
+				this.writeScanFile(fileName);
 		}
 		catch (IllegalArgumentException e)
 		{
-
 		}
 	}
 
@@ -2896,53 +2860,12 @@ public class ScanPanel extends MeasureListener implements ActionListener
 			boolean proceed = true;
 			
 			File file = new File(fileName);
+			
 			if (file.exists())
-			{
 				proceed = GuiUtilities.showConfirmPopup("Confirm Overwriting File?", this);
-			}
 			
 			if (proceed)
-			{
-
-				BufferedWriter writer = new BufferedWriter(new FileWriter(fileName));
-
-				try
-				{
-	
-					for (int seriesIndex = 0; seriesIndex < 3; seriesIndex++)
-					{
-						XYSeries series = this.xyDataset.getSeries(seriesIndex);
-						XYSeries seriesAddInfo1 = this.xyDatasetAddInfo1.getSeries(seriesIndex);
-						XYSeries seriesAddInfo2 = this.xyDatasetAddInfo2.getSeries(seriesIndex);
-	
-						this.writeDataFileHeading(series, writer);
-						writer.newLine();
-	
-						int nItems = series.getItemCount();
-	
-						for (int index = 0; index < nItems; index++)
-						{
-							writer.write(GuiUtilities.parseDouble(series.getX(index).doubleValue()).trim() + " "
-							    + (this.isOrdinateInteger() ? series.getY(index).intValue() : series.getY(index).doubleValue()) + " "
-							    + String.format(getAdditionalInfo1Format(), seriesAddInfo1.getY(index).doubleValue()) + " "
-							    + String.format(getAdditionalInfo2Format(), seriesAddInfo2.getY(index).doubleValue()));
-							writer.newLine();
-						}
-	
-						writer.newLine();
-					}
-	
-					writer.flush();
-				}
-				catch (IllegalArgumentException e)
-				{
-					throw new RuntimeException(e);
-				}
-				finally
-				{
-					writer.close();
-				}
-			}
+				this.writeAllScanFiles(fileName);
 		}
 		catch (IllegalArgumentException e)
 		{
@@ -3538,7 +3461,7 @@ public class ScanPanel extends MeasureListener implements ActionListener
 
 	// ----------------------------------------------------------------------------
 
-	private void writeDataFileHeading(XYSeries series, BufferedWriter writer) throws IOException
+	protected void writeDataFileHeading(XYSeries series, BufferedWriter writer) throws IOException
 	{
 		String comment = FileIni.getInstance().getProperty("FileCommentString");
 
@@ -3563,6 +3486,83 @@ public class ScanPanel extends MeasureListener implements ActionListener
 
 	}
 
+	protected void writeScanFile(String fileName) throws IOException
+	{
+		BufferedWriter writer = new BufferedWriter(new FileWriter(fileName));
+		
+		try
+		{
+			XYSeries series = this.xyDataset.getSeries(this.scanIndex);
+			XYSeries seriesAddInfo1 = this.xyDatasetAddInfo1.getSeries(this.scanIndex);
+			XYSeries seriesAddInfo2 = this.xyDatasetAddInfo2.getSeries(this.scanIndex);
+
+			this.writeDataFileHeading(series, writer);
+			writer.newLine();
+
+			int nItems = series.getItemCount();
+
+			for (int index = 0; index < nItems; index++)
+			{
+				writer.write(GuiUtilities.parseDouble(series.getX(index).doubleValue()).trim() + " "
+				    + (this.isOrdinateInteger() ? series.getY(index).intValue() : series.getY(index).doubleValue()) + " "
+				    + String.format(getAdditionalInfo1Format(), seriesAddInfo1.getY(index).doubleValue()) + " "
+				    + String.format(getAdditionalInfo2Format(), seriesAddInfo2.getY(index).doubleValue()));
+				writer.newLine();
+			}
+
+			writer.flush();
+		}
+		catch (IllegalArgumentException e)
+		{
+			throw new RuntimeException(e);
+		}
+		finally
+		{
+			writer.close();
+		}
+	}
+
+	protected void writeAllScanFiles(String fileName) throws IOException
+	{
+		BufferedWriter writer = new BufferedWriter(new FileWriter(fileName));
+
+		try
+		{
+			for (int seriesIndex = 0; seriesIndex < 3; seriesIndex++)
+			{
+				XYSeries series = this.xyDataset.getSeries(seriesIndex);
+				XYSeries seriesAddInfo1 = this.xyDatasetAddInfo1.getSeries(seriesIndex);
+				XYSeries seriesAddInfo2 = this.xyDatasetAddInfo2.getSeries(seriesIndex);
+
+				this.writeDataFileHeading(series, writer);
+				writer.newLine();
+
+				int nItems = series.getItemCount();
+
+				for (int index = 0; index < nItems; index++)
+				{
+					writer.write(GuiUtilities.parseDouble(series.getX(index).doubleValue()).trim() + " "
+					    + (this.isOrdinateInteger() ? series.getY(index).intValue() : series.getY(index).doubleValue()) + " "
+					    + String.format(getAdditionalInfo1Format(), seriesAddInfo1.getY(index).doubleValue()) + " "
+					    + String.format(getAdditionalInfo2Format(), seriesAddInfo2.getY(index).doubleValue()));
+					writer.newLine();
+				}
+
+				writer.newLine();
+			}
+
+			writer.flush();
+		}
+		catch (IllegalArgumentException e)
+		{
+			throw new RuntimeException(e);
+		}
+		finally
+		{
+			writer.close();
+		}
+	}
+	
 	/*
 	 * --------------------------------------------------------------------------
 	 * -- ----------------------------------------------------------

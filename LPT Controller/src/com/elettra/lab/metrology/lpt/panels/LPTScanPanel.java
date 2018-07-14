@@ -15,9 +15,13 @@ import java.awt.event.ActionListener;
 import java.awt.event.FocusAdapter;
 import java.awt.event.FocusEvent;
 import java.awt.image.BufferedImage;
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.util.HashMap;
+import java.util.StringTokenizer;
 
 import javax.imageio.ImageIO;
 import javax.swing.BorderFactory;
@@ -35,6 +39,7 @@ import org.jfree.data.xy.XYSeries;
 
 import com.elettra.common.io.CommunicationPortException;
 import com.elettra.common.io.ICommunicationPort;
+import com.elettra.common.utilities.FileIni;
 import com.elettra.controller.driver.listeners.MeasurePoint;
 import com.elettra.controller.driver.listeners.Progress;
 import com.elettra.controller.driver.programs.ProgramsFacade;
@@ -49,19 +54,24 @@ import com.elettra.lab.metrology.lpt.windows.LTPResidualsCalculationWindows;
 
 public class LPTScanPanel extends ScanPanel
 {
-	private static final double	HEIGHT_TO_WIDTH_RATIO	= ((double) IIDSCCD.DIM_Y / (double) IIDSCCD.DIM_X);
+	public static final String	PYTHON_FOLDER	            = "PYTHON_FOLDER";
+	public static final String	CALIBRATION_PYTHON_SCRIPT	= "CALIBRATION_PYTHON_SCRIPT";
+	public static final String	ELLIPSE_PYTHON_SCRIPT	    = "ELLIPSE_PYTHON_SCRIPT";
+	public static final String	PYTHON_EXE	              = "PYTHON_EXE";
+
+	private static final double	HEIGHT_TO_WIDTH_RATIO	    = ((double) IIDSCCD.DIM_Y / (double) IIDSCCD.DIM_X);
 
 	private JLabel	            imageLabel;
 
 	/**
 	 * 
 	 */
-	private static final long	  serialVersionUID	    = -1195319609096497524L;
+	private static final long	  serialVersionUID	        = -1195319609096497524L;
 
 	private JTextField	        centroid_x_position;
 	private JTextField	        centroid_y_position;
 	private JTextField	        numberOfCaptures;
-	protected JCheckBox	          renderCheckBox;
+	protected JCheckBox	        renderCheckBox;
 
 	private BufferedImage	      imageEnabled;
 	private BufferedImage	      imageDisabled;
@@ -271,20 +281,9 @@ public class LPTScanPanel extends ScanPanel
 
 		scanManagementPanel.add(this.numberOfCaptures, gbc_scanPanel_2);
 
-		JPanel calculationManagementPanel = new JPanel();
-		scanManagementTabbedPane.addTab("CCD Management", null, calculationManagementPanel, null);
-		scanManagementTabbedPane.setForegroundAt(1, new Color(0, 102, 51));
-		GridBagLayout gbl_calculationManagementPanel = new GridBagLayout();
-		gbl_calculationManagementPanel.columnWidths = new int[] { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
-		gbl_calculationManagementPanel.rowHeights = new int[] { 0, 0, 0 };
-		gbl_calculationManagementPanel.columnWeights = new double[] { 0.0, 1.0, 0.0, 1.0, 1.0, 0.0, 1.0, 1.0, 0.0, 1.0, Double.MIN_VALUE };
-		gbl_calculationManagementPanel.rowWeights = new double[] { 0.0, 0.0, Double.MIN_VALUE };
-		calculationManagementPanel.setLayout(gbl_calculationManagementPanel);
-
-		
 		int width = 280;
 		JPanel buttonPanel = new JPanel();
-		buttonPanel.setLayout(new GridLayout(4, 1));
+		buttonPanel.setLayout(new GridLayout(5, 1));
 		buttonPanel.setMaximumSize(new Dimension(width, 0));
 		GridBagConstraints gbc_buttonPanel = new GridBagConstraints();
 		gbc_buttonPanel.insets = new Insets(5, 10, 0, 0);
@@ -295,101 +294,168 @@ public class LPTScanPanel extends ScanPanel
 		gbc_buttonPanel.gridheight = 1;
 		add(buttonPanel, gbc_buttonPanel);
 
-		
-		JButton buttonTemp = new JButton("Launch Python Script");
+		JButton buttonTemp = new JButton("Launch Generic Python Script");
 		buttonTemp.setPreferredSize(new Dimension(width, 30));
 		buttonPanel.add(buttonTemp);
-		
+
 		buttonTemp.addActionListener(new ActionListener()
 		{
-			
 			@Override
 			public void actionPerformed(ActionEvent e)
-			{	
-				
+			{
+
 				try
-        {
-					String fileName = GuiUtilities.showDatFileChooser("./data", null, "myscan.dat");
-					
-	        (new ProcessBuilder(
-	        		"C:\\Users\\lorenzo.raimondi\\AppData\\Local\\Programs\\Python\\Python36\\pythonw.exe", 
-	        		"C:\\Users\\lorenzo.raimondi\\Desktop\\LTP Controller\\Files\\slope_handle.py", 
-	        		fileName, References.getInstance().get(References.LTP_X_0))).start();
-        }
-        catch (IOException e1)
-        {
-	        // TODO Auto-generated catch block
-	        e1.printStackTrace();
-        }
+				{
+					if (scanIndex >= 0)
+					{
+						String pythonExe = FileIni.getInstance().getProperty(PYTHON_EXE);
+						String pythonFolder = FileIni.getInstance().getProperty(PYTHON_FOLDER);
+						String fileIn = pythonFolder + "input_generic.dat";
+						String fileOut = pythonFolder + "output_generic.dat";
+						String pythonScript = GuiUtilities.showPythonFileChooser(pythonFolder, null, "*.py");
+
+						if (!pythonScript.isEmpty())
+						{
+							String content = launchPythonScript(pythonExe, pythonScript, fileIn, fileOut, 1);
+
+							if (content.contains("Exception") || content.contains("Error"))
+								GuiUtilities.showErrorPopup("Python Script Failed: \n" + content, null);
+						}
+					}
+					else
+						GuiUtilities.showErrorPopup("No Scan to analyze", null);
+				}
+				catch (IOException e1)
+				{
+					e1.printStackTrace();
+				}
+			}
+		});
+
+		JButton buttonCalibration = new JButton("Launch Calibration Script");
+		buttonCalibration.setPreferredSize(new Dimension(width, 30));
+		buttonPanel.add(buttonCalibration);
+
+		buttonCalibration.addActionListener(new ActionListener()
+		{
+			@Override
+			public void actionPerformed(ActionEvent e)
+			{
+
+				try
+				{
+					if (scanIndex >= 0)
+					{
+						String pythonExe = FileIni.getInstance().getProperty(PYTHON_EXE);
+						String pythonFolder = FileIni.getInstance().getProperty(PYTHON_FOLDER);
+						String fileIn = pythonFolder + "input_calibration.dat";
+						String fileOut = pythonFolder + "output_calibration.dat";
+						String pythonScript = pythonFolder + FileIni.getInstance().getProperty(CALIBRATION_PYTHON_SCRIPT);
+
+						String content = launchPythonScript(pythonExe, pythonScript, fileIn, fileOut, 0);
+
+						if (content.contains("Exception") || content.contains("Error"))
+							GuiUtilities.showErrorPopup("Python Script Failed: \n" + content, null);
+						else
+						{
+							HashMap<String, double[]> outmap = getRMSFromFile(fileOut);
+							HashMap<String, double[]> outmap_bessy = getRMSFromFile(fileOut + ".bessy.dat");
+
+							outmap.put("x_b", outmap_bessy.get("x"));
+							outmap.put("rms_s_b", outmap_bessy.get("rms_s"));
+							outmap.put("rms_h_b", outmap_bessy.get("rms_h"));
+							outmap.put("headers_b", outmap_bessy.get("headers"));
+
+							LTPResidualsCalculationWindows.getInstance(null, LTPResidualsCalculationWindows.KindOfCurve.CALIBRATION, outmap).setVisible(true);
+						}
+					}
+					else
+						GuiUtilities.showErrorPopup("No Scan to analyze", null);
+				}
+				catch (IOException e1)
+				{
+					e1.printStackTrace();
+				}
 			}
 		});
 
 		JButton buttonSphere = new JButton("Launch Residual Calculations (Sphere)");
 		buttonSphere.setPreferredSize(new Dimension(width, 30));
 		buttonPanel.add(buttonSphere);
-		
+
 		buttonSphere.addActionListener(new ActionListener()
 		{
-			
+
 			@Override
 			public void actionPerformed(ActionEvent e)
-			{	
+			{
 				try
-        {
+				{
 					if (scanIndex >= 0)
 						LTPResidualsCalculationWindows.getInstance(null, LTPResidualsCalculationWindows.KindOfCurve.SPHERE, getCurrentSlopes()).setVisible(true);
 					else
 						GuiUtilities.showErrorPopup("No Scan to analyze", null);
-        }
-        catch (IOException e1)
-        {
-	        // TODO Auto-generated catch block
-	        e1.printStackTrace();
-        }
+				}
+				catch (IOException e1)
+				{
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
 			}
 		});
 
 		JButton buttonEllipse = new JButton("Launch Residual Calculations (Ellipse)");
 		buttonEllipse.setPreferredSize(new Dimension(width, 30));
 		buttonPanel.add(buttonEllipse);
-				
+
 		buttonEllipse.addActionListener(new ActionListener()
 		{
-			
+
 			@Override
 			public void actionPerformed(ActionEvent e)
-			{	
+			{
 				try
-        {
-					LTPResidualsCalculationWindows.getInstance(null, LTPResidualsCalculationWindows.KindOfCurve.ELLIPSE, null).setVisible(true);
-        }
-        catch (IOException e1)
-        {
-	        // TODO Auto-generated catch block
-	        e1.printStackTrace();
-        }
+				{
+					String pythonExe = FileIni.getInstance().getProperty(PYTHON_EXE);
+					String pythonFolder = FileIni.getInstance().getProperty(PYTHON_FOLDER);
+					String fileIn = pythonFolder + "input_ellipse.dat";
+					String fileOut = pythonFolder + "output_ellipse.dat";
+					String pythonScript = pythonFolder + FileIni.getInstance().getProperty(ELLIPSE_PYTHON_SCRIPT);
+
+					String content = launchPythonScript(pythonExe, pythonScript, fileIn, fileOut, 0);
+
+					if (content.contains("Exception") || content.contains("Error"))
+						GuiUtilities.showErrorPopup("Python Script Failed: \n" + content, null);
+					else
+						LTPResidualsCalculationWindows.getInstance(null, LTPResidualsCalculationWindows.KindOfCurve.ELLIPSE, getRMSFromFile(fileOut)).setVisible(true);
+				}
+				catch (IOException e1)
+				{
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
 			}
 		});
 
 		JButton buttonEllipseFixed = new JButton("Launch Residual Calculations (Fixed Ellipse)");
 		buttonEllipseFixed.setPreferredSize(new Dimension(width, 30));
 		buttonPanel.add(buttonEllipseFixed);
-				
+
 		buttonEllipseFixed.addActionListener(new ActionListener()
 		{
-			
+
 			@Override
 			public void actionPerformed(ActionEvent e)
-			{	
+			{
 				try
-        {
-					LTPResidualsCalculationWindows.getInstance(null, LTPResidualsCalculationWindows.KindOfCurve.ELLIPSE_FIXED, null).setVisible(true);
-        }
-        catch (IOException e1)
-        {
-	        // TODO Auto-generated catch block
-	        e1.printStackTrace();
-        }
+				{
+					LTPResidualsCalculationWindows.getInstance(null, LTPResidualsCalculationWindows.KindOfCurve.ELLIPSE_FIXED, getCurrentSlopes()).setVisible(true);
+				}
+				catch (IOException e1)
+				{
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
 			}
 		});
 	}
@@ -502,6 +568,92 @@ public class LPTScanPanel extends ScanPanel
 		    + GuiUtilities.parseDouble(((Double) point.getCustomData(LPTScanProgram.Y_STANDARD_DEVIATION)).doubleValue(), 1, true));
 	}
 
+	private String launchPythonScript(String pythonExe, String pythonScript, String fileIn, String fileOut, int showPlot) throws IOException
+	{
+		writeScanFile(fileIn);
+
+		ProcessBuilder processBuilder = new ProcessBuilder(pythonExe, pythonScript, fileIn, References.getInstance().get(References.LTP_X_0), References
+		    .getInstance().get(References.LTP_Y_0), References.getInstance().get(References.FOCAL_DISTANCE), String.valueOf(showPlot), fileOut);
+
+		Process process = processBuilder.start();
+
+		BufferedReader reader = new BufferedReader(new InputStreamReader(process.getErrorStream()));
+
+		String content = "";
+		String row = reader.readLine();
+
+		while (row != null)
+		{
+			content += row + "\n";
+			row = reader.readLine();
+		}
+
+		reader.close();
+		return content;
+	}
+
+	private HashMap<String, double[]> getRMSFromFile(String fileName) throws IOException
+	{
+		BufferedReader reader = new BufferedReader(new FileReader(fileName));
+
+		String header = reader.readLine();
+
+		StringTokenizer tokenizer = new StringTokenizer(header, "=");
+		tokenizer.nextToken();
+		int nHeader = Integer.parseInt(tokenizer.nextToken());
+
+		String points = reader.readLine();
+		tokenizer = new StringTokenizer(points, "=");
+		tokenizer.nextToken();
+		int nPoints = Integer.parseInt(tokenizer.nextToken());
+
+		double[] headers = new double[nHeader];
+
+		String row = null;
+
+		for (int i = 0; i < nHeader; i++)
+		{
+			row = reader.readLine().trim();
+
+			tokenizer = new StringTokenizer(row, "=");
+			tokenizer.nextToken();
+			headers[i] = Double.parseDouble(tokenizer.nextToken());
+		}
+
+		double[] x = new double[nPoints];
+		double[] rms_s = new double[nPoints];
+		double[] rms_h = new double[nPoints];
+
+		for (int index = 0; index < nPoints; index++)
+		{
+			row = reader.readLine();
+
+			if (row != null)
+			{
+				row = row.trim();
+
+				if (!(row.isEmpty()))
+				{
+					tokenizer = new StringTokenizer(row, ",");
+
+					x[index] = Double.parseDouble(tokenizer.nextToken());
+					rms_s[index] = Double.parseDouble(tokenizer.nextToken());
+					rms_h[index] = Double.parseDouble(tokenizer.nextToken());
+				}
+			}
+		}
+
+		reader.close();
+
+		HashMap<String, double[]> data = new HashMap<>();
+		data.put("x", x);
+		data.put("rms_s", rms_s);
+		data.put("rms_h", rms_h);
+		data.put("headers", headers);
+
+		return data;
+	}
+
 	private HashMap<String, double[]> getCurrentSlopes()
 	{
 		XYSeries series = this.xyDataset.getSeries(this.scanIndex);
@@ -509,12 +661,12 @@ public class LPTScanPanel extends ScanPanel
 		XYSeries seriesAddInfo2 = this.xyDatasetAddInfo2.getSeries(this.scanIndex);
 
 		int nItem = series.getItemCount();
-				
+
 		double[] x = new double[nItem];
 		double[] y = new double[nItem];
 		double[] xc = new double[nItem];
 		double[] yc = new double[nItem];
-		
+
 		for (int index = 0; index < nItem; index++)
 		{
 			x[index] = series.getX(index).doubleValue();
@@ -522,17 +674,16 @@ public class LPTScanPanel extends ScanPanel
 			xc[index] = seriesAddInfo1.getY(index).doubleValue();
 			yc[index] = seriesAddInfo2.getY(index).doubleValue();
 		}
-	
+
 		HashMap<String, double[]> currentSlopes = new HashMap<>();
 		currentSlopes.put("x", x);
 		currentSlopes.put("y", y);
 		currentSlopes.put("xc", xc);
 		currentSlopes.put("yc", yc);
-		
+
 		return currentSlopes;
 	}
-	
-	
+
 	class LPTScanThread extends ScanPanel.ScanThread
 	{
 		public LPTScanThread(LPTScanPanel panel)
@@ -575,21 +726,4 @@ public class LPTScanPanel extends ScanPanel
 			return LPTScanProgram.PROGRAM_NAME;
 		}
 	}
-	
-	public static void main(String args[])
-	{
-		try
-    {
-      (new ProcessBuilder(
-      		"C:\\Users\\lorenzo.raimondi\\AppData\\Local\\Programs\\Python\\Python36\\pythonw.exe", 
-      		"C:\\Users\\lorenzo.raimondi\\Desktop\\slope_handle.py", "doublet_new24.dat")).start();
-    }
-    catch (IOException e1)
-    {
-      // TODO Auto-generated catch block
-      e1.printStackTrace();
-    }
-
-	}
-	
 }
