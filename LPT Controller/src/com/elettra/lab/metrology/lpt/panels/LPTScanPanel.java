@@ -310,8 +310,8 @@ public class LPTScanPanel extends ScanPanel
 					{
 						String pythonExe = FileIni.getInstance().getProperty(PYTHON_EXE);
 						String pythonFolder = FileIni.getInstance().getProperty(PYTHON_FOLDER);
-						String fileIn = pythonFolder + "input_generic.dat";
-						String fileOut = pythonFolder + "output_generic.dat";
+						String fileIn = pythonFolder + "input" + File.separator + "input_generic.dat";
+						String fileOut = pythonFolder + "output" + File.separator +  "output_generic.dat";
 						String pythonScript = GuiUtilities.showPythonFileChooser(pythonFolder, null, "*.py");
 
 						if (!pythonScript.isEmpty())
@@ -348,8 +348,8 @@ public class LPTScanPanel extends ScanPanel
 					{
 						String pythonExe = FileIni.getInstance().getProperty(PYTHON_EXE);
 						String pythonFolder = FileIni.getInstance().getProperty(PYTHON_FOLDER);
-						String fileIn = pythonFolder + "input_calibration.dat";
-						String fileOut = pythonFolder + "output_calibration.dat";
+						String fileIn = pythonFolder + "input" + File.separator +  "input_calibration.dat";
+						String fileOut = pythonFolder + "output" + File.separator +  "output_calibration.dat";
 						String pythonScript = pythonFolder + FileIni.getInstance().getProperty(CALIBRATION_PYTHON_SCRIPT);
 
 						String content = launchPythonScript(pythonExe, pythonScript, fileIn, fileOut, 0);
@@ -418,8 +418,8 @@ public class LPTScanPanel extends ScanPanel
 				{
 					String pythonExe = FileIni.getInstance().getProperty(PYTHON_EXE);
 					String pythonFolder = FileIni.getInstance().getProperty(PYTHON_FOLDER);
-					String fileIn = pythonFolder + "input_ellipse.dat";
-					String fileOut = pythonFolder + "output_ellipse.dat";
+					String fileIn = pythonFolder + "input" + File.separator +  "input_ellipse.dat";
+					String fileOut = pythonFolder + "output" + File.separator +  "output_ellipse.dat";
 					String pythonScript = pythonFolder + FileIni.getInstance().getProperty(ELLIPSE_PYTHON_SCRIPT);
 
 					String content = launchPythonScript(pythonExe, pythonScript, fileIn, fileOut, 0);

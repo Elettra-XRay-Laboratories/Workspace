@@ -21,6 +21,7 @@ import com.elettra.controller.gui.panels.EmergencyStopPanel;
 import com.elettra.controller.gui.panels.MovePanel;
 import com.elettra.controller.gui.windows.AbstractGenericFrame;
 import com.elettra.lab.metrology.lpt.Axis;
+import com.elettra.lab.metrology.lpt.panels.LPTThreeMotorsMovePanel;
 import com.elettra.lab.metrology.lpt.panels.LiveCCDPanel;
 
 public class LTPAlignementThroughLiveCCDWindow extends AbstractGenericFrame
@@ -44,14 +45,24 @@ public class LTPAlignementThroughLiveCCDWindow extends AbstractGenericFrame
 
 		this.setIconImage(ImageIO.read(new File("ltpcontroller.jpg")));
 
-		this.setBounds(0, 0, 1920, 900);
+		this.setBounds(0, 0, 2230, 900);
 
 		GridBagLayout gridBagLayout = new GridBagLayout();
-		gridBagLayout.columnWidths = new int[] { 860, 1045};
+		gridBagLayout.columnWidths = new int[] { 860, 1055, 300};
 		gridBagLayout.rowHeights = new int[] { 0 };
-		gridBagLayout.columnWeights = new double[] { 0.0, 0.0};
+		gridBagLayout.columnWeights = new double[] { 0.0, 0.0, 0.0};
 		gridBagLayout.rowWeights = new double[] { 1.0 };
 		getContentPane().setLayout(gridBagLayout);
+
+		JPanel movePanel10 = new JPanel();
+		movePanel10.setBorder(new BevelBorder(BevelBorder.LOWERED, null, null, null, null));
+		GridBagConstraints gbc_movePanel10 = new GridBagConstraints();
+		gbc_movePanel10.insets = new Insets(10, 0, 5, 5);
+		gbc_movePanel10.fill = GridBagConstraints.BOTH;
+		gbc_movePanel10.gridx = 2;
+		gbc_movePanel10.gridy = 0;
+		getContentPane().add(movePanel10, gbc_movePanel10);
+		movePanel10.add(new LPTThreeMotorsMovePanel(Axis.MOTOR1, Axis.MOTOR2, Axis.MOTOR4, this.getPort()));
 
 		JPanel leftPanel = new JPanel();
 
