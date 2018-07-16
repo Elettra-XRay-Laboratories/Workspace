@@ -104,7 +104,7 @@ for i in range(0,x.size):
     y_fit[i]=(-bb+np.sqrt(bb**2-4*cc*aa))/(2.0*aa);
 
 # NOT WORKING!!!!!
-#y_fit = y_fit.diff(x)
+y_fit = np.gradient(y_fit, x)
 
 ################
 # TODO
@@ -114,7 +114,7 @@ b_ellipse = 630 # mm
 ################
 
 tilt = np.average(z)*1000000
-slope_error = (z - y_fit)*1000000
+slope_error = ((z - tilt) - y_fit)*1000000
 RMS = np.sqrt((np.sum(slope_error**2.))/len(slope_error))
 Radius = 1/coefs[0]
 
