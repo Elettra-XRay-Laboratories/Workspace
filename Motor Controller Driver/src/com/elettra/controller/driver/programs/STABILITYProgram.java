@@ -13,10 +13,12 @@ import com.elettra.controller.driver.programs.ProgramsFacade.Programs;
 
 public class STABILITYProgram extends ShutterActivatorProgram
 {
-	private static HashMap<String, StabilityScan> scanConfiguration;
+	protected HashMap<String, StabilityScan> scanConfiguration;
 
-	static
+	public STABILITYProgram(String programName)
 	{
+		super(programName);
+
 		scanConfiguration = new HashMap<String, StabilityScan>();
 
 		scanConfiguration.put(StabilityDurations.TEN_MIN, new StabilityScan(12));
@@ -29,11 +31,6 @@ public class STABILITYProgram extends ShutterActivatorProgram
 		scanConfiguration.put(StabilityDurations.TWO_DAYS, new StabilityScan(3450));
 		scanConfiguration.put(StabilityDurations.THREE_DAYS, new StabilityScan(5180));
 		scanConfiguration.put(StabilityDurations.TEN_DAYS, new StabilityScan(17280));
-	}
-
-	public STABILITYProgram(String programName)
-	{
-		super(programName);
 	}
 
 	public STABILITYProgram()
@@ -61,7 +58,7 @@ public class STABILITYProgram extends ShutterActivatorProgram
 			this.openShutter();
 
 			MeasureParameters countParameters = new MeasureParameters(scanParameters.getAxis(), scanParameters.getListener());
-			countParameters.setScanTime(StabilityScan.STEP_DURATION);
+			countParameters.setScanTime(stabilityScan.getStepDuration());
 
 			Progress progress = new Progress();
 
@@ -76,7 +73,7 @@ public class STABILITYProgram extends ShutterActivatorProgram
 
 					this.doMeasure(port, scanParameters, result, scanActualPosition, countParameters, progress, dumper);
 
-					scanActualPosition += StabilityScan.STEP_DURATION;
+					scanActualPosition += stabilityScan.getStepDuration();
 				}
 
 				if (!scanParameters.getListener().isStopScanActivated(scanParameters.getAxis()))

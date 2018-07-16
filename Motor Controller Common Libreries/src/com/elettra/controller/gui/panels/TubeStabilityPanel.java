@@ -77,7 +77,9 @@ public class TubeStabilityPanel extends MeasureListener implements
 	private XYPlot plotAI1;
 	private XYPlot plotAI2;
 
-	private static final int STABILILTY_FAKE_AXIS = 999;
+	protected static final int STABILILTY_FAKE_AXIS = 999;
+
+	protected JTabbedPane scanGraphTabbedPane;
 
 	public TubeStabilityPanel(ICommunicationPort port)
 			throws CommunicationPortException {
@@ -92,7 +94,7 @@ public class TubeStabilityPanel extends MeasureListener implements
 		gridBagLayout.rowWeights = new double[] { 1.0, 0.2 };
 		setLayout(gridBagLayout);
 
-		JTabbedPane scanGraphTabbedPane = new JTabbedPane(JTabbedPane.TOP);
+		scanGraphTabbedPane = new JTabbedPane(JTabbedPane.TOP);
 		GridBagConstraints gbc_scanGraphTabbedPane = new GridBagConstraints();
 		gbc_scanGraphTabbedPane.insets = new Insets(10, 0, 5, 0);
 		gbc_scanGraphTabbedPane.fill = GridBagConstraints.BOTH;
@@ -866,7 +868,7 @@ public class TubeStabilityPanel extends MeasureListener implements
 	private String getScanMessage() {
 		String message = "Confirm activation of the scan, with the following parameters:\n\n";
 
-		message += "DURATION: " + this.scanTimeComboBox.getSelectedItem();
+		message += "DURATION: " + this.getScanTimeComboBox().getSelectedItem();
 
 		return message;
 	}
@@ -875,7 +877,7 @@ public class TubeStabilityPanel extends MeasureListener implements
 
 	private void writeDataFileHeading(XYSeries series, BufferedWriter writer)
 			throws IOException {
-		writer.write("!DURATION: " + this.scanTimeComboBox.getSelectedItem());
+		writer.write("!DURATION: " + this.getScanTimeComboBox().getSelectedItem());
 		writer.newLine();
 		writer.write("!---------------------------------------------------------------------------------");
 		writer.newLine();
@@ -898,8 +900,19 @@ public class TubeStabilityPanel extends MeasureListener implements
 		return new ScanThread(this);
 	}
 
-	protected class ScanThread extends Thread {
-		private TubeStabilityPanel panel;
+	public JComboBox<String> getScanTimeComboBox()
+  {
+	  return scanTimeComboBox;
+  }
+
+	public ICommunicationPort getPort()
+  {
+	  return port;
+  }
+
+
+	public class ScanThread extends Thread {
+		protected TubeStabilityPanel panel;
 
 		public ScanThread(TubeStabilityPanel panel) {
 			this.panel = panel;
@@ -909,16 +922,22 @@ public class TubeStabilityPanel extends MeasureListener implements
 			try {
 				StabilityParameters scanParameters = new StabilityParameters(
 						STABILILTY_FAKE_AXIS, ListenerRegister.getInstance());
-				scanParameters.setScanDuration((String) panel.scanTimeComboBox
+				scanParameters.setScanDuration((String) panel.getScanTimeComboBox()
 						.getSelectedItem());
-
+				
+				this.addCustomParameters(scanParameters);
+				
 				ProgramsFacade.executeProgram(getScanProgramName(),
-						scanParameters, panel.port);
+						scanParameters, panel.getPort());
 			} catch (Exception exception) {
 				GuiUtilities.showErrorPopup(exception.getMessage(), this.panel);
 			}
 		}
 
+		protected void addCustomParameters(StabilityParameters scanParameters)
+		{
+		}
+		
 		protected String getScanProgramName() {
 			return ProgramsFacade.Programs.STABILITY;
 		}

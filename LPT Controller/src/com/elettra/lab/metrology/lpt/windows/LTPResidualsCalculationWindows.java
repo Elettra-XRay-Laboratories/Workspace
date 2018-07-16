@@ -9,11 +9,14 @@ import java.awt.HeadlessException;
 import java.awt.Insets;
 import java.awt.RenderingHints;
 import java.awt.event.ActionEvent;
+import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.Vector;
 
 import javax.imageio.ImageIO;
 import javax.swing.JButton;
@@ -33,10 +36,14 @@ import org.jfree.chart.plot.XYPlot;
 import org.jfree.chart.renderer.xy.XYLineAndShapeRenderer;
 import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
+import org.jfree.util.ArrayUtilities;
 
 import com.elettra.common.io.ICommunicationPort;
+import com.elettra.common.utilities.FileIni;
+import com.elettra.controller.driver.listeners.MeasurePoint;
 import com.elettra.controller.gui.common.GuiUtilities;
 import com.elettra.controller.gui.windows.AbstractGenericFrame;
+import com.elettra.lab.metrology.lpt.panels.LPTScanPanel;
 import com.elettra.lab.metrology.lpt.panels.References;
 
 public class LTPResidualsCalculationWindows extends AbstractGenericFrame
@@ -475,6 +482,8 @@ public class LTPResidualsCalculationWindows extends AbstractGenericFrame
 			this.calculateSphere();
 		else if (this.kindOfCurve == KindOfCurve.ELLIPSE)
 			this.populateEllipse();
+		else if (this.kindOfCurve == KindOfCurve.ELLIPSE_FIXED)
+			this.calculateEllipseFixed();
 		else if (this.kindOfCurve == KindOfCurve.CALIBRATION)
 			this.populateCalibration();
 
@@ -662,6 +671,114 @@ public class LTPResidualsCalculationWindows extends AbstractGenericFrame
 	}
 
 	@SuppressWarnings("unchecked")
+	private void calculateEllipseFixed() throws NumberFormatException, IOException
+	{
+		this.resetPanel();
+
+		HashMap<String, double[]> ellipseParameters = (HashMap<String, double[]>) this.parameters;
+
+		double[] x = ellipseParameters.get("x");
+		double[] z = ellipseParameters.get("y");
+		double[] h = new double[x.length];
+
+		String pythonFolder = FileIni.getInstance().getProperty(LPTScanPanel.PYTHON_FOLDER);
+		String ellipseFile = GuiUtilities.showDatFileChooser(pythonFolder, null, "ellipse_fixed.dat");
+
+		if (!ellipseFile.isEmpty())
+		{
+			this.loadFixedEllipse(ellipseFile, ellipseParameters);
+
+			double[] se = ellipseParameters.get("se");
+
+			SimpleRegression regression = new SimpleRegression();
+
+			for (int index = 0; index < x.length; index++)
+				regression.addData(x[index], z[index]);
+
+			double fitSlope = regression.getSlope();
+
+			double[] slopeError = new double[x.length];
+			double tilt = sum(z, z.length) / z.length;
+			double tilt_e = sum(se, se.length) / se.length;
+
+			for (int index = 0; index < x.length; index++)
+				slopeError[index] = ((z[index] - tilt) - (se[index] - tilt_e)) * 1000000; // to
+
+			this.slopeErrorRms.setText(GuiUtilities.parseDouble(Math.sqrt(squareSum(slopeError) / slopeError.length)));
+			this.radiusOfCurvature.setText(GuiUtilities.parseDouble(1 / fitSlope));
+			this.tiltValue.setText(GuiUtilities.parseDouble(tilt * 1000000));
+
+			double dx = (x[1] - x[0]) * 1e6; // to nm
+
+			for (int index = 0; index < x.length; index++)
+				h[index] = dx * (sum(slopeError, index) / 1000000);
+
+			this.figureErrorRms.setText(GuiUtilities.parseDouble(Math.sqrt(squareSum(h) / h.length)));
+
+			plotData(x, slopeError, this.xyDataset_slope.getSeries(0), plot_slope, x[0], x[x.length - 1], slopeError[0], slopeError[0]);
+			plotData(x, h, this.xyDataset_figure.getSeries(0), plot_figure, x[0], x[x.length - 1], h[0], h[0]);
+		}
+		else
+		{
+			this.dispose();
+			this.setVisible(false);
+		}
+	}
+
+	private void loadFixedEllipse(String ellipseFile, HashMap<String, double[]> ellipseParameters) throws IOException
+	{
+		BufferedReader reader = new BufferedReader(new FileReader(ellipseFile));
+
+		String row = reader.readLine();
+
+		Vector<Double> xe_v = new Vector<>();
+		Vector<Double> se_v = new Vector<>();
+
+		while (row != null)
+		{
+			row = row.trim();
+
+			if (!(row.isEmpty() || row.startsWith("!")))
+			{
+				MeasurePoint measurePoint = new MeasurePoint(row);
+
+				xe_v.add(Double.valueOf(measurePoint.getX()));
+				se_v.add(Double.valueOf(measurePoint.getMeasure()));
+			}
+
+			row = reader.readLine();
+		}
+
+		reader.close();
+
+		double[] x = ellipseParameters.get("x");
+
+		if (x.length != xe_v.size())
+			throw new IllegalArgumentException("Scan and Fixed Ellipse data file should have the same number of points");
+
+		double[] xe = toPrimitive(xe_v.toArray(new Double[xe_v.size()]));
+		double[] se = toPrimitive(se_v.toArray(new Double[xe_v.size()]));
+
+		if (((int) x[0] != (int) xe[0]) && ((int) x[x.length - 1] != (int) xe[xe.length - 1]))
+			throw new IllegalArgumentException("Scan and Fixed Ellipse data do not have the same x range");
+
+		ellipseParameters.put("xe", xe);
+		ellipseParameters.put("se", se);
+	}
+
+	private double[] toPrimitive(Double[] array)
+	{
+		double[] outArray = new double[array.length];
+
+		for (int i = 0; i < array.length; i++)
+			outArray[i] = array[i].doubleValue();
+
+		return outArray;
+	}
+
+	// ------------------------------------------------------------------------------------------
+
+	@SuppressWarnings("unchecked")
 	private void calculateSphere() throws NumberFormatException, IOException
 	{
 		this.resetPanel();
@@ -669,23 +786,8 @@ public class LTPResidualsCalculationWindows extends AbstractGenericFrame
 		HashMap<String, double[]> sphereParameters = (HashMap<String, double[]>) this.parameters;
 
 		double[] x = sphereParameters.get("x");
-		double[] xc = sphereParameters.get("xc");
-
-		double focalDistance = Double.parseDouble(References.getInstance().get(References.FOCAL_DISTANCE));
-		double x0 = Double.parseDouble(References.getInstance().get(References.LTP_X_0));
-
-		double b = 0.0;
-		double[] correction = new double[x.length];
-		double[] z = new double[x.length];
+		double[] z = sphereParameters.get("y");
 		double[] h = new double[x.length];
-
-		// TODO: add calculation of correction
-
-		for (int index = 0; index < x.length; index++)
-		{
-			b = (xc[index] - x0) / 1000;
-			z[index] = 0.5 * Math.atan(b / focalDistance) - correction[index];
-		}
 
 		SimpleRegression regression = new SimpleRegression();
 
@@ -705,9 +807,11 @@ public class LTPResidualsCalculationWindows extends AbstractGenericFrame
 			slopeError[index] = (z[index] - yfit) * 1000000; // to urad
 		}
 
+		double tilt = (sum(z, z.length) / z.length);
+
 		this.slopeErrorRms.setText(GuiUtilities.parseDouble(Math.sqrt(squareSum(slopeError) / slopeError.length)));
 		this.radiusOfCurvature.setText(GuiUtilities.parseDouble(1 / fitSlope));
-		this.tiltValue.setText(GuiUtilities.parseDouble((sum(z, z.length) / z.length) * 1000000));
+		this.tiltValue.setText(GuiUtilities.parseDouble(tilt * 1000000));
 
 		double dx = (x[1] - x[0]) * 1e6; // to nm
 

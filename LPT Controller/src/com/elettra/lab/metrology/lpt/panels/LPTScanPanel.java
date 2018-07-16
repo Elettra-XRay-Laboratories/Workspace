@@ -311,7 +311,7 @@ public class LPTScanPanel extends ScanPanel
 						String pythonExe = FileIni.getInstance().getProperty(PYTHON_EXE);
 						String pythonFolder = FileIni.getInstance().getProperty(PYTHON_FOLDER);
 						String fileIn = pythonFolder + "input" + File.separator + "input_generic.dat";
-						String fileOut = pythonFolder + "output" + File.separator +  "output_generic.dat";
+						String fileOut = pythonFolder + "output" + File.separator + "output_generic.dat";
 						String pythonScript = GuiUtilities.showPythonFileChooser(pythonFolder, null, "*.py");
 
 						if (!pythonScript.isEmpty())
@@ -348,8 +348,8 @@ public class LPTScanPanel extends ScanPanel
 					{
 						String pythonExe = FileIni.getInstance().getProperty(PYTHON_EXE);
 						String pythonFolder = FileIni.getInstance().getProperty(PYTHON_FOLDER);
-						String fileIn = pythonFolder + "input" + File.separator +  "input_calibration.dat";
-						String fileOut = pythonFolder + "output" + File.separator +  "output_calibration.dat";
+						String fileIn = pythonFolder + "input" + File.separator + "input_calibration.dat";
+						String fileOut = pythonFolder + "output" + File.separator + "output_calibration.dat";
 						String pythonScript = pythonFolder + FileIni.getInstance().getProperty(CALIBRATION_PYTHON_SCRIPT);
 
 						String content = launchPythonScript(pythonExe, pythonScript, fileIn, fileOut, 0);
@@ -398,7 +398,6 @@ public class LPTScanPanel extends ScanPanel
 				}
 				catch (IOException e1)
 				{
-					// TODO Auto-generated catch block
 					e1.printStackTrace();
 				}
 			}
@@ -416,22 +415,26 @@ public class LPTScanPanel extends ScanPanel
 			{
 				try
 				{
-					String pythonExe = FileIni.getInstance().getProperty(PYTHON_EXE);
-					String pythonFolder = FileIni.getInstance().getProperty(PYTHON_FOLDER);
-					String fileIn = pythonFolder + "input" + File.separator +  "input_ellipse.dat";
-					String fileOut = pythonFolder + "output" + File.separator +  "output_ellipse.dat";
-					String pythonScript = pythonFolder + FileIni.getInstance().getProperty(ELLIPSE_PYTHON_SCRIPT);
+					if (scanIndex >= 0)
+					{
+						String pythonExe = FileIni.getInstance().getProperty(PYTHON_EXE);
+						String pythonFolder = FileIni.getInstance().getProperty(PYTHON_FOLDER);
+						String fileIn = pythonFolder + "input" + File.separator + "input_ellipse.dat";
+						String fileOut = pythonFolder + "output" + File.separator + "output_ellipse.dat";
+						String pythonScript = pythonFolder + FileIni.getInstance().getProperty(ELLIPSE_PYTHON_SCRIPT);
 
-					String content = launchPythonScript(pythonExe, pythonScript, fileIn, fileOut, 0);
+						String content = launchPythonScript(pythonExe, pythonScript, fileIn, fileOut, 0);
 
-					if (content.contains("Exception") || content.contains("Error"))
-						GuiUtilities.showErrorPopup("Python Script Failed: \n" + content, null);
+						if (content.contains("Exception") || content.contains("Error"))
+							GuiUtilities.showErrorPopup("Python Script Failed: \n" + content, null);
+						else
+							LTPResidualsCalculationWindows.getInstance(null, LTPResidualsCalculationWindows.KindOfCurve.ELLIPSE, getRMSFromFile(fileOut)).setVisible(true);
+					}
 					else
-						LTPResidualsCalculationWindows.getInstance(null, LTPResidualsCalculationWindows.KindOfCurve.ELLIPSE, getRMSFromFile(fileOut)).setVisible(true);
+						GuiUtilities.showErrorPopup("No Scan to analyze", null);
 				}
 				catch (IOException e1)
 				{
-					// TODO Auto-generated catch block
 					e1.printStackTrace();
 				}
 			}
@@ -449,7 +452,10 @@ public class LPTScanPanel extends ScanPanel
 			{
 				try
 				{
-					LTPResidualsCalculationWindows.getInstance(null, LTPResidualsCalculationWindows.KindOfCurve.ELLIPSE_FIXED, getCurrentSlopes()).setVisible(true);
+					if (scanIndex >= 0)
+						LTPResidualsCalculationWindows.getInstance(null, LTPResidualsCalculationWindows.KindOfCurve.ELLIPSE_FIXED, getCurrentSlopes()).setVisible(true);
+					else
+						GuiUtilities.showErrorPopup("No Scan to analyze", null);
 				}
 				catch (IOException e1)
 				{

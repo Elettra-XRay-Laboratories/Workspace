@@ -48,6 +48,7 @@ import com.elettra.lab.metrology.lpt.commands.ThreeMotorsSTOPCommand;
 import com.elettra.lab.metrology.lpt.encoder.EncoderReaderFactory;
 import com.elettra.lab.metrology.lpt.programs.LPTLiveCCDProgram;
 import com.elettra.lab.metrology.lpt.programs.LPTMOVEProgram;
+import com.elettra.lab.metrology.lpt.programs.LPTSTABILITYProgram;
 import com.elettra.lab.metrology.lpt.programs.LPTScanProgram;
 import com.elettra.lab.metrology.lpt.programs.LPTThreeMotorsMOVEProgram;
 import com.elettra.lab.metrology.lpt.programs.ThreeMotorsMoveParameters;
@@ -55,6 +56,7 @@ import com.elettra.lab.metrology.lpt.windows.LTPAlignementThroughLiveCCDWindow;
 import com.elettra.lab.metrology.lpt.windows.LTPAlignementThroughScanWindow;
 import com.elettra.lab.metrology.lpt.windows.LTPControllerCrashRecoveryWindow;
 import com.elettra.lab.metrology.lpt.windows.LTPSlopeErrorMeasurementWindow;
+import com.elettra.lab.metrology.lpt.windows.LTPStabilityScanWindow;
 
 public class Main extends AbstractCommunicationPortFrame implements ActionListener
 {
@@ -84,6 +86,7 @@ public class Main extends AbstractCommunicationPortFrame implements ActionListen
 		private static final String	LTP_ALIGNEMENT_THROUGH_LIVE_CCD	= "INDIVIDUAL_ALIGNEMENT";
 		private static final String	LTP_ALIGNEMENT_THROUGH_SCAN		  = "FREE_MOVEMENTS_AND_SCANS";
 		private static final String	SLOPE_ERROR_SCAN		            = "SLOPE_ERROR_SCAN";
+		private static final String	STABILITY_SCAN          		    = "STABILITY_SCAN";
 		private static final String	CONTROLLER_CRASH_RECOVERY		    = "CONTROLLER_CRASH_RECOVERY";
 	}
 
@@ -243,6 +246,18 @@ public class Main extends AbstractCommunicationPortFrame implements ActionListen
 			gbl_supportOperationsPanel.rowWeights = new double[] { 1.0, Double.MIN_VALUE };
 			supportOperationsPanel.setLayout(gbl_supportOperationsPanel);
 
+			JButton stabilityCrashButton = new JButton("STABILITY SCAN");
+			stabilityCrashButton.addActionListener(this);
+			stabilityCrashButton.setActionCommand(ActionCommands.STABILITY_SCAN);
+			stabilityCrashButton.setFont(new Font("Tahoma", Font.PLAIN, 14));
+			GridBagConstraints gbc_stabilityCrashButton = new GridBagConstraints();
+			gbc_stabilityCrashButton.insets = new Insets(10, 5, 5, 5);
+			gbc_stabilityCrashButton.fill = GridBagConstraints.BOTH;
+			gbc_stabilityCrashButton.gridx = 0;
+			gbc_stabilityCrashButton.gridy = 0;
+			supportOperationsPanel.add(stabilityCrashButton, gbc_stabilityCrashButton);
+			supportOperationsTabbedPane.setForegroundAt(0, new Color(0, 102, 51));
+
 			JButton recoveryCrashButton = new JButton("RECOVERY CRASH OF THE CONTROLLER");
 			recoveryCrashButton.addActionListener(this);
 			recoveryCrashButton.setActionCommand(ActionCommands.CONTROLLER_CRASH_RECOVERY);
@@ -251,7 +266,7 @@ public class Main extends AbstractCommunicationPortFrame implements ActionListen
 			gbc_recoveryCrashButton.insets = new Insets(10, 5, 5, 5);
 			gbc_recoveryCrashButton.fill = GridBagConstraints.BOTH;
 			gbc_recoveryCrashButton.gridx = 0;
-			gbc_recoveryCrashButton.gridy = 0;
+			gbc_recoveryCrashButton.gridy = 1;
 			supportOperationsPanel.add(recoveryCrashButton, gbc_recoveryCrashButton);
 			supportOperationsTabbedPane.setForegroundAt(0, new Color(0, 102, 51));
 
@@ -355,6 +370,8 @@ public class Main extends AbstractCommunicationPortFrame implements ActionListen
 				LTPAlignementThroughLiveCCDWindow.getInstance(this.getPort()).setVisible(true);
 			else if (eventName.equals(ActionCommands.SLOPE_ERROR_SCAN))
 				LTPSlopeErrorMeasurementWindow.getInstance(this.getPort()).setVisible(true);
+			else if (eventName.equals(ActionCommands.STABILITY_SCAN))
+				LTPStabilityScanWindow.getInstance(this.getPort()).setVisible(true);
 			else if (eventName.equals(ActionCommands.CONTROLLER_CRASH_RECOVERY))
 				LTPControllerCrashRecoveryWindow.getInstance(this.getPort()).setVisible(true);
 			else if (eventName.equals("TEST"))
@@ -438,6 +455,7 @@ public class Main extends AbstractCommunicationPortFrame implements ActionListen
 			ProgramsFacade.addCustomCommand(new LPTMOVEProgram());
 			ProgramsFacade.addCustomCommand(new LPTLiveCCDProgram());
 			ProgramsFacade.addCustomCommand(new LPTThreeMotorsMOVEProgram());
+			ProgramsFacade.addCustomCommand(new LPTSTABILITYProgram());
 			
 			CommandsFacade.addCustomCommand(new ThreeMotorsSTOPCommand());
 		}

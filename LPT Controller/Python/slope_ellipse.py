@@ -56,41 +56,30 @@ file_out = sys.argv[6]
 
 ########################################################
 
-
 file00 = open(filename, 'r')
 slopes = file00.readlines()[10:]
 
 gamma = np.pi/2 + 0# angolo di inclinazione ccd
 x = []
-l = []
-y = []
-corr = []
+z = []
+
 for line in (slopes):
     columns = line.split()
     x.append(float(columns[0]))
-    y.append(float(columns[1]))
-    l.append(float(columns[2]))
+    z.append(float(columns[1]))
 file00.close()
 
 x = np.array(x)
-y = np.array(y)
-l = np.array(l)
-
-b=(l-x0)/1000
-
-corr = ((x-max(x)/2)**2*(-2.36e-9))
-corr =0.# corr+(max(corr)-min(corr))/2
-
-z = np.double(0.5*np.arctan(b/f))-corr
+z = np.array(z)
 h = np.zeros(len(z))
 
 coefs = np.polyfit(x, z, 1)
 p = np.poly1d(coefs)
 
-yy=integrate.cumtrapz(z,x,initial=0);
+yy=integrate.cumtrapz(z, x, initial=0);
     
 # Subtract line
-line = (yy[yy.size-1]-y[0])/(x[x.size-1]-x[0])*(x-x[0])+yy[0];
+line = (yy[yy.size-1]-z[0])/(x[x.size-1]-x[0])*(x-x[0])+yy[0];
 yy=yy-line;
     
 a = fit_ellipseFitzgibbon(x, yy).flatten()
@@ -113,16 +102,22 @@ a_ellipse = 130000 # mm
 b_ellipse = 630 # mm
 ################
 
-tilt = np.average(z)*1000000
-slope_error = ((z - tilt) - y_fit)*1000000
-RMS = np.sqrt((np.sum(slope_error**2.))/len(slope_error))
-Radius = 1/coefs[0]
+tilt_fit = np.average(y_fit)
+tilt = np.average(z)
+
+slope_error = ((z-tilt) - (y_fit-tilt_fit))
 
 dx = x[1] - x[0]
 for i in range(len(h)):
-	h[i] = dx*sum(1/1000000*slope_error[0:i])
+	h[i] = dx*sum(slope_error[0:i])
 
-RMSH = np.sqrt((np.sum(h**2.))/len(h))*1e6
+slope_error *= 1000000
+tilt *= 1000000
+h *= 1e6
+
+RMS = np.sqrt((np.sum(slope_error**2.))/len(slope_error))
+RMSH = np.sqrt((np.sum(h**2.))/len(h))
+Radius = 1/coefs[0]
 
 print('RMS(urad) = %0.4f'%RMS)
 print('RMSH(nm) = %0.4f'%RMSH)

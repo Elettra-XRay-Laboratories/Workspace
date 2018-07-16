@@ -47,25 +47,16 @@ slopes = file00.readlines()[10:]
 
 gamma = np.pi/2 + 0# angolo di inclinazione ccd
 x = []
-l = []
-y = []
-corr = []
+z = []
+
 for line in (slopes):
     columns = line.split()
     x.append(float(columns[0]))
-    y.append(float(columns[1]))
-    l.append(float(columns[2]))
+    z.append(float(columns[1]))
 file00.close()
 x = np.array(x)
-y = np.array(y)
-l = np.array(l)
+z = np.array(z)
 
-b=(l-x0)/1000
-
-corr = ((x-max(x)/2)**2*(-2.36e-9))
-corr =0.# corr+(max(corr)-min(corr))/2
-
-z = np.double(0.5*np.arctan(b/f))-corr
 h = np.zeros(len(z))
 hh = np.zeros(len(yy))
 
@@ -73,19 +64,23 @@ coefs = np.polyfit(x, z, 1)
 p = np.poly1d(coefs)
 yfit = np.polyval(p,x)
 
-tilt = np.average(z)*1000000
-slope_error = (z - yfit)*1000000
+slope_error = (z - yfit)
+
 RMS = np.sqrt((np.sum(slope_error**2.))/len(slope_error))
 Radius = 1/coefs[0]
 RMSb = np.sqrt((np.sum(yy**2.))/len(yy))
 
 dx = x[1] - x[0]
 for i in range(len(h)):
-	h[i] = dx*sum(1/1000000*slope_error[0:i])*1e6
+	h[i] = dx*sum(slope_error[0:i])
 
 dxx = xx[1] - xx[0]
 for i in range(len(hh)):
-	hh[i] = dxx*sum(1/1000000*yy[0:i])*1e6	
+	hh[i] = dxx*sum(yy[0:i])	
+
+tilt = np.average(z)*1000000
+slope_error *= 1000000
+h *= 1e6
 
 RMSH = np.sqrt((np.sum(h**2.))/len(h))
 RMSHb = np.sqrt((np.sum(hh**2.))/len(hh))
