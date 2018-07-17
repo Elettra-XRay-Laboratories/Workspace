@@ -25,11 +25,14 @@ import java.util.StringTokenizer;
 
 import javax.imageio.ImageIO;
 import javax.swing.BorderFactory;
+import javax.swing.DefaultComboBoxModel;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
+import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JSlider;
 import javax.swing.JTabbedPane;
 import javax.swing.JTextField;
 import javax.swing.SwingConstants;
@@ -52,6 +55,7 @@ import com.elettra.lab.metrology.lpt.Axis;
 import com.elettra.lab.metrology.lpt.programs.LPTScanProgram;
 import com.elettra.lab.metrology.lpt.windows.LTPResidualsCalculationWindows;
 
+@SuppressWarnings({ "unchecked", "rawtypes" })
 public class LPTScanPanel extends ScanPanel
 {
 	public static final String	PYTHON_FOLDER	            = "PYTHON_FOLDER";
@@ -72,6 +76,8 @@ public class LPTScanPanel extends ScanPanel
 	private JTextField	        centroid_y_position;
 	private JTextField	        numberOfCaptures;
 	protected JCheckBox	        renderCheckBox;
+	private JSlider	            gainSlider;
+	private JComboBox	          colorModeCombo;
 
 	private BufferedImage	      imageEnabled;
 	private BufferedImage	      imageDisabled;
@@ -116,9 +122,9 @@ public class LPTScanPanel extends ScanPanel
 		GridBagLayout panelGridBagLayout = new GridBagLayout();
 
 		panelGridBagLayout.columnWidths = new int[] { 60, 100 };
-		panelGridBagLayout.rowHeights = new int[] { 10, 210, 20, 20 };
+		panelGridBagLayout.rowHeights = new int[] { 10, 210, 20, 20, 20, 20 };
 		panelGridBagLayout.columnWeights = new double[] { 0, 0 };
-		panelGridBagLayout.rowWeights = new double[] { 0, 0, 0, 0 };
+		panelGridBagLayout.rowWeights = new double[] { 0, 0, 0, 0, 0, 0 };
 
 		imagePanel.setLayout(panelGridBagLayout);
 
@@ -210,6 +216,66 @@ public class LPTScanPanel extends ScanPanel
 
 		imagePanel.add(this.centroid_y_position, gbc_imagePanel_5);
 
+		GridBagConstraints gbc_colorModeLabel = new GridBagConstraints();
+		gbc_colorModeLabel.insets = new Insets(10, 5, 0, 5);
+		gbc_colorModeLabel.anchor = GridBagConstraints.EAST;
+		gbc_colorModeLabel.fill = GridBagConstraints.HORIZONTAL;
+		gbc_colorModeLabel.gridx = 0;
+		gbc_colorModeLabel.gridy = 4;
+		imagePanel.add(new JLabel("Color Mode"), gbc_colorModeLabel);
+
+		this.colorModeCombo = new JComboBox();
+		this.colorModeCombo.setModel(new DefaultComboBoxModel(IDSCCDColorModes.get_values()));
+		this.colorModeCombo.setSelectedIndex(1);
+		this.colorModeCombo.setMaximumRowCount(3);
+
+		GridBagConstraints gbc_colorModeCombo = new GridBagConstraints();
+		gbc_colorModeCombo.insets = new Insets(10, 5, 0, 5);
+		gbc_colorModeCombo.anchor = GridBagConstraints.WEST;
+		gbc_colorModeCombo.fill = GridBagConstraints.HORIZONTAL;
+		gbc_colorModeCombo.gridx = 1;
+		gbc_colorModeCombo.gridy = 4;
+		imagePanel.add(this.colorModeCombo, gbc_colorModeCombo);
+
+		JPanel sliderPanel = new JPanel();
+		GridBagLayout gbl_sliderPanel = new GridBagLayout();
+		gbl_sliderPanel.columnWidths = new int[] { 0, 0 };
+		gbl_sliderPanel.rowHeights = new int[] { 0 };
+		gbl_sliderPanel.columnWeights = new double[] { 0.1, 0.9 };
+		gbl_sliderPanel.rowWeights = new double[] { 0.0 };
+		sliderPanel.setLayout(gbl_sliderPanel);
+
+		GridBagConstraints gbc_sliderPanel = new GridBagConstraints();
+		gbc_sliderPanel.insets = new Insets(0, 5, 0, 5);
+		gbc_sliderPanel.anchor = GridBagConstraints.EAST;
+		gbc_sliderPanel.fill = GridBagConstraints.HORIZONTAL;
+		gbc_sliderPanel.gridx = 0;
+		gbc_sliderPanel.gridy = 5;
+		gbc_sliderPanel.gridwidth = 2;
+		imagePanel.add(sliderPanel, gbc_sliderPanel);
+
+		GridBagConstraints gbc_gainLabel = new GridBagConstraints();
+		gbc_gainLabel.insets = new Insets(0, 5, 0, 5);
+		gbc_gainLabel.anchor = GridBagConstraints.EAST;
+		gbc_gainLabel.fill = GridBagConstraints.HORIZONTAL;
+		gbc_gainLabel.gridx = 0;
+		gbc_gainLabel.gridy = 0;
+		sliderPanel.add(new JLabel("Gain"), gbc_gainLabel);
+
+		this.gainSlider = new JSlider(0, 100);
+		this.gainSlider.setMajorTickSpacing(10);
+		this.gainSlider.setPaintTicks(true);
+		this.gainSlider.setPaintLabels(true);
+		this.gainSlider.setValue(0);
+
+		GridBagConstraints gbc_gainSlider = new GridBagConstraints();
+		gbc_gainSlider.insets = new Insets(0, 5, 0, 5);
+		gbc_gainSlider.anchor = GridBagConstraints.NORTHEAST;
+		gbc_gainSlider.fill = GridBagConstraints.HORIZONTAL;
+		gbc_gainSlider.gridx = 1;
+		gbc_gainSlider.gridy = 0;
+		sliderPanel.add(this.gainSlider, gbc_gainSlider);
+
 		JTabbedPane scanManagementTabbedPane = new JTabbedPane(JTabbedPane.TOP);
 		GridBagConstraints gbc_scanManagementTabbedPane = new GridBagConstraints();
 		gbc_scanManagementTabbedPane.insets = new Insets(5, 10, 0, 0);
@@ -225,7 +291,7 @@ public class LPTScanPanel extends ScanPanel
 		scanManagementTabbedPane.setForegroundAt(0, new Color(0, 102, 51));
 		GridBagLayout gbl_scanManagementPanel = new GridBagLayout();
 		gbl_scanManagementPanel.columnWidths = new int[] { 0, 0 };
-		gbl_scanManagementPanel.rowHeights = new int[] { 0, };
+		gbl_scanManagementPanel.rowHeights = new int[] { 0 };
 		gbl_scanManagementPanel.columnWeights = new double[] { 0.1, 0.9 };
 		gbl_scanManagementPanel.rowWeights = new double[] { 0.0 };
 		scanManagementPanel.setLayout(gbl_scanManagementPanel);
@@ -325,9 +391,9 @@ public class LPTScanPanel extends ScanPanel
 					else
 						GuiUtilities.showErrorPopup("No Scan to analyze", null);
 				}
-				catch (IOException e1)
+				catch (Exception e1)
 				{
-					e1.printStackTrace();
+					GuiUtilities.showErrorPopup(e1.getMessage(), null);
 				}
 			}
 		});
@@ -372,9 +438,9 @@ public class LPTScanPanel extends ScanPanel
 					else
 						GuiUtilities.showErrorPopup("No Scan to analyze", null);
 				}
-				catch (IOException e1)
+				catch (Exception e1)
 				{
-					e1.printStackTrace();
+					GuiUtilities.showErrorPopup(e1.getMessage(), null);
 				}
 			}
 		});
@@ -396,9 +462,9 @@ public class LPTScanPanel extends ScanPanel
 					else
 						GuiUtilities.showErrorPopup("No Scan to analyze", null);
 				}
-				catch (IOException e1)
+				catch (Exception e1)
 				{
-					e1.printStackTrace();
+					GuiUtilities.showErrorPopup(e1.getMessage(), null);
 				}
 			}
 		});
@@ -433,9 +499,9 @@ public class LPTScanPanel extends ScanPanel
 					else
 						GuiUtilities.showErrorPopup("No Scan to analyze", null);
 				}
-				catch (IOException e1)
+				catch (Exception e1)
 				{
-					e1.printStackTrace();
+					GuiUtilities.showErrorPopup(e1.getMessage(), null);
 				}
 			}
 		});
@@ -457,10 +523,9 @@ public class LPTScanPanel extends ScanPanel
 					else
 						GuiUtilities.showErrorPopup("No Scan to analyze", null);
 				}
-				catch (IOException e1)
+				catch (Exception e1)
 				{
-					// TODO Auto-generated catch block
-					e1.printStackTrace();
+					GuiUtilities.showErrorPopup(e1.getMessage(), null);
 				}
 			}
 		});
@@ -525,7 +590,7 @@ public class LPTScanPanel extends ScanPanel
 
 	protected String getAdditionalInfo1Name()
 	{
-		return "Centroid X Position (um)";
+		return "Centroid X Position (\u03bcm)";
 	}
 
 	protected String getAdditionaInfo2TabName()
@@ -535,7 +600,7 @@ public class LPTScanPanel extends ScanPanel
 
 	protected String getAdditionalInfo2Name()
 	{
-		return "Centroid Y Position (um)";
+		return "Centroid Y Position (\u03bcm)";
 	}
 
 	protected String getAdditionalInfo1Format()
@@ -720,7 +785,10 @@ public class LPTScanPanel extends ScanPanel
 
 		protected void addCustomParameters(ScanParameters scanParameters)
 		{
-			scanParameters.addCustomParameter(LPTScanProgram.COLOR_MODE, IDSCCDColorModes.IS_CM_MONO8);
+
+			scanParameters.addCustomParameter(LPTScanProgram.COLOR_MODE,
+			    IDSCCDColorModes.get_from_index(((LPTScanPanel) super.panel).colorModeCombo.getSelectedIndex()));
+			scanParameters.addCustomParameter(LPTScanProgram.GAIN, ((LPTScanPanel) super.panel).gainSlider.getValue());
 			scanParameters.addCustomParameter(LPTScanProgram.DIM_X, IIDSCCD.DIM_X);
 			scanParameters.addCustomParameter(LPTScanProgram.DIM_Y, IIDSCCD.DIM_Y);
 			scanParameters.addCustomParameter(LPTScanProgram.NUMBER_OF_CAPTURES, Integer.parseInt(((LPTScanPanel) super.panel).numberOfCaptures.getText()));

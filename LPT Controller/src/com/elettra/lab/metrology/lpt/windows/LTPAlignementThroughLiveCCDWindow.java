@@ -173,12 +173,10 @@ public class LTPAlignementThroughLiveCCDWindow extends AbstractGenericFrame
 
 		// --------------------------------------------------------------------
 
-
 		liveCCDPanel = new JPanel();
 		liveCCDPanel.setBorder(BorderFactory.createBevelBorder(BevelBorder.LOWERED));
 		liveCCDPanel.setBounds(new Rectangle(0, 0, 1150, 845));
 		liveCCDPanel.add(new LiveCCDPanel());
-
 
 		GridBagConstraints gbc_rightPanel = new GridBagConstraints();
 		gbc_rightPanel.fill = GridBagConstraints.BOTH;

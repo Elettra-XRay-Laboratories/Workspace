@@ -62,9 +62,9 @@ public class LiveCCDPanel extends MeasureListener
 	private JTextField	        centroid_y_position;
 	private JTextField	        centroid_x_fwhm;
 	private JTextField	        centroid_y_fwhm;
-	private JSlider             gainSlider;
-	private JComboBox           colorModeCombo;
-	
+	private JSlider	            gainSlider;
+	private JComboBox	          colorModeCombo;
+
 	private boolean	            acquire;
 
 	private JButton	            buttonSave;
@@ -231,7 +231,6 @@ public class LiveCCDPanel extends MeasureListener
 		gbc_colorModeCombo.gridx = 1;
 		gbc_colorModeCombo.gridy = 3;
 		scanManagementPanel.add(this.colorModeCombo, gbc_colorModeCombo);
-		
 
 		GridBagConstraints gbc_gainLabel = new GridBagConstraints();
 		gbc_gainLabel.insets = new Insets(0, 5, 0, 5);
@@ -245,6 +244,7 @@ public class LiveCCDPanel extends MeasureListener
 		this.gainSlider.setMajorTickSpacing(10);
 		this.gainSlider.setPaintTicks(true);
 		this.gainSlider.setPaintLabels(true);
+		this.gainSlider.setValue(0);
 
 		GridBagConstraints gbc_gainSlider = new GridBagConstraints();
 		gbc_gainSlider.insets = new Insets(0, 5, 0, 5);
@@ -255,8 +255,6 @@ public class LiveCCDPanel extends MeasureListener
 		gbc_gainSlider.gridy = 4;
 		scanManagementPanel.add(this.gainSlider, gbc_gainSlider);
 
-	
-		
 		JTabbedPane positioningTabbedPane = new JTabbedPane(JTabbedPane.TOP);
 		GridBagConstraints gbc_positioningTabbedPane = new GridBagConstraints();
 		gbc_positioningTabbedPane.insets = new Insets(0, 5, 0, 5);
@@ -271,7 +269,7 @@ public class LiveCCDPanel extends MeasureListener
 		positioningTabbedPane.setForegroundAt(0, new Color(0, 102, 51));
 		GridBagLayout gbl_positioningPanel = new GridBagLayout();
 		gbl_positioningPanel.columnWidths = new int[] { 0, 0 };
-		gbl_positioningPanel.rowHeights = new int[] { 0, 0, 0, 0, 0};
+		gbl_positioningPanel.rowHeights = new int[] { 0, 0, 0, 0, 0 };
 		gbl_positioningPanel.columnWeights = new double[] { 0, 0 };
 		gbl_positioningPanel.rowWeights = new double[] { 0.0, 0.0, 0.0, 0.0, 0.0 };
 		positioningPanel.setLayout(gbl_positioningPanel);
@@ -471,14 +469,14 @@ public class LiveCCDPanel extends MeasureListener
 				{
 					ScanParameters scanParameters = new ScanParameters(Axis.CCD, ListenerRegister.getInstance());
 					scanParameters.setPanel(this.panel);
-					
+
 					scanParameters.addCustomParameter(LPTLiveCCDProgram.DIM_X, IIDSCCD.DIM_X);
 					scanParameters.addCustomParameter(LPTLiveCCDProgram.DIM_Y, IIDSCCD.DIM_Y);
 
 					while (panel.acquire)
 					{
 						scanParameters.addCustomParameter(LPTLiveCCDProgram.COLOR_MODE, IDSCCDColorModes.get_from_index(this.panel.colorModeCombo.getSelectedIndex()));
-						scanParameters.addCustomParameter(LPTLiveCCDProgram.GAIN, this.panel.gainSlider.getValue());					
+						scanParameters.addCustomParameter(LPTLiveCCDProgram.GAIN, this.panel.gainSlider.getValue());
 						scanParameters.addCustomParameter(LPTLiveCCDProgram.DRAW_MAIN_GRID, new Boolean(this.panel.drawMainCheckBox.isSelected()));
 						scanParameters.addCustomParameter(LPTLiveCCDProgram.DRAW_SECONDARY_GRID, new Boolean(this.panel.drawSecondaryCheckBox.isSelected()));
 
@@ -496,7 +494,7 @@ public class LiveCCDPanel extends MeasureListener
 			catch (Exception exception)
 			{
 				exception.printStackTrace();
-				
+
 				GuiUtilities.showErrorPopup(exception.getMessage(), this.panel);
 			}
 		}

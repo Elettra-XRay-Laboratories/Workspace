@@ -29,6 +29,7 @@ public class LTPStabilityScanWindow extends AbstractGenericFrame
 
 	private TubeStabilityPanel	stabilityPanel;
 
+
 	public static synchronized LTPStabilityScanWindow getInstance(ICommunicationPort port) throws HeadlessException, IOException
 	{
 		return new LTPStabilityScanWindow(port);
@@ -36,11 +37,11 @@ public class LTPStabilityScanWindow extends AbstractGenericFrame
 
 	private LTPStabilityScanWindow(ICommunicationPort port) throws HeadlessException, IOException
 	{
-		super("Tube Stability Test", port);
+		super("Slope Stability Test", port);
 
 		this.setIconImage(ImageIO.read(new File("ltpcontroller.jpg")));
 
-		this.setBounds(5, 5, 780, 850);
+		this.setBounds(300, 50, 1200, 860);
 
 		JPanel leftPanel = new JPanel();
 				
@@ -74,18 +75,18 @@ public class LTPStabilityScanWindow extends AbstractGenericFrame
 		JPanel movePanel5 = new JPanel();
 		leftPanel.add(movePanel5, gbc_movepanel5);
 
-		
 		GridBagLayout gbl_movePanel5 = new GridBagLayout();
 		gbl_movePanel5.columnWidths = new int[] { 0, 0 };
-		gbl_movePanel5.rowHeights = new int[] { 0, 0 };
-		gbl_movePanel5.columnWeights = new double[] { 0.6, 0.4 };
-		gbl_movePanel5.rowWeights = new double[] { 1.0, 0.02 };
+		gbl_movePanel5.rowHeights = new int[] { 0 };
+		gbl_movePanel5.columnWeights = new double[] { 0.9, 0.1 };
+		gbl_movePanel5.rowWeights = new double[] { 1.0};
 		movePanel5.setLayout(gbl_movePanel5);
 		GridBagConstraints gbc_movepanel5inner = new GridBagConstraints();
 		gbc_movepanel5inner.insets = new Insets(5, 5, 5, 5);
 		gbc_movepanel5inner.fill = GridBagConstraints.BOTH;
 		gbc_movepanel5inner.gridx = 1;
-		gbc_movepanel5inner.gridy = 1;
+		gbc_movepanel5inner.gridy = 0;
+		gbc_movepanel5inner.gridwidth = 2;
 		
 		JButton exitButton = new JButton("EXIT");
 		exitButton.setActionCommand(CommonActionCommands.EXIT);

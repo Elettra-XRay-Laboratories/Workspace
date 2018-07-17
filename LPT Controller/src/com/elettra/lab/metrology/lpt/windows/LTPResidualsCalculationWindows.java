@@ -36,7 +36,6 @@ import org.jfree.chart.plot.XYPlot;
 import org.jfree.chart.renderer.xy.XYLineAndShapeRenderer;
 import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
-import org.jfree.util.ArrayUtilities;
 
 import com.elettra.common.io.ICommunicationPort;
 import com.elettra.common.utilities.FileIni;
@@ -44,7 +43,6 @@ import com.elettra.controller.driver.listeners.MeasurePoint;
 import com.elettra.controller.gui.common.GuiUtilities;
 import com.elettra.controller.gui.windows.AbstractGenericFrame;
 import com.elettra.lab.metrology.lpt.panels.LPTScanPanel;
-import com.elettra.lab.metrology.lpt.panels.References;
 
 public class LTPResidualsCalculationWindows extends AbstractGenericFrame
 {
@@ -719,10 +717,7 @@ public class LTPResidualsCalculationWindows extends AbstractGenericFrame
 			plotData(x, h, this.xyDataset_figure.getSeries(0), plot_figure, x[0], x[x.length - 1], h[0], h[0]);
 		}
 		else
-		{
-			this.dispose();
-			this.setVisible(false);
-		}
+			throw new IllegalArgumentException("File containing the Ellipse Slope not selected");
 	}
 
 	private void loadFixedEllipse(String ellipseFile, HashMap<String, double[]> ellipseParameters) throws IOException

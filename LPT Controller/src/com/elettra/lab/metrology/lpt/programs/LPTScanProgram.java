@@ -28,34 +28,36 @@ import com.elettra.lab.metrology.lpt.panels.References;
 
 public class LPTScanProgram extends SCANProgram
 {
-	public static final String	ENCODER_POSITION	    = "ENCODER_POSITION";
-	public static final String	LAST_IMAGE	          = "LAST_IMAGE";
-	public static final String	Y	                    = "Y";
-	public static final String	X                    	= "X";
+	public static final String	ENCODER_POSITION	   = "ENCODER_POSITION";
+	public static final String	LAST_IMAGE	         = "LAST_IMAGE";
+	public static final String	Y	                   = "Y";
+	public static final String	X	                   = "X";
 	public static final String	Y_STANDARD_DEVIATION	= "Y_STANDARD_DEVIATION";
 	public static final String	X_STANDARD_DEVIATION	= "X_STANDARD_DEVIATION";
-	public static final String	PROGRAM_NAME	        = "LPT_SCAN";
+	public static final String	PROGRAM_NAME	       = "LPT_SCAN";
 
 	public static final String	COLOR_MODE	         = "COLOR_MODE";
+	public static final String	GAIN	               = "GAIN";
 	public static final String	DIM_X	               = "DIM_X";
 	public static final String	DIM_Y	               = "DIM_Y";
 	public static final String	NUMBER_OF_CAPTURES	 = "NUMBER_OF_CAPTURES";
 	public static final String	PREVIOUS_X0	         = "PREVIOUS_X0";
-  public static final String  DRAW_IMAGE           = "DRAW_IMAGE";
-  
+	public static final String	DRAW_IMAGE	         = "DRAW_IMAGE";
+
 	private IIDSCCD	           ccd;
 	private int	               numberOfCaptures;
 	private int	               dimx;
 	private int	               dimy;
 	private IDSCCDColorModes	 mode;
+	private int	               gain;
 	private double	           X0;
 	private double	           focalDistance;
-	private boolean            renderImage;
+	private boolean	           renderImage;
 
 	public LPTScanProgram() throws IDSCCDException
 	{
 		super(PROGRAM_NAME);
-		
+
 		this.dump_measure = DumpMeasure.DUMP_AT_END;
 
 		this.ccd = IDSCCDFactory.getIDSCCD();
@@ -76,13 +78,15 @@ public class LPTScanProgram extends SCANProgram
 			}
 
 			this.mode = (IDSCCDColorModes) parameters.getCustomParameter(COLOR_MODE);
+			this.gain = ((Integer) parameters.getCustomParameter(GAIN)).intValue();
 
 			this.dimx = ((Integer) parameters.getCustomParameter(DIM_X)).intValue();
 			this.dimy = ((Integer) parameters.getCustomParameter(DIM_Y)).intValue();
 			this.numberOfCaptures = ((Integer) parameters.getCustomParameter(NUMBER_OF_CAPTURES)).intValue();
 			this.renderImage = ((Boolean) parameters.getCustomParameter(DRAW_IMAGE)).booleanValue();
-			
+
 			this.ccd.setColorMode(mode);
+			this.ccd.setHardwareGain(gain);
 			this.ccd.setDisplayMode(IDSCCDDisplayModes.IS_SET_DM_DIB);
 
 			return super.execute(parameters, port);
@@ -147,7 +151,7 @@ public class LPTScanProgram extends SCANProgram
 				y_positions[index] = centroid.y;
 				average_y_position += centroid.y;
 			}
-					
+
 			average_x_position = average_x_position / this.numberOfCaptures;
 			average_y_position = average_y_position / this.numberOfCaptures;
 
@@ -165,11 +169,11 @@ public class LPTScanProgram extends SCANProgram
 			if (this.renderImage)
 			{
 				capture = ccd.buildImage(buffer, this.dimx, this.dimy);
-				
+
 				Graphics2D g = capture.createGraphics();
 				g.setColor(Color.YELLOW);
 				g.fillOval((int) average_x_position - 10, (int) average_y_position - 10, 20, 20);
-	
+
 				g.setColor(Color.WHITE);
 				g.setStroke(new BasicStroke(7, BasicStroke.CAP_BUTT, BasicStroke.JOIN_BEVEL, 0, new float[] { 9 }, 0));
 				g.drawLine(0, this.dimy / 2, this.dimx, this.dimy / 2);
@@ -184,14 +188,14 @@ public class LPTScanProgram extends SCANProgram
 			average_y_position = -(average_y_position - this.dimy / 2);
 			average_x_position *= IIDSCCD.PIXEL_SIZE;
 			average_y_position *= IIDSCCD.PIXEL_SIZE;
-						
+
 			MeasureResult result = new MeasureResult(this.calculateSlopeError(average_x_position));
-			
+
 			result.setAdditionalInformation1(Double.valueOf(average_x_position));
 			result.setAdditionalInformation2(Double.valueOf(average_y_position));
 			result.addCustomData(X, Double.valueOf(average_x_position));
 			result.addCustomData(Y, Double.valueOf(average_y_position));
-			
+
 			if (measureParameters.getAxis() == Axis.MOTOR5)
 				result.addCustomData(ENCODER_POSITION, Double.valueOf(EncoderReaderFactory.getEncoderReader().readPosition()));
 
@@ -217,7 +221,7 @@ public class LPTScanProgram extends SCANProgram
 
 	private double calculateSlopeError(double average_x_position)
 	{
-		return 0.5 * Math.atan((average_x_position-this.X0) / (this.focalDistance*1000));
+		return 0.5 * Math.atan((average_x_position - this.X0) / (this.focalDistance * 1000));
 	}
 
 	protected void openShutter() throws IOException, InterruptedException
@@ -235,10 +239,9 @@ public class LPTScanProgram extends SCANProgram
 
 		ProgramsFacade.executeProgram(LPTMOVEProgram.PROGRAM_NAME, axisMoveParameters, port);
 	}
-	
-	
+
 	public static void main(String args[])
 	{
-		System.out.println(0.5 * Math.atan((-650+449)/(249.5*1000)));
+		System.out.println(0.5 * Math.atan((-650 + 449) / (249.5 * 1000)));
 	}
 }

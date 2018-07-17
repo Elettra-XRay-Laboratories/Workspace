@@ -30,6 +30,7 @@ public class LPTSTABILITYProgram extends STABILITYProgram
 	public static final String	X_STANDARD_DEVIATION	= "X_STANDARD_DEVIATION";
 
 	public static final String	STEP_DURATION	       = "STEP_DURATION";
+	public static final String	GAIN      	         = "GAIN";	
 	public static final String	COLOR_MODE	         = "COLOR_MODE";
 	public static final String	DIM_X	               = "DIM_X";
 	public static final String	DIM_Y	               = "DIM_Y";
@@ -39,6 +40,7 @@ public class LPTSTABILITYProgram extends STABILITYProgram
 	private int	               numberOfCaptures;
 	private int	               dimx;
 	private int	               dimy;
+	private int                gain;
 	private IDSCCDColorModes	 mode;
 	private double	           X0;
 	private double	           focalDistance;
@@ -78,12 +80,14 @@ public class LPTSTABILITYProgram extends STABILITYProgram
 			}
 
 			this.mode = (IDSCCDColorModes) parameters.getCustomParameter(COLOR_MODE);
+			this.gain = ((Integer) parameters.getCustomParameter(GAIN)).intValue();
 
 			this.dimx = ((Integer) parameters.getCustomParameter(DIM_X)).intValue();
 			this.dimy = ((Integer) parameters.getCustomParameter(DIM_Y)).intValue();
 			this.numberOfCaptures = ((Integer) parameters.getCustomParameter(NUMBER_OF_CAPTURES)).intValue();
 			
 			this.ccd.setColorMode(mode);
+			this.ccd.setHardwareGain(gain);
 			this.ccd.setDisplayMode(IDSCCDDisplayModes.IS_SET_DM_DIB);
 
 			return super.execute(parameters, port);

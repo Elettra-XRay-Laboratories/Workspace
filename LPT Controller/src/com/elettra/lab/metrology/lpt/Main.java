@@ -111,7 +111,7 @@ public class Main extends AbstractCommunicationPortFrame implements ActionListen
 			gridBagLayout.columnWidths = new int[] { 0, 0 };
 			gridBagLayout.rowHeights = new int[] { 0, 0, 0, 0, 0, 0 };
 			gridBagLayout.columnWeights = new double[] { 1.0, Double.MIN_VALUE };
-			gridBagLayout.rowWeights = new double[] { 0.0, 0.4, 0.2, 0.2, 1.0, Double.MIN_VALUE };
+			gridBagLayout.rowWeights = new double[] { 0.0, 0.4, 0.2, 0.4, 1.0, Double.MIN_VALUE };
 			getContentPane().setLayout(gridBagLayout);
 
 			JPanel headPanel = new JPanel();
@@ -241,9 +241,9 @@ public class Main extends AbstractCommunicationPortFrame implements ActionListen
 			supportOperationsTabbedPane.addTab("Support Operations", null, supportOperationsPanel, null);
 			GridBagLayout gbl_supportOperationsPanel = new GridBagLayout();
 			gbl_supportOperationsPanel.columnWidths = new int[] { 0, 0 };
-			gbl_supportOperationsPanel.rowHeights = new int[] { 0, 0 };
+			gbl_supportOperationsPanel.rowHeights = new int[] { 0, 0, 0 };
 			gbl_supportOperationsPanel.columnWeights = new double[] { 1.0, Double.MIN_VALUE };
-			gbl_supportOperationsPanel.rowWeights = new double[] { 1.0, Double.MIN_VALUE };
+			gbl_supportOperationsPanel.rowWeights = new double[] { 1.0, 1.0, Double.MIN_VALUE };
 			supportOperationsPanel.setLayout(gbl_supportOperationsPanel);
 
 			JButton stabilityCrashButton = new JButton("STABILITY SCAN");
@@ -263,7 +263,7 @@ public class Main extends AbstractCommunicationPortFrame implements ActionListen
 			recoveryCrashButton.setActionCommand(ActionCommands.CONTROLLER_CRASH_RECOVERY);
 			recoveryCrashButton.setFont(new Font("Tahoma", Font.PLAIN, 14));
 			GridBagConstraints gbc_recoveryCrashButton = new GridBagConstraints();
-			gbc_recoveryCrashButton.insets = new Insets(10, 5, 5, 5);
+			gbc_recoveryCrashButton.insets = new Insets(0, 5, 5, 5);
 			gbc_recoveryCrashButton.fill = GridBagConstraints.BOTH;
 			gbc_recoveryCrashButton.gridx = 0;
 			gbc_recoveryCrashButton.gridy = 1;
