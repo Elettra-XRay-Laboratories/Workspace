@@ -365,7 +365,7 @@ public class MovePanel extends MovementListener implements ActionListener
 		
 		try
     {
-	    if (Defaults.getInstance().get(Defaults.ABS_REL).equals("A")) 
+	    if (Defaults.getInstance().get(String.valueOf(axis) + "_" + Defaults.ABS_REL).equals("A")) 
 	    {
 	  		kindOfMovementComboBox.setSelectedIndex(0);
 	    }
@@ -381,7 +381,7 @@ public class MovePanel extends MovementListener implements ActionListener
 		
 		try
     {
-	    if (Defaults.getInstance().get(Defaults.ABS_REL_ENABLED).equals("False")) 
+	    if (Defaults.getInstance().get(String.valueOf(axis) + "_" + Defaults.ABS_REL_ENABLED).equals("False")) 
 	    {
 	  		kindOfMovementComboBox.setEnabled(false);
 	    }

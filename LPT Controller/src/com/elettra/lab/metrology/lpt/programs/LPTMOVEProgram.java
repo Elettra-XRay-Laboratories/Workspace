@@ -52,7 +52,7 @@ public class LPTMOVEProgram extends AbstractProgram
 			    + DriverUtilities.controllerToNumber(new ControllerPosition(moveParameters.getSign(), moveParameters.getPosition()));
 
 			commandString += DriverUtilities.buildGalilCommand("PR" + DriverUtilities.getGalilAxis(moveParameters.getAxis()) + "="
-			    + StepConverter.toStep(moveParameters.getAxis(), moveParameters.getPosition()));
+			    + StepConverter.toStep(moveParameters.getAxis(), moveParameters.getSign().sign()*moveParameters.getPosition()));
 		}
 		else if (moveParameters.getKindOfMovement().equals(DriverUtilities.getAbsolute()))
 		{
@@ -95,7 +95,7 @@ public class LPTMOVEProgram extends AbstractProgram
 			commandString += DriverUtilities.buildGalilCommand("BG" + DriverUtilities.getGalilAxis(moveParameters.getAxis()));
 
 			new WritePort(commandString, port).start();
-
+			
 			CommandsFacade.waitForTheEndOfMovement(new CommandParameters(moveParameters.getAxis(), moveParameters.getListener()), port);
 
 			currentPosition = EncoderReaderFactory.getEncoderReader().readPosition();

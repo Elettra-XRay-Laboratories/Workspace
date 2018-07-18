@@ -87,7 +87,7 @@ public class LTPResidualsCalculationWindows extends AbstractGenericFrame
 
 	private LTPResidualsCalculationWindows(ICommunicationPort port, int kindOfCurve, Object parameters) throws HeadlessException, IOException
 	{
-		super("Residuals Calculation", port);
+		super("Residuals Calculation", port, false);
 
 		this.kindOfCurve = kindOfCurve;
 		this.parameters = parameters;

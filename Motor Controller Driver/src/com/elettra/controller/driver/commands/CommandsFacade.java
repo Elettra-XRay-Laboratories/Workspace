@@ -141,11 +141,11 @@ public final class CommandsFacade
 		{
 			while (!isMotorStopped)
 			{
+				Thread.sleep(100);
+
 				actionParameters.getListener().signalAxisMovement(actionParameters.getAxis(), port);
 				
 				String actionResponse = CommandsFacade.executeAction(Actions.REQUEST_IS_MOTOR_MOVING, actionParameters, port);
-
-				Thread.sleep(10);
 
 				isMotorStopped = CommandUtilities.isMotorStopped(actionResponse);
 			}

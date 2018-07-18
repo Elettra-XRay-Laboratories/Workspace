@@ -23,11 +23,16 @@ public abstract class AbstractGenericFrame extends AbstractCommunicationPortFram
 
 	public AbstractGenericFrame(String title, ICommunicationPort port) throws HeadlessException
 	{
+		this(title, port, true);
+	}
+
+	public AbstractGenericFrame(String title, ICommunicationPort port, boolean resetListener) throws HeadlessException
+	{
 		super(title, port);
 
 		setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
 
-		ListenerRegister.getInstance().reset();
+		if (resetListener) ListenerRegister.getInstance().reset();
 	}
 
 	public final void actionPerformed(ActionEvent event)
