@@ -8,6 +8,7 @@ import java.io.IOException;
 
 import com.elettra.common.io.CommunicationPortException;
 import com.elettra.common.io.ICommunicationPort;
+import com.elettra.common.utilities.FileIni;
 import com.elettra.controller.driver.programs.MeasureParameters;
 import com.elettra.controller.driver.programs.MeasureResult;
 import com.elettra.controller.driver.programs.MoveParameters;
@@ -235,7 +236,15 @@ public class LPTScanProgram extends SCANProgram
 
 	protected void executeMoveProgram(ICommunicationPort port, MoveParameters axisMoveParameters) throws CommunicationPortException
 	{
-		axisMoveParameters.addCustomParameter("PRECISION", 0.005);
+		try
+		{
+			axisMoveParameters.addCustomParameter(LPTMOVEProgram.PRECISION, new Double(FileIni.getInstance().getProperty("Precision")));
+			axisMoveParameters.addCustomParameter(LPTMOVEProgram.NUMBER_OF_TENTATIVES, new Integer(FileIni.getInstance().getProperty("NumberOfTentatives")));
+		}
+		catch(IOException e)
+		{
+			throw new CommunicationPortException(e.getMessage());
+		}
 
 		ProgramsFacade.executeProgram(LPTMOVEProgram.PROGRAM_NAME, axisMoveParameters, port);
 	}

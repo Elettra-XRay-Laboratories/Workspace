@@ -7,6 +7,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.FocusAdapter;
 import java.awt.event.FocusEvent;
+import java.io.IOException;
 
 import javax.swing.AbstractButton;
 import javax.swing.JCheckBox;
@@ -16,6 +17,7 @@ import javax.swing.SwingConstants;
 
 import com.elettra.common.io.CommunicationPortException;
 import com.elettra.common.io.ICommunicationPort;
+import com.elettra.common.utilities.FileIni;
 import com.elettra.common.utilities.ObjectUtilities;
 import com.elettra.controller.driver.common.ControllerPosition;
 import com.elettra.controller.driver.common.DriverUtilities;
@@ -176,7 +178,16 @@ public final class LPTMovePanel extends MovePanel implements ActionListener
 			moveParameters.setPosition(Double.parseDouble(this.position.getText()));
 
 			if (precisionCheckBox.isSelected())
-				moveParameters.addCustomParameter("PRECISION", Double.parseDouble(this.precision.getText()));
+				moveParameters.addCustomParameter(LPTMOVEProgram.PRECISION, Double.parseDouble(this.precision.getText()));
+
+			try
+			{
+				moveParameters.addCustomParameter(LPTMOVEProgram.NUMBER_OF_TENTATIVES, new Integer(FileIni.getInstance().getProperty("NumberOfTentatives")));
+			}
+			catch(IOException e)
+			{
+				throw new CommunicationPortException(e.getMessage());
+			}
 
 			new LPTStartMoveProgram(moveParameters, this.port, this).start();
 		}

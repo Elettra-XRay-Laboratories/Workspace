@@ -17,6 +17,9 @@ import com.elettra.lab.metrology.lpt.encoder.EncoderReaderFactory;
 
 public class LPTMOVEProgram extends AbstractProgram
 {
+	public static final String NUMBER_OF_TENTATIVES = "NUMBER_OF_TENTATIVES";
+	public static final String PRECISION = "PRECISION";
+	
 	public static final String	PROGRAM_NAME	= "LPT_MOVE";
 
 	public LPTMOVEProgram()
@@ -31,7 +34,8 @@ public class LPTMOVEProgram extends AbstractProgram
 
 		MoveParameters moveParameters = (MoveParameters) parameters;
 
-		Object precisionObj = moveParameters.getCustomParameter("PRECISION");
+		Double precisionObj = (Double) moveParameters.getCustomParameter(PRECISION);
+		Integer trialsObj = (Integer) moveParameters.getCustomParameter(NUMBER_OF_TENTATIVES);
 
 		AxisConfiguration axisConfiguration = DriverUtilities.getAxisConfigurationMap().getAxisConfiguration(moveParameters.getAxis());
 
@@ -74,19 +78,19 @@ public class LPTMOVEProgram extends AbstractProgram
 		{
 			CommandsFacade.waitForTheEndOfMovement(new CommandParameters(moveParameters.getAxis(), moveParameters.getListener()), port);
 
-			this.correctPosition(moveParameters, port, requestedAbsolutePosition, Math.abs(((Double) precisionObj).doubleValue()));
+			this.correctPosition(moveParameters, port, requestedAbsolutePosition, Math.abs(precisionObj.doubleValue()), trialsObj.intValue());
 		}
 		
 		return new MoveResult();
 	}
 
-	private void correctPosition(MoveParameters moveParameters, ICommunicationPort port, double requestedAbsolutePosition, double precision)
+	private void correctPosition(MoveParameters moveParameters, ICommunicationPort port, double requestedAbsolutePosition, double precision, int trials)
 	    throws CommunicationPortException
 	{
 		double currentPosition = EncoderReaderFactory.getEncoderReader().readPosition();
 		int trial = 0;
 
-		while (Math.abs(requestedAbsolutePosition - currentPosition) >= precision && trial < 2)
+		while (Math.abs(requestedAbsolutePosition - currentPosition) >= precision && trial < trials)
 		{
 			double delta = requestedAbsolutePosition - currentPosition;
 
