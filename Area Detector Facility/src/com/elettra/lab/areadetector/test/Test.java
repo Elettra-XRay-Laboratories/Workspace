@@ -45,7 +45,7 @@ public class Test
 			moveParameters.setSign(DriverUtilities.parseSign("-"));
 			moveParameters.setPosition(Double.parseDouble("5.000"));
 
-			ProgramsFacade.executeProgram(ProgramsFacade.Programs.TMMOVE, moveParameters, port);
+			ProgramsFacade.executeProgram(ProgramsFacade.Programs.TWOMMOVE, moveParameters, port);
 			
 	    port.release();
     }
